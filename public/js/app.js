@@ -304,6 +304,33 @@ function closeLightbox() {
   if (modal) modal.classList.add('hidden');
 }
 
+function openVideoModal(url, title = 'Steve Pereira Video Reel') {
+  const modal = document.getElementById('videoModal');
+  const player = document.getElementById('modalVideoPlayer');
+  const src = document.getElementById('modalVideoSrc');
+  const titleEl = document.getElementById('videoModalTitle');
+  const downloadBtn = document.getElementById('modalVideoDownloadBtn');
+
+  if (modal && player && src) {
+    src.src = url;
+    player.load();
+    player.play().catch(e => {});
+    if (titleEl) titleEl.textContent = title;
+    if (downloadBtn) {
+      downloadBtn.href = url;
+      downloadBtn.download = title.replace(/[^a-zA-Z0-9_\.-]/g, '_');
+    }
+    modal.classList.remove('hidden');
+  }
+}
+
+function closeVideoModal() {
+  const modal = document.getElementById('videoModal');
+  const player = document.getElementById('modalVideoPlayer');
+  if (player) player.pause();
+  if (modal) modal.classList.add('hidden');
+}
+
 function setLightboxImgAsBg() {
   const img = document.getElementById('lightboxImg');
   if (img && img.src) {
