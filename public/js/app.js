@@ -107,6 +107,26 @@ function toggleVideoSource(type) {
   }
 }
 
+function switchMainShowreel(url, title, poster) {
+  const player = document.getElementById('showreelPlayer');
+  const src = document.getElementById('showreelPlayerSrc');
+  const titleEl = document.getElementById('showreelMainTitle');
+  const downloadBtn = document.getElementById('showreelMainDownloadBtn');
+
+  if (player) {
+    if (poster) player.poster = poster;
+    if (src) src.src = url;
+    player.src = url;
+    player.load();
+    player.play().catch(e => {});
+    if (titleEl) titleEl.textContent = title;
+    if (downloadBtn) {
+      downloadBtn.href = url;
+      downloadBtn.download = title.replace(/[^a-zA-Z0-9_\.-]/g, '_');
+    }
+  }
+}
+
 // --------------------------------------------------------------------------
 // ABOUT STEVEP TIMELINE STORY
 // --------------------------------------------------------------------------

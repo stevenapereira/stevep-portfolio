@@ -342,25 +342,44 @@
           </div>
 
           <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-            <!-- Left Main Panel: Main Showreel Video Player ("The Central Line") -->
+            <!-- Left Main Panel: Main Video Showreel Player & Clip Selector -->
             <div class="lg:col-span-7 glass-card rounded-2xl overflow-hidden border border-slate-800 p-4 sm:p-6 space-y-4">
               <div class="aspect-video w-full rounded-xl overflow-hidden bg-black relative border border-slate-800 shadow-2xl">
                 <video id="showreelPlayer" controls class="w-full h-full object-cover" poster="public/assets/steve_still_0047.jpg" onplay="trackEvent('showreel_play')">
-                  <source src="Steve Pereira - Supervisor - The Central Line.MOV" type="video/mp4">
-                  <source src="Steve Pereira - Supervisor - The Central Line.MOV" type="video/quicktime">
+                  <source id="showreelPlayerSrc" src="assets/Steve_Pereira_Supervisor_The_Central_Line.mov" type="video/quicktime">
+                  <source src="assets/Steve_Pereira_Supervisor_The_Central_Line.mov" type="video/mp4">
                   Your browser does not support HTML5 video playback. Please view on Spotlight directly.
                 </video>
               </div>
 
-              <div class="flex flex-wrap items-center justify-between text-xs text-slate-200 gap-2">
+              <div class="flex flex-wrap items-center justify-between text-xs text-slate-200 gap-2 border-b border-slate-800/80 pb-3">
                 <div>
-                  <strong class="text-white block font-bold text-sm">Steve Pereira - "The Central Line" (Supervisor Role)</strong>
-                  <span class="text-slate-300">Featured dramatic performance on set.</span>
+                  <strong id="showreelMainTitle" class="text-white block font-bold text-sm">Steve Pereira - "The Central Line" (Supervisor Role)</strong>
+                  <span id="showreelMainDesc" class="text-slate-300">Featured dramatic performance on set.</span>
                 </div>
                 <div class="flex items-center gap-2">
-                  <a href="Steve Pereira - Supervisor - The Central Line.MOV" download class="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black flex items-center gap-1.5 transition shadow">
+                  <a id="showreelMainDownloadBtn" href="assets/Steve_Pereira_Supervisor_The_Central_Line.mov" download="Steve_Pereira_Supervisor_The_Central_Line.mov" class="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black flex items-center gap-1.5 transition shadow">
                     <i data-lucide="download" class="w-4 h-4"></i> Download Full Video
                   </a>
+                </div>
+              </div>
+
+              <!-- Quick Clip Selector Bar -->
+              <div class="space-y-1.5">
+                <span class="text-[10px] font-black text-amber-400 uppercase tracking-wider font-mono-code block">Switch Featured Reel:</span>
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+                  <button onclick="switchMainShowreel('assets/Steve_Pereira_Supervisor_The_Central_Line.mov', 'Steve Pereira - The Central Line (Supervisor Role)', 'public/assets/steve_still_0047.jpg')" class="px-2.5 py-2 rounded-xl bg-slate-900 border border-amber-500/50 hover:border-amber-400 text-amber-300 font-bold text-[10px] flex items-center justify-center gap-1 truncate shadow">
+                    <i data-lucide="play" class="w-3 h-3 text-amber-400 shrink-0"></i> The Central Line
+                  </button>
+                  <button onclick="switchMainShowreel('assets/The_Meeting_Up_to_4K.mov', '1. The Meeting - Up to 4K', 'assets/thumb_the_meeting.jpg')" class="px-2.5 py-2 rounded-xl bg-slate-900 border border-slate-800 hover:border-amber-400 text-slate-300 font-bold text-[10px] flex items-center justify-center gap-1 truncate shadow">
+                    <i data-lucide="film" class="w-3 h-3 text-amber-400 shrink-0"></i> 1. The Meeting
+                  </button>
+                  <button onclick="switchMainShowreel('assets/SteveP-Showreel.mp4', '2. SteveP-Showreel', 'assets/thumb_stevep_showreel.jpg')" class="px-2.5 py-2 rounded-xl bg-slate-900 border border-slate-800 hover:border-amber-400 text-slate-300 font-bold text-[10px] flex items-center justify-center gap-1 truncate shadow">
+                    <i data-lucide="film" class="w-3 h-3 text-amber-400 shrink-0"></i> 2. Showreel
+                  </button>
+                  <button onclick="switchMainShowreel('assets/Combat_Certificate_Training.mp4', '3. Combat Certificate Training', 'assets/thumb_combat_training.jpg')" class="px-2.5 py-2 rounded-xl bg-slate-900 border border-slate-800 hover:border-amber-400 text-slate-300 font-bold text-[10px] flex items-center justify-center gap-1 truncate shadow">
+                    <i data-lucide="film" class="w-3 h-3 text-amber-400 shrink-0"></i> 3. Combat
+                  </button>
                 </div>
               </div>
             </div>
