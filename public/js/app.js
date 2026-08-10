@@ -1101,15 +1101,49 @@ function nextStill() {
   updateStillDisplay();
 }
 
+function selectStillByIndex(idx) {
+  const stills = appData.stills || [];
+  if (idx >= 0 && idx < stills.length) {
+    currentStillIndex = idx;
+    updateStillDisplay();
+  }
+}
+
+function openLightboxCurrentStill() {
+  const stills = appData.stills || [];
+  if (stills[currentStillIndex]) {
+    openLightbox(stills[currentStillIndex].url, stills[currentStillIndex].title || '35mm Filming Location Still', stills[currentStillIndex].desc || '');
+  }
+}
+
+function renderStillsThumbStrip() {
+  const container = document.getElementById('mainStillsThumbStrip');
+  if (!container) return;
+
+  const stills = appData.stills || [];
+  container.innerHTML = stills.map((still, idx) => `
+    <button onclick="selectStillByIndex(${idx})" class="w-16 h-12 shrink-0 rounded-lg overflow-hidden border-2 ${idx === currentStillIndex ? 'border-amber-400 ring-2 ring-amber-400/50 scale-105' : 'border-slate-800 opacity-60 hover:opacity-100'} transition shadow">
+      <img src="${still.url}" alt="${still.title || '35mm Still'}" class="w-full h-full object-cover">
+    </button>
+  `).join('');
+}
+
 function updateStillDisplay() {
   const stills = appData.stills || [];
   if (stills.length === 0) return;
   const current = stills[currentStillIndex];
   if (current) {
-    document.getElementById('cinemaStillImg').src = current.url;
-    document.getElementById('cinemaStillTitle').textContent = current.title;
-    document.getElementById('cinemaStillDesc').textContent = current.desc;
-    document.getElementById('cinemaCounter').textContent = `${currentStillIndex + 1} / ${stills.length}`;
+    const imgEl = document.getElementById('cinemaStillImg');
+    const titleEl = document.getElementById('cinemaStillTitle');
+    const descEl = document.getElementById('cinemaStillDesc');
+    const counterEl = document.getElementById('cinemaCounter');
+
+    if (imgEl) imgEl.src = current.url;
+    if (titleEl) titleEl.textContent = current.title || '35mm Filming Location Still';
+    if (descEl) descEl.textContent = current.desc || 'Original 35mm lens location capture';
+    if (counterEl) counterEl.textContent = `${currentStillIndex + 1} / ${stills.length}`;
+
+    renderStillsThumbStrip();
   }
 }
 
@@ -1118,10 +1152,10 @@ function toggleReelAutoPlay() {
   if (stillAutoplayTimer) {
     clearInterval(stillAutoplayTimer);
     stillAutoplayTimer = null;
-    if (btn) btn.innerHTML = `<i data-lucide="play" class="w-4 h-4"></i> Auto-Play Reel`;
+    if (btn) btn.innerHTML = `<i data-lucide="play" class="w-4 h-4"></i> Auto-Play Slideshow`;
   } else {
     stillAutoplayTimer = setInterval(nextStill, 3000);
-    if (btn) btn.innerHTML = `<i data-lucide="pause" class="w-4 h-4"></i> Pause Reel`;
+    if (btn) btn.innerHTML = `<i data-lucide="pause" class="w-4 h-4"></i> Pause Slideshow`;
   }
   if (window.lucide) lucide.createIcons();
 }

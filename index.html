@@ -334,7 +334,7 @@
           <div class="flex items-center justify-between">
             <h2 class="text-xl font-black text-white font-cinzel flex items-center gap-2">
               <i data-lucide="film" class="w-5 h-5 text-amber-400"></i>
-              <span>Featured Acting Showreels & On-Set Production Stills</span>
+              <span>Spotlight Showreels & 35mm Filming Location Stills</span>
             </h2>
             <a href="https://app.spotlight.com/9339-8945-6183" target="_blank" class="text-xs text-amber-400 font-mono-code flex items-center gap-1 hover:underline">
               <span>View Spotlight Profile (9339-8945-6183)</span> <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
@@ -342,46 +342,57 @@
           </div>
 
           <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-            <!-- Left Main Panel: Main Video Showreel Player & Spotlight Clip Selector -->
+            <!-- Left Main Panel: Interactive 35mm Production Stills Showcase -->
             <div class="lg:col-span-7 glass-card rounded-2xl overflow-hidden border border-slate-800 p-4 sm:p-6 space-y-4">
-              <div class="aspect-video w-full rounded-xl overflow-hidden bg-black relative border border-slate-800 shadow-2xl">
-                <video id="showreelPlayer" controls class="w-full h-full object-cover" poster="assets/thumb_the_meeting.jpg" onplay="trackEvent('showreel_play')">
-                  <source id="showreelPlayerSrc" src="assets/The_Meeting_Up_to_4K.mov" type="video/mp4">
-                  <source src="assets/The_Meeting_Up_to_4K.mov" type="video/quicktime">
-                  Your browser does not support HTML5 video playback. Please view on Spotlight directly.
-                </video>
-              </div>
-
-              <div class="flex flex-wrap items-center justify-between text-xs text-slate-200 gap-2 border-b border-slate-800/80 pb-3">
+              <div class="flex items-center justify-between border-b border-slate-800/80 pb-3">
                 <div>
-                  <strong id="showreelMainTitle" class="text-white block font-bold text-sm">1. The Meeting - Up to 4K.mov</strong>
-                  <span id="showreelMainDesc" class="text-slate-300">Featured dramatic performance reel from Spotlight UK.</span>
+                  <h3 class="text-base font-black text-white font-cinzel flex items-center gap-2">
+                    <i data-lucide="camera" class="w-4 h-4 text-amber-400"></i>
+                    <span>35mm Filming Location & On-Set Stills</span>
+                  </h3>
+                  <p class="text-xs text-slate-400">High-resolution location captures & production stills</p>
                 </div>
-                <div class="flex items-center gap-2">
-                  <a id="showreelMainDownloadBtn" href="assets/The_Meeting_Up_to_4K.mov" download="The_Meeting_Up_to_4K.mov" class="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black flex items-center gap-1.5 transition shadow">
-                    <i data-lucide="download" class="w-4 h-4"></i> Download Video Reel
-                  </a>
+                <span id="cinemaCounter" class="px-3 py-1 rounded-full bg-slate-900 border border-slate-800 text-amber-400 font-mono-code font-bold text-xs shadow">1 / 11</span>
+              </div>
+
+              <!-- Main Display Still Image -->
+              <div class="aspect-video w-full rounded-xl overflow-hidden bg-black relative border border-slate-800 shadow-2xl group cursor-pointer" onclick="openLightboxCurrentStill()">
+                <img id="cinemaStillImg" src="public/assets/steve_still_0047.jpg" alt="35mm Production Still" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                <div class="absolute bottom-0 inset-x-0 bg-gradient-to-t from-slate-950/90 via-slate-950/40 to-transparent p-4 flex items-end justify-between">
+                  <div>
+                    <h4 id="cinemaStillTitle" class="text-white font-bold text-sm drop-shadow">35mm Filming Location Still</h4>
+                    <p id="cinemaStillDesc" class="text-xs text-slate-300 drop-shadow">Original 35mm lens location capture</p>
+                  </div>
+                  <span class="px-2.5 py-1 rounded bg-amber-500/90 text-slate-950 font-black text-[10px] uppercase font-mono-code">Click to Expand</span>
                 </div>
               </div>
 
-              <!-- Quick Clip Selector Bar -->
-              <div class="space-y-1.5">
-                <span class="text-[10px] font-black text-amber-400 uppercase tracking-wider font-mono-code block">Switch Featured Spotlight Reel:</span>
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
-                  <button onclick="switchMainShowreel('assets/The_Meeting_Up_to_4K.mov', '1. The Meeting - Up to 4K.mov', 'assets/thumb_the_meeting.jpg')" class="px-2.5 py-2 rounded-xl bg-slate-900 border border-amber-500/50 hover:border-amber-400 text-amber-300 font-bold text-[10px] flex items-center justify-center gap-1 truncate shadow">
-                    <i data-lucide="play" class="w-3 h-3 text-amber-400 shrink-0"></i> 1. The Meeting
+              <!-- Controls & Slideshow Bar -->
+              <div class="flex flex-wrap items-center justify-between text-xs text-slate-200 gap-2 border-t border-b border-slate-800/80 py-2.5">
+                <div class="flex items-center gap-2">
+                  <button onclick="prevStill()" class="px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-700 hover:border-amber-400 text-amber-400 font-bold flex items-center gap-1 transition">
+                    <i data-lucide="chevron-left" class="w-4 h-4"></i> Prev Still
                   </button>
-                  <button onclick="switchMainShowreel('assets/SteveP-Showreel.mp4', '2. SteveP-Showreel', 'assets/thumb_stevep_showreel.jpg')" class="px-2.5 py-2 rounded-xl bg-slate-900 border border-slate-800 hover:border-amber-400 text-slate-300 font-bold text-[10px] flex items-center justify-center gap-1 truncate shadow">
-                    <i data-lucide="film" class="w-3 h-3 text-amber-400 shrink-0"></i> 2. SteveP-Showreel
+                  <button onclick="nextStill()" class="px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-700 hover:border-amber-400 text-amber-400 font-bold flex items-center gap-1 transition">
+                    Next Still <i data-lucide="chevron-right" class="w-4 h-4"></i>
                   </button>
-                  <button onclick="switchMainShowreel('assets/Combat_Certificate_Training.mp4', '3. Combat Certificate Training', 'assets/thumb_combat_training.jpg')" class="px-2.5 py-2 rounded-xl bg-slate-900 border border-slate-800 hover:border-amber-400 text-slate-300 font-bold text-[10px] flex items-center justify-center gap-1 truncate shadow">
-                    <i data-lucide="film" class="w-3 h-3 text-amber-400 shrink-0"></i> 3. Combat Training
-                  </button>
+                </div>
+
+                <button id="reelAutoPlayBtn" onclick="toggleReelAutoPlay()" class="px-3 py-1.5 rounded-xl bg-amber-500/20 border border-amber-500/40 hover:bg-amber-500 hover:text-slate-950 text-amber-400 font-black flex items-center gap-1.5 transition">
+                  <i data-lucide="play" class="w-4 h-4"></i> Auto-Play Slideshow
+                </button>
+              </div>
+
+              <!-- Horizontal Thumbnail Strip -->
+              <div class="space-y-1">
+                <span class="text-[10px] font-black text-amber-400 uppercase tracking-wider font-mono-code block">Select 35mm Still:</span>
+                <div id="mainStillsThumbStrip" class="flex gap-2 overflow-x-auto pb-2 scrollbar-thin">
+                  <!-- Dynamically populated from appData.stills -->
                 </div>
               </div>
             </div>
 
-            <!-- Right Side Panel: Medium-Sized Video Cards with Expand Modal -->
+            <!-- Right Side Panel: Medium-Sized Spotlight Video Cards with Watch Modal -->
             <div class="lg:col-span-5 space-y-3.5">
               <div class="flex items-center justify-between border-b border-slate-800/80 pb-2">
                 <span class="text-xs font-black text-amber-400 uppercase tracking-wider font-mono-code flex items-center gap-1.5">
@@ -391,77 +402,72 @@
               </div>
 
               <!-- Video Card 1: The Meeting - Up to 4K.mov -->
-              <div class="glass-card rounded-2xl border border-slate-800 p-3 flex items-center gap-3.5 hover:border-amber-400/60 transition shadow-lg">
-                <div class="w-36 shrink-0 aspect-video rounded-xl overflow-hidden bg-slate-950 relative border border-slate-800 group cursor-pointer" onclick="openVideoModal('assets/The_Meeting_Up_to_4K.mov', '1. The Meeting - Up to 4K.mov')">
-                  <img src="assets/thumb_the_meeting.jpg" alt="1. The Meeting" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
-                  <div class="absolute inset-0 bg-slate-950/40 flex items-center justify-center group-hover:bg-amber-500/20 transition">
-                    <div class="w-9 h-9 rounded-full bg-amber-500 text-slate-950 flex items-center justify-center shadow-xl group-hover:scale-110 transition">
-                      <i data-lucide="play" class="w-4 h-4 fill-current ml-0.5"></i>
-                    </div>
-                  </div>
+              <div class="glass-card rounded-2xl border border-slate-800 p-3.5 space-y-2 hover:border-amber-400/60 transition shadow-lg">
+                <div class="flex items-center justify-between">
+                  <h4 class="font-black text-white text-xs leading-snug truncate">1. The Meeting - Up to 4K.mov</h4>
+                  <span class="px-2 py-0.5 rounded bg-slate-900 border border-slate-800 text-[10px] text-slate-400 font-mono-code font-bold shrink-0">24.6 MB</span>
+                </div>
+                
+                <div class="aspect-video w-full rounded-xl overflow-hidden bg-black relative border border-slate-800">
+                  <video controls class="w-full h-full object-cover" poster="assets/thumb_the_meeting.jpg" preload="metadata">
+                    <source src="assets/The_Meeting_Up_to_4K.mov" type="video/mp4">
+                    <source src="assets/The_Meeting_Up_to_4K.mov" type="video/quicktime">
+                  </video>
                 </div>
 
-                <div class="flex-1 min-w-0 space-y-1.5">
-                  <h4 class="font-black text-white text-xs leading-snug truncate">1. The Meeting - Up to 4K.mov</h4>
-                  <span class="inline-block px-2 py-0.5 rounded bg-slate-900 border border-slate-800 text-[10px] text-slate-400 font-mono-code font-bold">24.6 MB • 3:17 mins</span>
-                  <div class="flex flex-wrap items-center gap-1.5 pt-1">
-                    <button onclick="openVideoModal('assets/The_Meeting_Up_to_4K.mov', '1. The Meeting - Up to 4K.mov')" class="px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-700 hover:border-amber-400 text-amber-400 font-bold text-xs flex items-center gap-1 transition">
-                      <i data-lucide="maximize-2" class="w-3.5 h-3.5"></i> Expand / Watch
-                    </button>
-                    <a href="assets/The_Meeting_Up_to_4K.mov" download="The_Meeting_Up_to_4K.mov" class="px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs flex items-center gap-1 shadow transition">
-                      <i data-lucide="download" class="w-3.5 h-3.5"></i> Download
-                    </a>
-                  </div>
+                <div class="flex items-center justify-between pt-1">
+                  <button onclick="openVideoModal('assets/The_Meeting_Up_to_4K.mov', '1. The Meeting - Up to 4K.mov')" class="px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-700 hover:border-amber-400 text-amber-400 font-bold text-xs flex items-center gap-1 transition">
+                    <i data-lucide="maximize-2" class="w-3.5 h-3.5"></i> Watch Fullscreen
+                  </button>
+                  <a href="assets/The_Meeting_Up_to_4K.mov" download="The_Meeting_Up_to_4K.mov" class="px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs flex items-center gap-1 shadow transition">
+                    <i data-lucide="download" class="w-3.5 h-3.5"></i> Download
+                  </a>
                 </div>
               </div>
 
               <!-- Video Card 2: SteveP-Showreel -->
-              <div class="glass-card rounded-2xl border border-slate-800 p-3 flex items-center gap-3.5 hover:border-amber-400/60 transition shadow-lg">
-                <div class="w-36 shrink-0 aspect-video rounded-xl overflow-hidden bg-slate-950 relative border border-slate-800 group cursor-pointer" onclick="openVideoModal('assets/SteveP-Showreel.mp4', '2. SteveP-Showreel')">
-                  <img src="assets/thumb_stevep_showreel.jpg" alt="2. SteveP-Showreel" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
-                  <div class="absolute inset-0 bg-slate-950/40 flex items-center justify-center group-hover:bg-amber-500/20 transition">
-                    <div class="w-9 h-9 rounded-full bg-amber-500 text-slate-950 flex items-center justify-center shadow-xl group-hover:scale-110 transition">
-                      <i data-lucide="play" class="w-4 h-4 fill-current ml-0.5"></i>
-                    </div>
-                  </div>
+              <div class="glass-card rounded-2xl border border-slate-800 p-3.5 space-y-2 hover:border-amber-400/60 transition shadow-lg">
+                <div class="flex items-center justify-between">
+                  <h4 class="font-black text-white text-xs leading-snug truncate">2. SteveP-Showreel</h4>
+                  <span class="px-2 py-0.5 rounded bg-slate-900 border border-slate-800 text-[10px] text-slate-400 font-mono-code font-bold shrink-0">39.4 MB</span>
+                </div>
+                
+                <div class="aspect-video w-full rounded-xl overflow-hidden bg-black relative border border-slate-800">
+                  <video controls class="w-full h-full object-cover" poster="assets/thumb_stevep_showreel.jpg" preload="metadata">
+                    <source src="assets/SteveP-Showreel.mp4" type="video/mp4">
+                  </video>
                 </div>
 
-                <div class="flex-1 min-w-0 space-y-1.5">
-                  <h4 class="font-black text-white text-xs leading-snug truncate">2. SteveP-Showreel</h4>
-                  <span class="inline-block px-2 py-0.5 rounded bg-slate-900 border border-slate-800 text-[10px] text-slate-400 font-mono-code font-bold">39.4 MB • 1:01 mins</span>
-                  <div class="flex flex-wrap items-center gap-1.5 pt-1">
-                    <button onclick="openVideoModal('assets/SteveP-Showreel.mp4', '2. SteveP-Showreel')" class="px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-700 hover:border-amber-400 text-amber-400 font-bold text-xs flex items-center gap-1 transition">
-                      <i data-lucide="maximize-2" class="w-3.5 h-3.5"></i> Expand / Watch
-                    </button>
-                    <a href="assets/SteveP-Showreel.mp4" download="SteveP-Showreel.mp4" class="px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs flex items-center gap-1 shadow transition">
-                      <i data-lucide="download" class="w-3.5 h-3.5"></i> Download
-                    </a>
-                  </div>
+                <div class="flex items-center justify-between pt-1">
+                  <button onclick="openVideoModal('assets/SteveP-Showreel.mp4', '2. SteveP-Showreel')" class="px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-700 hover:border-amber-400 text-amber-400 font-bold text-xs flex items-center gap-1 transition">
+                    <i data-lucide="maximize-2" class="w-3.5 h-3.5"></i> Watch Fullscreen
+                  </button>
+                  <a href="assets/SteveP-Showreel.mp4" download="SteveP-Showreel.mp4" class="px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs flex items-center gap-1 shadow transition">
+                    <i data-lucide="download" class="w-3.5 h-3.5"></i> Download
+                  </a>
                 </div>
               </div>
 
               <!-- Video Card 3: Combat Certificate Training -->
-              <div class="glass-card rounded-2xl border border-slate-800 p-3 flex items-center gap-3.5 hover:border-amber-400/60 transition shadow-lg">
-                <div class="w-36 shrink-0 aspect-video rounded-xl overflow-hidden bg-slate-950 relative border border-slate-800 group cursor-pointer" onclick="openVideoModal('assets/Combat_Certificate_Training.mp4', '3. Combat Certificate Training')">
-                  <img src="assets/thumb_combat_training.jpg" alt="3. Combat Certificate Training" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
-                  <div class="absolute inset-0 bg-slate-950/40 flex items-center justify-center group-hover:bg-amber-500/20 transition">
-                    <div class="w-9 h-9 rounded-full bg-amber-500 text-slate-950 flex items-center justify-center shadow-xl group-hover:scale-110 transition">
-                      <i data-lucide="play" class="w-4 h-4 fill-current ml-0.5"></i>
-                    </div>
-                  </div>
+              <div class="glass-card rounded-2xl border border-slate-800 p-3.5 space-y-2 hover:border-amber-400/60 transition shadow-lg">
+                <div class="flex items-center justify-between">
+                  <h4 class="font-black text-white text-xs leading-snug truncate">3. Combat Certificate Training</h4>
+                  <span class="px-2 py-0.5 rounded bg-slate-900 border border-slate-800 text-[10px] text-slate-400 font-mono-code font-bold shrink-0">6.2 MB</span>
+                </div>
+                
+                <div class="aspect-video w-full rounded-xl overflow-hidden bg-black relative border border-slate-800">
+                  <video controls class="w-full h-full object-cover" poster="assets/thumb_combat_training.jpg" preload="metadata">
+                    <source src="assets/Combat_Certificate_Training.mp4" type="video/mp4">
+                  </video>
                 </div>
 
-                <div class="flex-1 min-w-0 space-y-1.5">
-                  <h4 class="font-black text-white text-xs leading-snug truncate">3. Combat Certificate Training</h4>
-                  <span class="inline-block px-2 py-0.5 rounded bg-slate-900 border border-slate-800 text-[10px] text-slate-400 font-mono-code font-bold">6.2 MB • 0:22 mins</span>
-                  <div class="flex flex-wrap items-center gap-1.5 pt-1">
-                    <button onclick="openVideoModal('assets/Combat_Certificate_Training.mp4', '3. Combat Certificate Training')" class="px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-700 hover:border-amber-400 text-amber-400 font-bold text-xs flex items-center gap-1 transition">
-                      <i data-lucide="maximize-2" class="w-3.5 h-3.5"></i> Expand / Watch
-                    </button>
-                    <a href="assets/Combat_Certificate_Training.mp4" download="Combat_Certificate_Training.mp4" class="px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs flex items-center gap-1 shadow transition">
-                      <i data-lucide="download" class="w-3.5 h-3.5"></i> Download
-                    </a>
-                  </div>
+                <div class="flex items-center justify-between pt-1">
+                  <button onclick="openVideoModal('assets/Combat_Certificate_Training.mp4', '3. Combat Certificate Training')" class="px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-700 hover:border-amber-400 text-amber-400 font-bold text-xs flex items-center gap-1 transition">
+                    <i data-lucide="maximize-2" class="w-3.5 h-3.5"></i> Watch Fullscreen
+                  </button>
+                  <a href="assets/Combat_Certificate_Training.mp4" download="Combat_Certificate_Training.mp4" class="px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs flex items-center gap-1 shadow transition">
+                    <i data-lucide="download" class="w-3.5 h-3.5"></i> Download
+                  </a>
                 </div>
               </div>
 
