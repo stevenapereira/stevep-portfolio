@@ -6,6 +6,12 @@ let appData = {
   credits: [],
   headshots: [],
   stills: [],
+  spotlightVideos: [
+    { id: 'v1', title: '1. The Meeting - Up to 4K.mov', url: 'assets/The_Meeting_Up_to_4K.mov', poster: 'assets/thumb_the_meeting.jpg', size: '24.6 MB', tag: 'Showreel Video', type: 'video' },
+    { id: 'v2', title: '2. SteveP-Showreel', url: 'assets/SteveP-Showreel.mp4', poster: 'assets/thumb_stevep_showreel.jpg', size: '39.4 MB', tag: 'Showreel Video', type: 'video' },
+    { id: 'v3', title: '3. Combat Certificate Training', url: 'assets/Combat_Certificate_Training.mp4', poster: 'assets/thumb_combat_training.jpg', size: '6.0 MB', tag: 'Showreel Video', type: 'video' }
+  ],
+  fullBodySlates: [],
   stats: {},
   aboutTimeline: [],
   itTimeline: [],
@@ -76,6 +82,7 @@ function renderAll() {
   renderAboutTimeline();
   renderHeadshotsDeck();
   renderFullBodyGrid();
+  renderRightSideSpotlightVideos();
   renderHeroCarousel();
   renderITTimeline();
   renderHacks();
@@ -174,6 +181,47 @@ function renderFullBodyGrid() {
       </div>
     </div>
   `).join('');
+}
+
+function renderRightSideSpotlightVideos() {
+  const container = document.getElementById('rightSpotlightVideosContainer');
+  if (!container) return;
+
+  const videos = appData.spotlightVideos || [];
+  if (videos.length === 0) {
+    container.innerHTML = `<div class="p-4 rounded-xl bg-slate-900/50 border border-slate-800 text-center text-xs text-slate-400">No showreel videos found. Upload videos in Admin Media.</div>`;
+    return;
+  }
+
+  container.innerHTML = videos.map((vid) => `
+    <div class="glass-card rounded-xl border border-slate-800 p-2.5 flex items-center gap-3 hover:border-amber-400/60 transition shadow-md">
+      <div class="w-36 shrink-0 aspect-video rounded-lg overflow-hidden bg-slate-950 relative border border-slate-800 group cursor-pointer" onclick="openVideoModal('${vid.url}', '${(vid.title || 'Spotlight Video').replace(/'/g, "\\'")}')">
+        <video src="${vid.url}" poster="${vid.poster || 'assets/thumb_stevep_showreel.jpg'}" class="w-full h-full object-cover"></video>
+        <div class="absolute inset-0 bg-slate-950/40 flex items-center justify-center group-hover:bg-amber-500/20 transition">
+          <div class="w-7 h-7 rounded-full bg-amber-500 text-slate-950 flex items-center justify-center shadow-lg group-hover:scale-110 transition">
+            <i data-lucide="play" class="w-3.5 h-3.5 fill-current ml-0.5"></i>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex-1 min-w-0 space-y-1">
+        <h4 class="font-black text-white text-xs leading-tight truncate" title="${vid.title}">${vid.title}</h4>
+        <span class="inline-block px-1.5 py-0.5 rounded bg-slate-900 border border-slate-800 text-[10px] text-slate-400 font-mono-code font-bold">${vid.size || 'Video Reel'}</span>
+        <div class="flex items-center gap-1.5 pt-0.5">
+          <button onclick="openVideoModal('${vid.url}', '${(vid.title || 'Spotlight Video').replace(/'/g, "\\'")}')" class="px-2.5 py-1 rounded bg-slate-900 border border-slate-700 hover:border-amber-400 text-amber-400 font-bold text-[10px] flex items-center gap-1 transition">
+            <i data-lucide="maximize-2" class="w-3 h-3"></i> Watch
+          </button>
+          <a href="${vid.url}" download="${vid.title}.mp4" class="px-2.5 py-1 rounded bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-[10px] flex items-center gap-1 transition shadow">
+            <i data-lucide="download" class="w-3 h-3"></i> Download
+          </a>
+        </div>
+      </div>
+    </div>
+  `).join('');
+
+  const countBadge = document.getElementById('spotlightVideoCountBadge');
+  if (countBadge) countBadge.textContent = `ArtistRef: M283723 (${videos.length} Videos)`;
+  if (window.lucide) lucide.createIcons();
 }
 
 // --------------------------------------------------------------------------
@@ -788,6 +836,15 @@ function compressImage(file, maxWidth = 1600, quality = 0.82) {
   });
 }
 
+function readFileAsDataURL(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (e) => resolve(e.target.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
 async function startBackgroundUpload(e) {
   const files = e.target.files;
   if (!files || files.length === 0) return;
@@ -805,40 +862,59 @@ async function startBackgroundUpload(e) {
 
   for (let i = 0; i < total; i++) {
     const file = fileList[i];
-    const compressedUrl = await compressImage(file);
+    const isVideo = file.type.startsWith('video/') || file.name.match(/\.(mp4|mov|webm|m4v|mkv)$/i) || targetRole === 'Showreel Video';
 
-    const newMedia = {
-      id: 'media_' + Date.now() + '_' + i,
-      title: file.name.replace(/\.[^/.]+$/, ""),
-      tag: targetRole,
-      desc: `${targetRole} photo`,
-      url: compressedUrl
-    };
-
-    if (targetRole === 'Filming Still') {
-      appData.stills.unshift(newMedia);
+    if (isVideo) {
+      const videoDataUrl = await readFileAsDataURL(file);
+      const newVideo = {
+        id: 'vid_' + Date.now() + '_' + i,
+        title: file.name.replace(/\.[^/.]+$/, ""),
+        url: videoDataUrl,
+        type: 'video',
+        tag: 'Showreel Video',
+        poster: 'assets/thumb_stevep_showreel.jpg',
+        size: (file.size / (1024 * 1024)).toFixed(1) + ' MB'
+      };
+      appData.spotlightVideos = appData.spotlightVideos || [];
+      appData.spotlightVideos.unshift(newVideo);
     } else {
-      appData.headshots.unshift(newMedia);
-    }
+      const compressedUrl = await compressImage(file);
+      const newMedia = {
+        id: 'media_' + Date.now() + '_' + i,
+        title: file.name.replace(/\.[^/.]+$/, ""),
+        tag: targetRole,
+        type: 'photo',
+        desc: `${targetRole} photo`,
+        url: compressedUrl
+      };
 
-    if (targetRole === 'Signature B&W') {
-      const bg = document.getElementById('globalBgLayer');
-      if (bg) bg.style.backgroundImage = `url('${compressedUrl}')`;
+      if (targetRole === 'Filming Still') {
+        appData.stills.unshift(newMedia);
+      } else if (targetRole === 'Full Body') {
+        appData.fullBodySlates = appData.fullBodySlates || [];
+        appData.fullBodySlates.unshift(newMedia);
+      } else {
+        appData.headshots.unshift(newMedia);
+      }
+
+      if (targetRole === 'Signature B&W') {
+        const bg = document.getElementById('globalBgLayer');
+        if (bg) bg.style.backgroundImage = `url('${compressedUrl}')`;
+      }
     }
 
     const pct = Math.round(((i + 1) / total) * 100);
     if (progressBar) progressBar.style.width = `${pct}%`;
     if (progressPercent) progressPercent.textContent = `${pct}%`;
-    if (progressText) progressText.innerHTML = `<i data-lucide="loader" class="w-4 h-4 animate-spin"></i> Processing ${i + 1} of ${total} photos...`;
+    if (progressText) progressText.innerHTML = `<i data-lucide="loader" class="w-4 h-4 animate-spin"></i> Processing ${i + 1} of ${total} files...`;
     
     renderAll();
-    // Yield execution to allow non-blocking UI navigation
     await new Promise(r => setTimeout(r, 100));
   }
 
   await saveAppDataToServer();
 
-  if (progressText) progressText.innerHTML = `<i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400"></i> All ${total} photos optimized, added to ${targetRole}, & saved to database!`;
+  if (progressText) progressText.innerHTML = `<i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400"></i> All ${total} files processed, added to ${targetRole}, & saved to database!`;
   setTimeout(() => {
     if (progressContainer) progressContainer.classList.add('hidden');
   }, 3000);
@@ -848,23 +924,99 @@ function handleHeadshotUpload(e) {
   startBackgroundUpload(e);
 }
 
+// Drag & Drop Reordering State
+let draggedMediaId = null;
+
+function handleMediaDragStart(e, id) {
+  draggedMediaId = id;
+  e.dataTransfer.setData('text/plain', id);
+  e.target.classList.add('opacity-40');
+}
+
+function handleMediaDragOver(e) {
+  e.preventDefault();
+}
+
+async function handleMediaDrop(e, targetId) {
+  e.preventDefault();
+  if (!draggedMediaId || draggedMediaId === targetId) return;
+
+  const sourceCat = findMediaCategory(draggedMediaId);
+  const targetCat = findMediaCategory(targetId);
+
+  if (sourceCat && targetCat && sourceCat === targetCat) {
+    const list = appData[sourceCat];
+    const fromIdx = list.findIndex(m => m.id === draggedMediaId);
+    const toIdx = list.findIndex(m => m.id === targetId);
+
+    if (fromIdx !== -1 && toIdx !== -1) {
+      const [moved] = list.splice(fromIdx, 1);
+      list.splice(toIdx, 0, moved);
+      renderAll();
+      await saveAppDataToServer();
+    }
+  }
+}
+
+async function moveMediaUp(id) {
+  const category = findMediaCategory(id);
+  if (!category || !appData[category]) return;
+  const list = appData[category];
+  const idx = list.findIndex(m => m.id === id);
+  if (idx > 0) {
+    const [item] = list.splice(idx, 1);
+    list.splice(idx - 1, 0, item);
+    renderAll();
+    await saveAppDataToServer();
+  }
+}
+
+async function moveMediaDown(id) {
+  const category = findMediaCategory(id);
+  if (!category || !appData[category]) return;
+  const list = appData[category];
+  const idx = list.findIndex(m => m.id === id);
+  if (idx !== -1 && idx < list.length - 1) {
+    const [item] = list.splice(idx, 1);
+    list.splice(idx + 1, 0, item);
+    renderAll();
+    await saveAppDataToServer();
+  }
+}
+
+function findMediaCategory(id) {
+  if ((appData.spotlightVideos || []).some(m => m.id === id)) return 'spotlightVideos';
+  if ((appData.headshots || []).some(m => m.id === id)) return 'headshots';
+  if ((appData.stills || []).some(m => m.id === id)) return 'stills';
+  if ((appData.fullBodySlates || []).some(m => m.id === id)) return 'fullBodySlates';
+  return null;
+}
+
 function renderAdminMediaGrid() {
   const container = document.getElementById('adminMediaGrid');
   if (!container) return;
 
-  const filterVal = document.getElementById('mediaCategoryFilter')?.value || 'ALL';
-  const allMedia = [...(appData.headshots || []), ...(appData.stills || [])];
-  
-  let filtered = allMedia;
-  if (filterVal !== 'ALL') {
-    filtered = allMedia.filter(m => m.tag === filterVal);
+  const categoryVal = document.getElementById('mediaCategoryFilter')?.value || 'ALL';
+  const typeVal = document.getElementById('mediaTypeFilter')?.value || 'ALL';
+
+  const vids = (appData.spotlightVideos || []).map(v => ({ ...v, tag: 'Showreel Video', type: 'video' }));
+  const headshots = (appData.headshots || []).map(h => ({ ...h, type: h.type || 'photo' }));
+  const stills = (appData.stills || []).map(s => ({ ...s, tag: s.tag || 'Filming Still', type: s.type || 'photo' }));
+  const slates = (appData.fullBodySlates || []).map(f => ({ ...f, tag: 'Full Body', type: f.type || 'photo' }));
+
+  let allMedia = [...vids, ...headshots, ...stills, ...slates];
+
+  if (categoryVal !== 'ALL') {
+    allMedia = allMedia.filter(m => m.tag === categoryVal);
+  }
+
+  if (typeVal !== 'ALL') {
+    allMedia = allMedia.filter(m => (m.type || 'photo') === typeVal);
   }
 
   const badgeEl = document.getElementById('mediaSummaryBadge');
   if (badgeEl) {
-    badgeEl.textContent = filterVal === 'ALL' 
-      ? `Showing ALL Photos (${filtered.length})` 
-      : `Showing ${filterVal} (${filtered.length})`;
+    badgeEl.textContent = `Showing (${allMedia.length} items) - Drag & drop or use ⬆️⬇️ to reorder`;
   }
 
   const selectedCountEl = document.getElementById('selectedMediaCount');
@@ -872,43 +1024,56 @@ function renderAdminMediaGrid() {
     selectedCountEl.textContent = `${selectedMediaIds.size} Selected`;
   }
 
-  if (filtered.length === 0) {
-    container.innerHTML = `<div class="col-span-full py-8 text-center text-xs text-slate-400 italic">No photos found in category "${filterVal}".</div>`;
+  if (allMedia.length === 0) {
+    container.innerHTML = `<div class="col-span-full py-8 text-center text-xs text-slate-400 italic">No media items found for selected filter.</div>`;
     return;
   }
 
-  container.innerHTML = filtered.map(m => {
+  container.innerHTML = allMedia.map(m => {
     const isChecked = selectedMediaIds.has(m.id);
-    let badgeClass = "bg-amber-500 text-slate-950";
-    if (m.tag === 'Full Body') badgeClass = "bg-yellow-400 text-slate-950 font-black";
-    if (m.tag === 'Filming Still') badgeClass = "bg-cyan-400 text-slate-950 font-black";
-    if (m.tag === 'Signature B&W') badgeClass = "bg-emerald-400 text-slate-950 font-black";
+    const isVideo = m.type === 'video' || m.tag === 'Showreel Video';
+    let typeBadge = isVideo ? "bg-purple-500 text-white font-black" : "bg-amber-500 text-slate-950 font-black";
 
     return `
-      <div class="relative group rounded-xl overflow-hidden glass-card border ${isChecked ? 'border-amber-400 ring-2 ring-amber-400/50' : 'border-slate-800'} aspect-square flex flex-col justify-between">
-        <img src="${m.url}" class="w-full h-full object-cover absolute inset-0">
+      <div draggable="true" ondragstart="handleMediaDragStart(event, '${m.id}')" ondragover="handleMediaDragOver(event)" ondrop="handleMediaDrop(event, '${m.id}')" class="relative group rounded-xl overflow-hidden glass-card border ${isChecked ? 'border-amber-400 ring-2 ring-amber-400/50' : 'border-slate-800'} aspect-square flex flex-col justify-between cursor-move shadow-md">
+        
+        ${isVideo ? `
+          <video src="${m.url}" class="w-full h-full object-cover absolute inset-0"></video>
+          <div class="absolute inset-0 bg-slate-950/30 flex items-center justify-center">
+            <i data-lucide="video" class="w-8 h-8 text-purple-400"></i>
+          </div>
+        ` : `
+          <img src="${m.url}" class="w-full h-full object-cover absolute inset-0">
+        `}
         
         <!-- Top Controls Overlay -->
         <div class="relative z-10 p-2 flex items-center justify-between bg-gradient-to-b from-slate-950/90 to-transparent">
           <input type="checkbox" ${isChecked ? 'checked' : ''} onchange="toggleMediaSelect('${m.id}')" class="w-4 h-4 rounded text-amber-500 cursor-pointer">
-          <span class="px-1.5 py-0.5 rounded ${badgeClass} text-[9px] truncate">${m.tag}</span>
+          <div class="flex items-center gap-1">
+            <span class="px-1.5 py-0.5 rounded ${typeBadge} text-[9px] truncate">${isVideo ? '🎥 VIDEO' : '📸 PHOTO'}</span>
+            <span class="px-1.5 py-0.5 rounded bg-slate-900 border border-slate-700 text-slate-300 text-[9px] truncate">${m.tag}</span>
+          </div>
         </div>
 
-        <!-- Bottom Actions & Inline Reassign Overlay -->
+        <!-- Bottom Actions & Quick Reorder Controls Overlay -->
         <div class="relative z-10 p-2 bg-gradient-to-t from-slate-950 via-slate-950/90 to-transparent opacity-90 group-hover:opacity-100 transition space-y-1.5 text-left">
+          <div class="flex items-center justify-between gap-1">
+            <span class="text-[9px] text-slate-300 font-bold">Reorder:</span>
+            <div class="flex items-center gap-1">
+              <button onclick="moveMediaUp('${m.id}')" class="px-2 py-0.5 rounded bg-slate-900 border border-slate-700 hover:border-amber-400 text-amber-400 text-[10px] font-black" title="Move Up">⬆️</button>
+              <button onclick="moveMediaDown('${m.id}')" class="px-2 py-0.5 rounded bg-slate-900 border border-slate-700 hover:border-amber-400 text-amber-400 text-[10px] font-black" title="Move Down">⬇️</button>
+            </div>
+          </div>
+
           <div class="space-y-0.5">
-            <span class="text-[9px] text-slate-400 font-bold block">Reassign Section:</span>
             <select onchange="reassignMediaRole('${m.id}', this.value)" class="w-full px-1.5 py-1 rounded bg-slate-900 border border-slate-700 text-[10px] font-bold text-amber-300">
-              <option value="Headshot" ${m.tag === 'Headshot' ? 'selected' : ''}>Headshot</option>
+              <option value="Headshot" ${m.tag === 'Headshot' ? 'selected' : ''}>Standard Headshot</option>
+              <option value="Showreel Video" ${m.tag === 'Showreel Video' ? 'selected' : ''}>🎥 Showreel Video</option>
               <option value="Full Body" ${m.tag === 'Full Body' ? 'selected' : ''}>Full Body Slate</option>
               <option value="Filming Still" ${m.tag === 'Filming Still' ? 'selected' : ''}>35mm Filming Still</option>
               <option value="Signature B&W" ${m.tag === 'Signature B&W' ? 'selected' : ''}>Ambient BG Photo</option>
             </select>
           </div>
-
-          <button onclick="setPhotoAsBg('${m.url}')" class="w-full py-1 px-1.5 rounded bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-[9px] flex items-center justify-center gap-1">
-            Set as Ambient BG
-          </button>
         </div>
       </div>
     `;

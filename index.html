@@ -930,24 +930,35 @@
               <!-- Media Filter & Upload Controls Toolbar -->
               <div class="flex flex-wrap items-center gap-3">
                 
-                <!-- 1. View Filter Dropdown -->
-                <div class="flex items-center gap-2">
-                  <span class="text-xs font-bold text-slate-300">View Category:</span>
+                <!-- 1. View Category Filter Dropdown -->
+                <div class="flex items-center gap-1.5">
+                  <span class="text-xs font-bold text-slate-300">Category:</span>
                   <select id="mediaCategoryFilter" onchange="renderAdminMediaGrid()" class="px-3 py-2 rounded-xl bg-slate-900 border border-amber-500/50 text-xs font-black text-amber-400">
-                    <option value="ALL">ALL Photos (Everything)</option>
-                    <option value="Headshot">Headshots Only</option>
-                    <option value="Full Body">Full Body Standing Slates Only</option>
-                    <option value="Filming Still">35mm Filming Location Stills Only</option>
-                    <option value="Signature B&W">Ambient Background Photos Only</option>
-                    <option value="Corporate">Corporate & Suit Photos Only</option>
+                    <option value="ALL">ALL Categories</option>
+                    <option value="Showreel Video">🎥 Showreel Videos</option>
+                    <option value="Headshot">🎭 Headshots Only</option>
+                    <option value="Full Body">🧍 Full Body Standing Slates</option>
+                    <option value="Filming Still">📸 35mm Location Stills</option>
+                    <option value="Signature B&W">🖼️ Ambient Background Photos</option>
                   </select>
                 </div>
 
-                <!-- 2. Upload Target Role Selector -->
-                <div class="flex items-center gap-2">
+                <!-- 2. View Media Type Filter (Photos vs Videos) -->
+                <div class="flex items-center gap-1.5">
+                  <span class="text-xs font-bold text-slate-300">Media Type:</span>
+                  <select id="mediaTypeFilter" onchange="renderAdminMediaGrid()" class="px-3 py-2 rounded-xl bg-slate-900 border border-purple-500/50 text-xs font-black text-purple-400">
+                    <option value="ALL">ALL Types (Photos & Videos)</option>
+                    <option value="photo">📸 Photos Only</option>
+                    <option value="video">🎥 Videos Only</option>
+                  </select>
+                </div>
+
+                <!-- 3. Upload Target Role Selector -->
+                <div class="flex items-center gap-1.5">
                   <span class="text-xs font-bold text-slate-300">Upload Target:</span>
                   <select id="bulkUploadTargetRole" class="px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-xs font-black text-emerald-400">
                     <option value="Headshot">Standard Headshot</option>
+                    <option value="Showreel Video">🎥 Showreel Video</option>
                     <option value="Full Body">Full Body Standing Slate</option>
                     <option value="Filming Still">35mm Filming Location Still</option>
                     <option value="Signature B&W">Ambient Background Photo</option>
@@ -959,9 +970,9 @@
                 </button>
 
                 <label for="bulkPhotoInput" class="cursor-pointer px-4 py-2 rounded-xl bg-slate-900 border border-slate-700 hover:border-amber-400 text-white font-bold text-xs flex items-center gap-2 shadow">
-                  <i data-lucide="upload-cloud" class="w-4 h-4 text-amber-400"></i> Upload Local Photos
+                  <i data-lucide="upload-cloud" class="w-4 h-4 text-amber-400"></i> Upload Photos or Videos
                 </label>
-                <input type="file" id="bulkPhotoInput" accept="image/*" multiple class="hidden" onchange="startBackgroundUpload(event)">
+                <input type="file" id="bulkPhotoInput" accept="image/*,video/*" multiple class="hidden" onchange="startBackgroundUpload(event)">
               </div>
             </div>
 
