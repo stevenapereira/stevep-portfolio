@@ -356,9 +356,9 @@
               </div>
 
               <!-- Main Display Still Image -->
-              <div class="aspect-video w-full rounded-xl overflow-hidden bg-black relative border border-slate-800 shadow-2xl group cursor-pointer" onclick="openLightboxCurrentStill()">
-                <img id="cinemaStillImg" src="public/assets/steve_still_0047.jpg" alt="35mm Production Still" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
-                <div class="absolute bottom-0 inset-x-0 bg-gradient-to-t from-slate-950/90 via-slate-950/40 to-transparent p-4 flex items-end justify-between">
+              <div class="w-full min-h-[380px] sm:min-h-[460px] max-h-[580px] rounded-xl overflow-hidden bg-slate-950/90 relative border border-slate-800 shadow-2xl group cursor-pointer flex items-center justify-center p-2" onclick="openLightboxCurrentStill()">
+                <img id="cinemaStillImg" src="public/assets/steve_still_0047.jpg" alt="35mm Production Still" class="max-h-[540px] w-auto max-w-full object-contain mx-auto group-hover:scale-[1.02] transition duration-500 shadow-2xl rounded-lg">
+                <div class="absolute bottom-0 inset-x-0 bg-gradient-to-t from-slate-950/95 via-slate-950/50 to-transparent p-4 flex items-end justify-between">
                   <div>
                     <h4 id="cinemaStillTitle" class="text-white font-bold text-sm drop-shadow">35mm Filming Location Still</h4>
                     <p id="cinemaStillDesc" class="text-xs text-slate-300 drop-shadow">Original 35mm lens location capture</p>
