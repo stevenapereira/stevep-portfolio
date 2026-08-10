@@ -312,12 +312,17 @@
     "agentContact": "agency@thecentralline.co.uk"
   },
   "analytics": {
-    "pageViews": 1466,
+    "pageViews": 1467,
     "spotlightClicks": 320,
     "cvDownloads": 190,
     "showreelPlays": 506,
     "bookingEnquiries": 30,
     "recentEvents": [
+      {
+        "type": "page_view",
+        "timestamp": "2026-08-10T19:20:00.685Z",
+        "details": {}
+      },
       {
         "type": "page_view",
         "timestamp": "2026-08-10T19:18:37.889Z",
