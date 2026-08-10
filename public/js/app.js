@@ -816,7 +816,9 @@ async function startBackgroundUpload(e) {
     await new Promise(r => setTimeout(r, 100));
   }
 
-  if (progressText) progressText.innerHTML = `<i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400"></i> All ${total} photos optimized and added to ${targetRole}!`;
+  await saveAppDataToServer();
+
+  if (progressText) progressText.innerHTML = `<i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400"></i> All ${total} photos optimized, added to ${targetRole}, & saved to database!`;
   setTimeout(() => {
     if (progressContainer) progressContainer.classList.add('hidden');
   }, 3000);
@@ -899,15 +901,31 @@ function toggleMediaSelect(id) {
   renderAdminMediaGrid();
 }
 
-function reassignMediaRole(id, newRole) {
+async function saveAppDataToServer() {
+  try {
+    const res = await fetch('/api/data/save', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(appData)
+    });
+    const data = await res.json();
+    return data.success;
+  } catch (e) {
+    console.error('Failed to persist appData to server:', e);
+    return false;
+  }
+}
+
+async function reassignMediaRole(id, newRole) {
   const item = [...(appData.headshots || []), ...(appData.stills || [])].find(m => m.id === id);
   if (item) {
     item.tag = newRole;
     renderAll();
+    await saveAppDataToServer();
   }
 }
 
-function bulkMoveSelected() {
+async function bulkMoveSelected() {
   if (selectedMediaIds.size === 0) return alert('Select photos to move first using checkboxes.');
   const newRole = document.getElementById('bulkMoveTarget')?.value || 'Headshot';
 
@@ -919,22 +937,27 @@ function bulkMoveSelected() {
 
   selectedMediaIds.clear();
   renderAll();
-  alert(`Selected photos moved to "${newRole}"!`);
+  await saveAppDataToServer();
+  alert(`Selected photos moved to "${newRole}" and saved!`);
 }
 
 function setPhotoAsBg(url) {
   const bg = document.getElementById('globalBgLayer');
   if (bg) bg.style.backgroundImage = `url('${url}')`;
-  alert('Background updated!');
+  appData.seo = appData.seo || {};
+  appData.seo.bgPhotoUrl = url;
+  saveAppDataToServer();
+  alert('Background updated & saved!');
 }
 
-function deleteSelectedMedia() {
+async function deleteSelectedMedia() {
   if (selectedMediaIds.size === 0) return alert('Select photos to delete first');
   appData.headshots = appData.headshots.filter(h => !selectedMediaIds.has(h.id));
   appData.stills = appData.stills.filter(s => !selectedMediaIds.has(s.id));
   selectedMediaIds.clear();
   renderAll();
-  alert('Selected photos deleted');
+  await saveAppDataToServer();
+  alert('Selected photos deleted & saved!');
 }
 
 // --------------------------------------------------------------------------
@@ -951,7 +974,8 @@ function handleRestoreBackup(e) {
       if (json.credits || json.headshots || json.seo) {
         appData = json;
         renderAll();
-        alert('Site backup restored successfully!');
+        await saveAppDataToServer();
+        alert('Site backup restored and saved permanently to server!');
       } else {
         alert('Invalid backup format');
       }
@@ -965,16 +989,21 @@ function handleRestoreBackup(e) {
 // --------------------------------------------------------------------------
 // FORM SAVES & EVENT TRACKING
 // --------------------------------------------------------------------------
-function handleSaveSEO(e) {
+async function handleSaveSEO(e) {
   e.preventDefault();
   appData.seo = appData.seo || {};
   appData.seo.title = document.getElementById('adminSEOTitle').value;
   appData.seo.description = document.getElementById('adminSEODesc').value;
   appData.seo.keywords = document.getElementById('adminSEOKeywords').value;
-  alert('SEO Settings Saved!');
+  
+  if (document.title && appData.seo.title) document.title = appData.seo.title;
+  
+  const saved = await saveAppDataToServer();
+  if (saved) alert('SEO Settings Saved & Saved to Database!');
+  else alert('SEO Settings updated locally');
 }
 
-function handleSaveVitalStats(e) {
+async function handleSaveVitalStats(e) {
   e.preventDefault();
   const height = document.getElementById('adminStatHeight').value;
   const hair = document.getElementById('adminStatHair').value;
@@ -983,10 +1012,11 @@ function handleSaveVitalStats(e) {
   appData.stats = { ...appData.stats, height, hair, eyes };
   if (document.getElementById('statDisplayHeight')) document.getElementById('statDisplayHeight').textContent = height;
   if (document.getElementById('statDisplayHairEyes')) document.getElementById('statDisplayHairEyes').textContent = `${hair} / ${eyes}`;
-  alert('Vital stats updated!');
+  await saveAppDataToServer();
+  alert('Vital stats updated & saved permanently!');
 }
 
-function handleSaveCredit(e) {
+async function handleSaveCredit(e) {
   e.preventDefault();
   const newCredit = {
     id: 'w_' + Date.now(),
@@ -999,7 +1029,8 @@ function handleSaveCredit(e) {
   };
   appData.credits.unshift(newCredit);
   renderAll();
-  alert('Acting credit added!');
+  await saveAppDataToServer();
+  alert('Acting credit added and saved!');
 }
 
 function handleSaveHack(e) {

@@ -103,6 +103,18 @@ const server = http.createServer(async (req, res) => {
     return sendJSON(res, { success: false, message: 'Invalid backup file format' }, 400);
   }
 
+  // Full Database Sync Endpoint (SEO, Photos, Stats, Credits, Pages)
+  if (reqPath === '/api/data/save' && req.method === 'POST') {
+    const body = await parseJSON(req);
+    if (body) {
+      const existing = readDB();
+      const merged = { ...existing, ...body };
+      writeDB(merged);
+      return sendJSON(res, { success: true, message: 'All changes saved permanently to database!' });
+    }
+    return sendJSON(res, { success: false, message: 'Invalid payload' }, 400);
+  }
+
   // Save SEO Configuration
   if (reqPath === '/api/seo' && req.method === 'PUT') {
     const body = await parseJSON(req);
