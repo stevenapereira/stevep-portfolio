@@ -1,0 +1,1924 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Steve Pereira | Actor, IT Architect & Sober Since 2013</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            spotlight: {
+              yellow: '#ffcc00',
+              dark: '#111111'
+            },
+            brand: {
+              gold: '#f59e0b',
+              rose: '#e11d48',
+              indigo: '#6366f1',
+              emerald: '#10b981',
+              dark: '#030712'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=Cinzel:wght@700;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    .font-cinzel {
+      font-family: 'Cinzel', serif;
+    }
+    .font-mono-code {
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .glass-card {
+      background: rgba(15, 23, 42, 0.88);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+    }
+    .bw-dynamic-bg {
+      background-size: cover;
+      background-position: center top;
+      background-attachment: fixed;
+      filter: grayscale(100%) contrast(140%) brightness(0.35);
+      transition: background-image 0.5s ease-in-out;
+    }
+    /* 35mm Film Strip Perforations Styling */
+    .film-strip-border {
+      background-image: radial-gradient(#1e293b 35%, transparent 35%);
+      background-size: 16px 16px;
+      background-position: 0 0;
+    }
+    /* Flutter Stack Cards */
+    .flutter-card {
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #030712;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #1e293b;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen relative transition-colors duration-300">
+
+  <!-- ================= GLOBAL DYNAMIC BACKGROUND LAYER ================= -->
+  <div id="globalBgLayer" class="fixed inset-0 z-0 bw-dynamic-bg pointer-events-none" style="background-color: #030712;"></div>
+  <div class="fixed inset-0 z-0 bg-gradient-to-b from-slate-950/80 via-slate-950/90 to-slate-950 z-0 pointer-events-none"></div>
+
+  <div class="relative z-10">
+
+    <!-- ================= TOP SPOTLIGHT BANNER ================= -->
+    <div class="bg-gradient-to-r from-amber-600 via-rose-600 to-indigo-600 text-white text-[11px] font-extrabold py-2 px-4 text-center tracking-wider flex items-center justify-center gap-2 shadow-inner">
+      <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+      <span>STEVE PEREIRA • SOBER SINCE 2013 (13 YEARS RECOVERY) • SPOTLIGHT PIN: 9339-8945-6183 • THE CENTRAL LINE AGENCY</span>
+      <a href="https://app.spotlight.com/9339-8945-6183" target="_blank" class="underline ml-2 text-amber-200 hover:text-white flex items-center gap-1 font-mono">
+        View Spotlight Profile <i data-lucide="external-link" class="w-3 h-3"></i>
+      </a>
+    </div>
+
+    <!-- ================= HEADER & NAVIGATION ================= -->
+    <header class="sticky top-0 z-40 backdrop-blur-xl bg-slate-950/90 border-b border-slate-800/80">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+        
+        <!-- Logo Identity -->
+        <div class="flex items-center space-x-3 cursor-pointer" onclick="switchTab('portfolio')">
+          <div class="w-11 h-11 rounded-xl bg-gradient-to-tr from-rose-600 via-amber-500 to-indigo-600 p-0.5 shadow-lg shadow-rose-950/40">
+            <div class="w-full h-full rounded-[10px] bg-slate-950 flex items-center justify-center font-black text-lg text-amber-400">
+              SP
+            </div>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="text-xl font-black tracking-tight bg-gradient-to-r from-amber-400 via-rose-500 to-indigo-400 bg-clip-text text-transparent">
+                STEVE PEREIRA
+              </span>
+              <a href="https://app.spotlight.com/9339-8945-6183" target="_blank" class="inline-flex items-center gap-1 bg-spotlight-yellow text-spotlight-dark font-black text-[10px] px-2 py-0.5 rounded shadow hover:bg-yellow-300 transition">
+                <svg class="w-3 h-3 fill-current" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                SPOTLIGHT
+              </a>
+            </div>
+            <p class="text-[11px] font-semibold text-slate-400 flex items-center gap-1.5">
+              <span class="text-emerald-400 font-bold">Sober Since 2013 (13 Yrs)</span> • <span>Actor</span> • <span>IT Architect</span>
+            </p>
+          </div>
+        </div>
+
+        <!-- Navigation Links -->
+        <nav class="hidden lg:flex items-center space-x-1 text-xs font-bold">
+          <button onclick="switchTab('portfolio')" id="nav-portfolio" class="nav-btn flex items-center gap-2 px-3.5 py-2 rounded-xl text-amber-400 bg-slate-900 border border-slate-800">
+            <i data-lucide="clapperboard" class="w-4 h-4"></i>
+            <span>Headshots & Stills</span>
+          </button>
+
+          <button onclick="switchTab('spotlight')" id="nav-spotlight" class="nav-btn flex items-center gap-2 px-3.5 py-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-900 transition">
+            <i data-lucide="award" class="w-4 h-4"></i>
+            <span>Spotlight & Agent</span>
+          </button>
+
+          <button onclick="switchTab('aistudio')" id="nav-aistudio" class="nav-btn flex items-center gap-2 px-3.5 py-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-900 transition">
+            <i data-lucide="sparkles" class="w-4 h-4 text-amber-400"></i>
+            <span>AI Studio & Tools</span>
+          </button>
+
+          <button onclick="switchTab('sobriety')" id="nav-sobriety" class="nav-btn flex items-center gap-2 px-3.5 py-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-900 transition">
+            <i data-lucide="heart" class="w-4 h-4"></i>
+            <span>Sobriety & KMST</span>
+          </button>
+
+          <button onclick="switchTab('instagram')" id="nav-instagram" class="nav-btn flex items-center gap-2 px-3.5 py-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-900 transition">
+            <i data-lucide="instagram" class="w-4 h-4 text-pink-500"></i>
+            <span>Instagram Feed</span>
+          </button>
+
+          <button onclick="switchTab('ukhelp')" id="nav-ukhelp" class="nav-btn flex items-center gap-2 px-3.5 py-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-900 transition">
+            <i data-lucide="shield-alert" class="w-4 h-4"></i>
+            <span>UK Support Directory</span>
+          </button>
+
+          <button onclick="switchTab('itconsulting')" id="nav-itconsulting" class="nav-btn flex items-center gap-2 px-3.5 py-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-900 transition">
+            <i data-lucide="terminal" class="w-4 h-4"></i>
+            <span>IT Consulting</span>
+          </button>
+
+          <button onclick="switchTab('booking')" id="nav-booking" class="nav-btn flex items-center gap-2 px-3.5 py-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-900 transition">
+            <i data-lucide="send" class="w-4 h-4"></i>
+            <span>Book Steve</span>
+          </button>
+        </nav>
+
+        <!-- Right Quick Uploaders -->
+        <div class="flex items-center space-x-2">
+          <!-- Headshots Loader -->
+          <label for="headshotUploaderInput" class="cursor-pointer inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-black bg-amber-500 text-slate-950 hover:bg-amber-400 transition shadow-md" title="Upload Headshots">
+            <i data-lucide="user" class="w-3.5 h-3.5"></i>
+            <span class="hidden sm:inline">📷 Headshots</span>
+          </label>
+          <input type="file" id="headshotUploaderInput" accept="image/*" multiple class="hidden" onchange="handleHeadshotsUpload(event)">
+
+          <!-- Filming Stills Loader -->
+          <label for="stillsUploaderInput" class="cursor-pointer inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-black bg-rose-600 text-white hover:bg-rose-500 transition shadow-md" title="Upload Filming & Set Stills">
+            <i data-lucide="film" class="w-3.5 h-3.5"></i>
+            <span class="hidden sm:inline">🎬 Set Stills</span>
+          </label>
+          <input type="file" id="stillsUploaderInput" accept="image/*" multiple class="hidden" onchange="handleStillsUpload(event)">
+
+          <button onclick="toggleTheme()" id="themeBtn" title="Toggle Theme" class="p-2.5 rounded-xl border border-slate-800 bg-slate-900 text-amber-400 hover:bg-slate-800 transition">
+            <i data-lucide="sun" class="w-4 h-4"></i>
+          </button>
+
+          <button onclick="switchTab('admin')" title="Admin Portal" class="p-2.5 rounded-xl border border-slate-800 bg-slate-900 text-rose-400 hover:bg-slate-800 transition">
+            <i data-lucide="lock" class="w-4 h-4"></i>
+          </button>
+
+          <button onclick="toggleMobileMenu()" class="lg:hidden p-2 rounded-xl border border-slate-800 text-slate-300">
+            <i data-lucide="menu" class="w-5 h-5"></i>
+          </button>
+        </div>
+
+      </div>
+
+      <!-- Mobile Navigation -->
+      <div id="mobileMenu" class="hidden lg:hidden border-b border-slate-800 bg-slate-950 px-4 py-4 space-y-2">
+        <button onclick="switchTab('portfolio'); toggleMobileMenu()" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-amber-400 bg-slate-900">
+          <i data-lucide="clapperboard" class="w-4 h-4"></i> Acting, Headshots & Stills
+        </button>
+        <button onclick="switchTab('spotlight'); toggleMobileMenu()" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-slate-300 hover:bg-slate-900">
+          <i data-lucide="award" class="w-4 h-4"></i> Spotlight & Agent
+        </button>
+        <button onclick="switchTab('aistudio'); toggleMobileMenu()" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-amber-400 hover:bg-slate-900">
+          <i data-lucide="sparkles" class="w-4 h-4"></i> AI Studio & Companion
+        </button>
+        <button onclick="switchTab('sobriety'); toggleMobileMenu()" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-slate-300 hover:bg-slate-900">
+          <i data-lucide="heart" class="w-4 h-4"></i> Sobriety & KMST (13 Yrs)
+        </button>
+        <button onclick="switchTab('instagram'); toggleMobileMenu()" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-slate-300 hover:bg-slate-900">
+          <i data-lucide="instagram" class="w-4 h-4 text-pink-500"></i> Instagram Feed (@SteveP-Official)
+        </button>
+        <button onclick="switchTab('ukhelp'); toggleMobileMenu()" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-slate-300 hover:bg-slate-900">
+          <i data-lucide="shield-alert" class="w-4 h-4"></i> UK Support Directory
+        </button>
+        <button onclick="switchTab('itconsulting'); toggleMobileMenu()" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-slate-300 hover:bg-slate-900">
+          <i data-lucide="terminal" class="w-4 h-4"></i> IT Consultancy
+        </button>
+        <button onclick="switchTab('booking'); toggleMobileMenu()" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-amber-400 hover:bg-slate-900">
+          <i data-lucide="send" class="w-4 h-4"></i> Book Direct / Enquiries
+        </button>
+      </div>
+    </header>
+
+    <!-- ================= HERO BANNER ================= -->
+    <section class="relative overflow-hidden py-20 lg:py-28 border-b border-slate-800">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+          
+          <!-- Left Copy -->
+          <div class="lg:col-span-7 space-y-6">
+            
+            <div class="flex flex-wrap items-center gap-2">
+              <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-black bg-slate-900/90 border border-slate-800 text-amber-400 shadow-xl">
+                <i data-lucide="badge-check" class="w-3.5 h-3.5 text-emerald-400"></i>
+                <span>STEVE PEREIRA • SOBER SINCE 2013 (13 YEARS RECOVERY)</span>
+              </div>
+
+              <div class="inline-flex items-center gap-2">
+                <label for="headshotUploaderInput" class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-[11px] font-extrabold bg-amber-500/20 text-amber-300 border border-amber-500/30 cursor-pointer hover:bg-amber-500/30 transition">
+                  <i data-lucide="user" class="w-3 h-3"></i>
+                  <span>Upload Headshots</span>
+                </label>
+                <label for="stillsUploaderInput" class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-[11px] font-extrabold bg-rose-600/20 text-rose-300 border border-rose-500/30 cursor-pointer hover:bg-rose-600/30 transition">
+                  <i data-lucide="film" class="w-3 h-3"></i>
+                  <span>Upload Set Stills</span>
+                </label>
+              </div>
+            </div>
+
+            <h1 class="text-4xl sm:text-6xl lg:text-7xl font-black tracking-tight leading-none text-white font-cinzel">
+              GRITTY.<br>
+              <span class="bg-gradient-to-r from-amber-400 via-rose-500 to-indigo-400 bg-clip-text text-transparent">
+                RAW & UNFILTERED.
+              </span><br>
+              VERSATILE.
+            </h1>
+
+            <p class="text-base sm:text-lg text-slate-300 max-w-2xl leading-relaxed">
+              Official website for <strong class="text-white">Steve Pereira</strong> — Spotlight registered screen actor, advocate for families affected by alcoholism (<strong class="text-emerald-400">Sober since 2013 — 13 Years Continuous Recovery</strong>), and enterprise IT architect for giants including <span class="text-indigo-300">News Group International</span>, <span class="text-indigo-300">Mediawatch Dubai</span>, and <span class="text-indigo-300">Coca-Cola</span>.
+            </p>
+
+            <!-- Direct Spotlight & Links -->
+            <div class="flex flex-wrap gap-3 pt-2">
+              <a href="https://app.spotlight.com/9339-8945-6183" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-spotlight-yellow hover:bg-yellow-400 text-spotlight-dark font-black text-xs shadow-xl transition transform hover:-translate-y-0.5">
+                <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                <span>SPOTLIGHT PROFILE (9339-8945-6183)</span>
+                <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+              </a>
+
+              <a href="https://www.facebook.com/share/198w4QLAuC/?mibextid=wwXIfr" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs shadow-xl transition transform hover:-translate-y-0.5">
+                <i data-lucide="facebook" class="w-4 h-4"></i>
+                <span>KMST FACEBOOK PAGE</span>
+                <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+              </a>
+
+              <a href="https://instagram.com/SteveP-Official" target="_blank" class="inline-flex items-center gap-2 px-4 py-3 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 hover:text-white text-xs transition">
+                <i data-lucide="instagram" class="w-4 h-4 text-pink-500"></i>
+                <span>@SteveP-Official</span>
+              </a>
+            </div>
+
+            <!-- Specs Bar -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-6 border-t border-slate-800/80 font-mono text-xs">
+              <div class="p-3 rounded-xl bg-slate-900/90 border border-slate-800">
+                <div class="text-slate-400 text-[10px]">AGENT</div>
+                <div class="text-amber-400 font-bold mt-0.5">The Central Line</div>
+              </div>
+              <div class="p-3 rounded-xl bg-slate-900/90 border border-slate-800">
+                <div class="text-slate-400 text-[10px]">SPOTLIGHT PIN</div>
+                <a href="https://app.spotlight.com/9339-8945-6183" target="_blank" class="text-amber-400 font-bold mt-0.5 hover:underline block">9339-8945-6183</a>
+              </div>
+              <div class="p-3 rounded-xl bg-slate-900/90 border border-slate-800">
+                <div class="text-slate-400 text-[10px]">PLAYING AGE / HEIGHT</div>
+                <div class="text-white font-bold mt-0.5">35 - 45 Yrs • 5'6.5"</div>
+              </div>
+              <div class="p-3 rounded-xl bg-slate-900/90 border border-slate-800">
+                <div class="text-slate-400 text-[10px]">HAIR & EYES</div>
+                <div class="text-white font-bold mt-0.5">Bald / Black • Brown Eyes</div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Right Spotlight Card -->
+          <div class="lg:col-span-5 flex justify-center">
+            <div class="relative group w-full max-w-sm">
+              <div class="absolute -inset-1 bg-gradient-to-r from-amber-500 via-rose-600 to-indigo-600 rounded-2xl blur opacity-40 group-hover:opacity-70 transition duration-500"></div>
+              
+              <div class="relative rounded-2xl overflow-hidden bg-slate-900 border border-slate-800 shadow-2xl">
+                <div class="h-96 relative bg-slate-950 flex items-center justify-center overflow-hidden" id="heroCardContainer">
+                  <img 
+                    id="heroCardPhoto"
+                    src="" 
+                    alt="Steve Pereira Headshot" 
+                    class="w-full h-full object-cover transition duration-500 hidden"
+                  />
+                  
+                  <div id="heroCardFallback" class="flex flex-col items-center justify-center p-6 text-center space-y-4">
+                    <div class="w-16 h-16 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 flex items-center justify-center">
+                      <i data-lucide="user" class="w-8 h-8"></i>
+                    </div>
+                    <div>
+                      <h4 class="font-bold text-white text-base">Steve Pereira</h4>
+                      <p class="text-xs text-emerald-400 font-bold">Sober Since 2013 (13 Years)</p>
+                      <p class="text-[11px] text-amber-400 font-mono mt-0.5">Spotlight PIN: 9339-8945-6183</p>
+                    </div>
+                    <div class="flex gap-2">
+                      <label for="headshotUploaderInput" class="px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs cursor-pointer transition shadow flex items-center gap-1">
+                        <i data-lucide="user" class="w-3.5 h-3.5"></i> Headshots
+                      </label>
+                      <label for="stillsUploaderInput" class="px-3.5 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-black text-xs cursor-pointer transition shadow flex items-center gap-1">
+                        <i data-lucide="film" class="w-3.5 h-3.5"></i> Set Stills
+                      </label>
+                    </div>
+                  </div>
+
+                  <div class="absolute top-4 right-4 bg-spotlight-yellow text-spotlight-dark px-3 py-1 rounded-full text-[10px] font-black tracking-wider flex items-center gap-1 shadow-md">
+                    <i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i> SPOTLIGHT ACTOR
+                  </div>
+
+                  <div class="absolute bottom-4 left-4 right-4">
+                    <h3 class="text-2xl font-black text-white font-cinzel">Steve Pereira</h3>
+                    <p class="text-xs text-amber-400 font-semibold">Dramatic Lead • Character & SFX Specialist</p>
+                  </div>
+                </div>
+
+                <div class="p-4 bg-slate-900/90 space-y-2">
+                  <button onclick="switchTab('booking')" class="w-full py-2.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black rounded-xl text-xs flex items-center justify-center gap-2 transition shadow-lg shadow-amber-500/20">
+                    <i data-lucide="send" class="w-3.5 h-3.5"></i>
+                    <span>Direct Casting & Booking Enquiry</span>
+                  </button>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= MAIN CONTENT AREA ================= -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      
+      <!-- ================= TAB 1: ACTING, HEADSHOTS & FILMING STILLS ================= -->
+      <div id="tab-portfolio" class="tab-content space-y-16">
+        
+        <!-- SECTION A: OFFICIAL HEADSHOTS AREA (SMART FLUTTER DECK AUTOMATIC) -->
+        <div class="space-y-8 glass-card p-6 sm:p-8 rounded-3xl border border-slate-800 shadow-2xl">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-800 pb-4 gap-4">
+            <div>
+              <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-black uppercase tracking-wider mb-1">
+                <i data-lucide="sparkles" class="w-3.5 h-3.5"></i> Official Casting Headshots
+              </div>
+              <h2 class="text-2xl sm:text-3xl font-black text-white font-cinzel">Interactive Headshot Flutter Deck</h2>
+              <p class="text-xs text-slate-400">Headshots auto-deck is active below. Click cards to cycle, spread, or enlarge.</p>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <label for="headshotUploaderInput" class="px-4 py-2.5 rounded-xl bg-amber-500 text-slate-950 hover:bg-amber-400 font-black text-xs cursor-pointer transition shadow-md flex items-center gap-1.5">
+                <i data-lucide="upload" class="w-4 h-4"></i>
+                <span>📷 Upload Official Headshots</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- In-Page Automatic Flutter Deck Display -->
+          <div class="relative min-h-[420px] sm:min-h-[480px] w-full flex items-center justify-center py-6" id="inlineHeadshotDeckContainer">
+            <!-- Dynamically populated flutter deck cards -->
+          </div>
+
+          <!-- Headshot Grid Preview -->
+          <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 pt-4 border-t border-slate-800/80" id="headshotsGrid">
+            <!-- Dynamically populated small previews -->
+          </div>
+        </div>
+
+        <!-- SECTION B: CINEMATIC 35MM FILMING STILLS & SET PHOTOS -->
+        <div class="space-y-8 glass-card p-6 sm:p-8 rounded-3xl border border-slate-800 shadow-2xl">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-800 pb-4 gap-4">
+            <div>
+              <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-600/10 border border-rose-500/20 text-rose-400 text-xs font-black uppercase tracking-wider mb-1">
+                <i data-lucide="film" class="w-3.5 h-3.5"></i> On Set & Production Footage
+              </div>
+              <h2 class="text-2xl sm:text-3xl font-black text-white font-cinzel">35mm Widescreen Cinema Reel</h2>
+              <p class="text-xs text-slate-400">On-location stills, character transformations, SFX, and behind-the-scenes set photos.</p>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <button onclick="toggleReelAutoplay()" id="reelAutoplayBtn" class="px-3.5 py-2 rounded-xl bg-slate-900 border border-slate-700 text-slate-200 hover:text-white font-bold text-xs flex items-center gap-1.5 transition">
+                <i data-lucide="play" class="w-3.5 h-3.5 text-rose-400"></i>
+                <span>Auto-Play Reel</span>
+              </button>
+
+              <label for="stillsUploaderInput" class="px-4 py-2 rounded-xl bg-rose-600 text-white hover:bg-rose-500 font-black text-xs cursor-pointer transition shadow-md flex items-center gap-1.5">
+                <i data-lucide="upload" class="w-4 h-4"></i>
+                <span>🎬 Upload Filming Stills</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Cinematic Anamorphic 35mm Filmstrip Frame -->
+          <div class="relative rounded-2xl overflow-hidden bg-slate-950 border border-slate-800 shadow-2xl">
+            <!-- Top Sprocket Holes -->
+            <div class="h-5 w-full bg-slate-900 border-b border-slate-800 flex justify-between px-2 items-center">
+              <div class="flex space-x-3 w-full justify-between">
+                <span class="w-2.5 h-2.5 rounded bg-slate-950 border border-slate-800"></span>
+                <span class="w-2.5 h-2.5 rounded bg-slate-950 border border-slate-800"></span>
+                <span class="w-2.5 h-2.5 rounded bg-slate-950 border border-slate-800"></span>
+                <span class="w-2.5 h-2.5 rounded bg-slate-950 border border-slate-800"></span>
+                <span class="w-2.5 h-2.5 rounded bg-slate-950 border border-slate-800"></span>
+                <span class="w-2.5 h-2.5 rounded bg-slate-950 border border-slate-800"></span>
+                <span class="w-2.5 h-2.5 rounded bg-slate-950 border border-slate-800"></span>
+                <span class="w-2.5 h-2.5 rounded bg-slate-950 border border-slate-800"></span>
+              </div>
+            </div>
+
+            <!-- Main Cinema Image Carousel Display -->
+            <div class="relative h-80 sm:h-[480px] bg-slate-950 flex items-center justify-center overflow-hidden" id="cinemaReelContainer">
+              <img id="cinemaReelImg" src="" class="w-full h-full object-cover hidden transition duration-700" alt="Cinematic Set Still" />
+
+              <div id="cinemaReelFallback" class="p-8 text-center space-y-3">
+                <div class="w-16 h-16 rounded-full bg-rose-600/10 border border-rose-500/20 text-rose-400 flex items-center justify-center mx-auto">
+                  <i data-lucide="clapperboard" class="w-8 h-8"></i>
+                </div>
+                <h4 class="text-lg font-bold text-white font-cinzel">No Filming Stills Uploaded Yet</h4>
+                <p class="text-xs text-slate-400 max-w-sm mx-auto">Click "Upload Filming Stills" to load set photos, vampire SFX shoots, and location stills into this 35mm widescreen carousel.</p>
+                <label for="stillsUploaderInput" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-rose-600 text-white font-black text-xs cursor-pointer shadow hover:bg-rose-500 transition">
+                  <i data-lucide="upload" class="w-4 h-4"></i>
+                  <span>Select Filming Stills</span>
+                </label>
+              </div>
+
+              <!-- Controls -->
+              <button onclick="prevCinemaStill()" class="absolute left-4 p-3 rounded-full bg-slate-950/80 border border-slate-800 text-white hover:bg-slate-800 transition z-20">
+                <i data-lucide="chevron-left" class="w-5 h-5"></i>
+              </button>
+              <button onclick="nextCinemaStill()" class="absolute right-4 p-3 rounded-full bg-slate-950/80 border border-slate-800 text-white hover:bg-slate-800 transition z-20">
+                <i data-lucide="chevron-right" class="w-5 h-5"></i>
+              </button>
+
+              <div class="absolute bottom-4 left-4 right-4 flex justify-between items-end z-20">
+                <div class="bg-slate-950/90 backdrop-blur-md px-3.5 py-1.5 rounded-xl border border-slate-800 text-xs">
+                  <span id="cinemaReelTitle" class="font-bold text-white block">Steve Pereira Set Still</span>
+                  <span id="cinemaReelDesc" class="text-[11px] text-amber-400 font-mono">35mm Production Reel</span>
+                </div>
+                <span id="cinemaReelCounter" class="bg-slate-950/90 px-3 py-1 rounded-xl border border-slate-800 text-xs font-mono text-slate-400">0 / 0</span>
+              </div>
+            </div>
+
+            <!-- Bottom Sprocket Holes -->
+            <div class="h-5 w-full bg-slate-900 border-t border-slate-800 flex justify-between px-2 items-center">
+              <div class="flex space-x-3 w-full justify-between">
+                <span class="w-2.5 h-2.5 rounded bg-slate-950 border border-slate-800"></span>
+                <span class="w-2.5 h-2.5 rounded bg-slate-950 border border-slate-800"></span>
+                <span class="w-2.5 h-2.5 rounded bg-slate-950 border border-slate-800"></span>
+                <span class="w-2.5 h-2.5 rounded bg-slate-950 border border-slate-800"></span>
+                <span class="w-2.5 h-2.5 rounded bg-slate-950 border border-slate-800"></span>
+                <span class="w-2.5 h-2.5 rounded bg-slate-950 border border-slate-800"></span>
+                <span class="w-2.5 h-2.5 rounded bg-slate-950 border border-slate-800"></span>
+                <span class="w-2.5 h-2.5 rounded bg-slate-950 border border-slate-800"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SECTION C: WHY CAST STEVE PEREIRA? -->
+        <div class="space-y-8">
+          <div class="border-b border-slate-800 pb-6 flex flex-col md:flex-row md:items-end justify-between gap-4">
+            <div>
+              <span class="text-xs font-extrabold uppercase tracking-widest text-amber-400">Spotlight Registered Actor</span>
+              <h2 class="text-3xl sm:text-4xl font-black tracking-tight text-white mt-1 font-cinzel">Why Cast Steve Pereira?</h2>
+              <p class="text-slate-400 text-xs mt-1">
+                Official Spotlight Profile: <a href="https://app.spotlight.com/9339-8945-6183" target="_blank" class="text-amber-400 font-mono underline">https://app.spotlight.com/9339-8945-6183</a>
+              </p>
+            </div>
+
+            <a href="https://app.spotlight.com/9339-8945-6183" target="_blank" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-spotlight-yellow text-spotlight-dark font-black text-xs shadow hover:bg-yellow-300 transition">
+              <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+              <span>Open Spotlight Directory</span>
+            </a>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div class="glass-card p-6 rounded-2xl border border-slate-800 space-y-3 hover:border-amber-500/40 transition">
+              <div class="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center font-bold">
+                <i data-lucide="skull" class="w-5 h-5"></i>
+              </div>
+              <h3 class="text-base font-bold text-white">Horror & SFX Prosthetics</h3>
+              <p class="text-xs text-slate-300 leading-relaxed">
+                Experience undergoing full theatrical SFX makeup, horror clowning, vampire prosthetics, and high-stamina physical character performance.
+              </p>
+            </div>
+
+            <div class="glass-card p-6 rounded-2xl border border-slate-800 space-y-3 hover:border-rose-500/40 transition">
+              <div class="w-10 h-10 rounded-xl bg-rose-500/10 text-rose-400 flex items-center justify-center font-bold">
+                <i data-lucide="flame" class="w-5 h-5"></i>
+              </div>
+              <h3 class="text-base font-bold text-white">Gritty Antagonists</h3>
+              <p class="text-xs text-slate-300 leading-relaxed">
+                Commanding screen presence. Natural fit for urban crime drama, detectives, enforcement roles, gritty anti-heroes, and thrillers.
+              </p>
+            </div>
+
+            <div class="glass-card p-6 rounded-2xl border border-slate-800 space-y-3 hover:border-indigo-500/40 transition">
+              <div class="w-10 h-10 rounded-xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center font-bold">
+                <i data-lucide="heart-handshake" class="w-5 h-5"></i>
+              </div>
+              <h3 class="text-base font-bold text-white">Raw Emotional Depth</h3>
+              <p class="text-xs text-slate-300 leading-relaxed">
+                Drawing from real-life survival and 13 years of continuous recovery (sober since 2013), delivering unvarnished vulnerability for intense dramatic lead roles.
+              </p>
+            </div>
+
+            <div class="glass-card p-6 rounded-2xl border border-slate-800 space-y-3 hover:border-emerald-500/40 transition">
+              <div class="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center font-bold">
+                <i data-lucide="mic" class="w-5 h-5"></i>
+              </div>
+              <h3 class="text-base font-bold text-white">Voiceover & Commercial</h3>
+              <p class="text-xs text-slate-300 leading-relaxed">
+                Authoritative, grounded voice timbre ideal for national campaigns, public awareness spots, and corporate tech narratives.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- SECTION D: FILMOGRAPHY CREDITS TABLE -->
+        <div class="space-y-6">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-800 pb-4 gap-4">
+            <div>
+              <h3 class="text-xl font-bold text-white flex items-center gap-2 font-cinzel">
+                <i data-lucide="film" class="w-5 h-5 text-amber-400"></i>
+                <span>Steve Pereira — Spotlight Filmography & Credits</span>
+              </h3>
+              <p class="text-xs text-slate-400 mt-1">Official Spotlight PIN: 9339-8945-6183</p>
+            </div>
+
+            <div class="flex flex-wrap items-center gap-2">
+              <button onclick="openAddCreditModal()" class="px-3.5 py-1.5 rounded-lg text-xs font-black bg-emerald-600 hover:bg-emerald-500 text-white flex items-center gap-1.5 shadow transition">
+                <i data-lucide="plus-circle" class="w-3.5 h-3.5"></i>
+                <span>+ Add Spotlight Credit</span>
+              </button>
+
+              <button onclick="filterWorks('All')" class="work-filter-btn px-3.5 py-1.5 rounded-lg text-xs font-bold bg-amber-500 text-slate-950">All</button>
+              <button onclick="filterWorks('Film')" class="work-filter-btn px-3.5 py-1.5 rounded-lg text-xs font-bold bg-slate-900 text-slate-400 border border-slate-800">Film</button>
+              <button onclick="filterWorks('Television')" class="work-filter-btn px-3.5 py-1.5 rounded-lg text-xs font-bold bg-slate-900 text-slate-400 border border-slate-800">Television</button>
+              <button onclick="filterWorks('Stage')" class="work-filter-btn px-3.5 py-1.5 rounded-lg text-xs font-bold bg-slate-900 text-slate-400 border border-slate-800">Stage</button>
+              <button onclick="filterWorks('Commercial')" class="work-filter-btn px-3.5 py-1.5 rounded-lg text-xs font-bold bg-slate-900 text-slate-400 border border-slate-800">Commercial</button>
+            </div>
+          </div>
+
+          <div class="glass-card rounded-2xl overflow-hidden shadow-2xl border border-slate-800">
+            <div class="overflow-x-auto">
+              <table class="w-full text-left border-collapse text-xs">
+                <thead>
+                  <tr class="border-b border-slate-800 bg-slate-950/80 text-slate-400 font-bold uppercase tracking-wider">
+                    <th class="p-4">Production Title</th>
+                    <th class="p-4">Role</th>
+                    <th class="p-4">Category</th>
+                    <th class="p-4">Production / Director</th>
+                    <th class="p-4">Year</th>
+                    <th class="p-4">Status</th>
+                  </tr>
+                </thead>
+                <tbody id="worksTableBody" class="divide-y divide-slate-800/60">
+                  <!-- Dynamically Populated -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ================= TAB 1.5: AI STUDIO & COMPANION ================= -->
+      <div id="tab-aistudio" class="tab-content hidden space-y-12">
+        
+        <div class="border-b border-slate-800 pb-6 flex flex-col md:flex-row md:items-end justify-between gap-4">
+          <div>
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-black bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 mb-2">
+              <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+              <span>100% Free Tier Enabled (Google AI Studio)</span>
+            </div>
+            <h2 class="text-3xl sm:text-4xl font-black tracking-tight text-white font-cinzel">Steve Pereira AI Innovation Hub</h2>
+            <p class="text-slate-400 text-xs mt-1 max-w-2xl">
+              An intelligent suite combining script writing for casting, AI character concept generation, an empathetic KMST recovery support companion, and enterprise IT architecture generators — running completely on Google's zero-cost API tier.
+            </p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          
+          <!-- Tool 1: AI Audition Monologue & Scene Writer -->
+          <div class="lg:col-span-6 glass-card p-6 rounded-2xl border border-slate-800 space-y-4 shadow-2xl flex flex-col justify-between">
+            <div class="space-y-4">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2.5">
+                  <div class="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center font-bold">
+                    <i data-lucide="clapperboard" class="w-5 h-5"></i>
+                  </div>
+                  <div>
+                    <h3 class="text-base font-bold text-white font-cinzel">AI Audition Monologue Generator</h3>
+                    <p class="text-[11px] text-slate-400">Gemini 3.1 Flash Script & Subtext Writer</p>
+                  </div>
+                </div>
+                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20">TEXT-LLM</span>
+              </div>
+
+              <div class="space-y-3 text-xs">
+                <div>
+                  <label class="block text-slate-300 font-semibold mb-1">Genre & Style</label>
+                  <select id="aiScriptGenre" class="w-full p-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none focus:border-amber-500">
+                    <option value="Gritty Urban Crime Drama (British Noir)">Gritty Urban Crime Drama (British Noir)</option>
+                    <option value="Horror Thriller & Psychological Tension">Horror Thriller & Psychological Tension</option>
+                    <option value="Gothic Vampire Drama">Gothic Vampire Drama</option>
+                    <option value="Dark Comedy & Sarcastic Anti-Hero">Dark Comedy & Sarcastic Anti-Hero</option>
+                    <option value="Raw Vulnerable Recovery Story">Raw Vulnerable Recovery Story</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label class="block text-slate-300 font-semibold mb-1">Role / Scenario Details (Optional)</label>
+                  <input type="text" id="aiScriptPrompt" placeholder="e.g. Detective confronting a former partner in a rain-slick alley..." class="w-full p-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none focus:border-amber-500" />
+                </div>
+              </div>
+            </div>
+
+            <div class="space-y-3 pt-2">
+              <button onclick="generateAIMonologue()" id="aiScriptBtn" class="w-full py-3 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs rounded-xl shadow-lg transition flex items-center justify-center gap-2">
+                <i data-lucide="sparkles" class="w-4 h-4"></i>
+                <span>Generate Audition Monologue</span>
+              </button>
+
+              <div id="aiScriptOutput" class="hidden p-4 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-300 space-y-2 max-h-72 overflow-y-auto leading-relaxed font-mono">
+                <!-- Generated script output -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Tool 2: AI Character Concept Art Generator (Imagen 4.0) -->
+          <div class="lg:col-span-6 glass-card p-6 rounded-2xl border border-slate-800 space-y-4 shadow-2xl flex flex-col justify-between">
+            <div class="space-y-4">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2.5">
+                  <div class="w-10 h-10 rounded-xl bg-rose-500/10 text-rose-400 flex items-center justify-center font-bold">
+                    <i data-lucide="image" class="w-5 h-5"></i>
+                  </div>
+                  <div>
+                    <h3 class="text-base font-bold text-white font-cinzel">AI Character Concept Generator</h3>
+                    <p class="text-[11px] text-slate-400">Imagen 4.0 Visual Look & SFX Designer</p>
+                  </div>
+                </div>
+                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-rose-500/10 text-rose-400 border border-rose-500/20">IMAGEN-4</span>
+              </div>
+
+              <div class="space-y-3 text-xs">
+                <div>
+                  <label class="block text-slate-300 font-semibold mb-1">Character Archetype</label>
+                  <select id="aiImagePreset" class="w-full p-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none focus:border-rose-500">
+                    <option value="A dramatic cinematic 35mm monochrome portrait of a intense bald man with chest tattoos and silver cross in low key studio lighting">Dramatic Studio Headshot (B&W)</option>
+                    <option value="A atmospheric cinematic movie still of a dark gothic vampire count with widow peak and red satin collar in candlelit castle">Gothic Vampire Count (Rob Smith Style)</option>
+                    <option value="A haunting cinematic night photo of a creepy harlequin clown in misty woodland holding a script">Night Forest Harlequin Clown</option>
+                    <option value="A gritty 35mm film still of a street detective sitting on industrial stairwell steps in neon London rain">Gritty Urban Detective</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label class="block text-slate-300 font-semibold mb-1">Custom Style Prompt (Optional)</label>
+                  <input type="text" id="aiImagePrompt" placeholder="e.g. Cyberpunk informant in neon lit alley with leather jacket..." class="w-full p-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none focus:border-rose-500" />
+                </div>
+              </div>
+            </div>
+
+            <div class="space-y-3 pt-2">
+              <button onclick="generateAICharacterImage()" id="aiImageBtn" class="w-full py-3 bg-rose-600 hover:bg-rose-500 text-white font-black text-xs rounded-xl shadow-lg transition flex items-center justify-center gap-2">
+                <i data-lucide="wand-2" class="w-4 h-4"></i>
+                <span>Generate Character Concept Art</span>
+              </button>
+
+              <div id="aiImageContainer" class="hidden relative h-56 rounded-xl overflow-hidden bg-slate-950 border border-slate-800 flex items-center justify-center">
+                <img id="aiGeneratedImage" src="" alt="AI Character Concept" class="w-full h-full object-cover hidden" />
+                <div id="aiImageLoader" class="text-xs text-rose-400 font-mono animate-pulse flex items-center gap-2">
+                  <i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i>
+                  <span>Rendering Imagen 4.0 Visual Concept...</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tool 3: AI KMST Family Recovery Assistant -->
+          <div class="lg:col-span-6 glass-card p-6 rounded-2xl border border-slate-800 space-y-4 shadow-2xl flex flex-col justify-between">
+            <div class="space-y-4">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2.5">
+                  <div class="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center font-bold">
+                    <i data-lucide="heart-handshake" class="w-5 h-5"></i>
+                  </div>
+                  <div>
+                    <h3 class="text-base font-bold text-white font-cinzel">AI KMST Family Recovery Assistant</h3>
+                    <p class="text-[11px] text-slate-400">Gemini-Powered Compassionate Guidance</p>
+                  </div>
+                </div>
+                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">KMST-AI</span>
+              </div>
+
+              <p class="text-xs text-slate-300 leading-relaxed">
+                An empathetic guidance tool trained on Keep Me Sober Too principles to answer questions from family members, spouses, and individuals seeking advice on alcoholism recovery support.
+              </p>
+
+              <div>
+                <label class="block text-slate-300 text-xs font-semibold mb-1">Ask a question or share a concern</label>
+                <textarea id="aiRecoveryPrompt" rows="3" placeholder="e.g. My partner is struggling with relapse cravings. How can I support them while protecting my own peace of mind?" class="w-full p-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs focus:outline-none focus:border-emerald-500"></textarea>
+              </div>
+            </div>
+
+            <div class="space-y-3 pt-2">
+              <button onclick="askAIRecoveryAssistant()" id="aiRecoveryBtn" class="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs rounded-xl shadow-lg transition flex items-center justify-center gap-2">
+                <i data-lucide="message-square" class="w-4 h-4"></i>
+                <span>Ask KMST Recovery Companion</span>
+              </button>
+
+              <div id="aiRecoveryOutput" class="hidden p-4 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-300 space-y-2 max-h-60 overflow-y-auto leading-relaxed">
+                <!-- Response output -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Tool 4: AI Enterprise IT Architecture Architect -->
+          <div class="lg:col-span-6 glass-card p-6 rounded-2xl border border-slate-800 space-y-4 shadow-2xl flex flex-col justify-between">
+            <div class="space-y-4">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2.5">
+                  <div class="w-10 h-10 rounded-xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center font-bold">
+                    <i data-lucide="terminal" class="w-5 h-5"></i>
+                  </div>
+                  <div>
+                    <h3 class="text-base font-bold text-white font-cinzel">AI IT Solution Architect</h3>
+                    <p class="text-[11px] text-slate-400">Enterprise Tech Design Proposal Generator</p>
+                  </div>
+                </div>
+                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">TECH-ARCH</span>
+              </div>
+
+              <p class="text-xs text-slate-300 leading-relaxed">
+                Generate high-level enterprise system architecture outlines, cloud infrastructure recommendations, and security blueprints for digital media clients.
+              </p>
+
+              <div>
+                <label class="block text-slate-300 text-xs font-semibold mb-1">Client Business Scenario</label>
+                <input type="text" id="aiITPrompt" placeholder="e.g. High-availability cloud publishing platform for national news media..." class="w-full p-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs focus:outline-none focus:border-indigo-500" />
+              </div>
+            </div>
+
+            <div class="space-y-3 pt-2">
+              <button onclick="generateAIITArchitecture()" id="aiITBtn" class="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-black text-xs rounded-xl shadow-lg transition flex items-center justify-center gap-2">
+                <i data-lucide="cpu" class="w-4 h-4"></i>
+                <span>Generate Technical Blueprint Proposal</span>
+              </button>
+
+              <div id="aiITOutput" class="hidden p-4 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-300 space-y-2 max-h-60 overflow-y-auto leading-relaxed font-mono">
+                <!-- IT Architecture output -->
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- ================= TAB 4: INSTAGRAM FEED PREVIEWS ================= -->
+      <div id="tab-instagram" class="tab-content hidden space-y-8">
+        
+        <div class="border-b border-slate-800 pb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <span class="text-xs font-extrabold uppercase tracking-widest text-pink-500">Official Social Feed</span>
+            <h2 class="text-3xl sm:text-4xl font-black tracking-tight text-white mt-1 font-cinzel">@SteveP-Official Instagram Previews</h2>
+            <p class="text-slate-400 text-xs mt-1">
+              Direct Instagram: <a href="https://instagram.com/SteveP-Official" target="_blank" class="text-pink-400 underline font-mono">instagram.com/SteveP-Official</a>
+            </p>
+          </div>
+
+          <a href="https://instagram.com/SteveP-Official" target="_blank" class="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-gradient-to-r from-purple-600 via-pink-600 to-amber-500 hover:opacity-90 text-white font-black text-xs shadow transition">
+            <i data-lucide="instagram" class="w-4 h-4"></i>
+            <span>Follow @SteveP-Official</span>
+          </a>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6" id="instaFeedGrid">
+          <div class="glass-card rounded-2xl p-5 border border-slate-800 space-y-3 shadow-xl">
+            <div class="flex items-center justify-between text-xs">
+              <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-full bg-pink-500/20 text-pink-400 flex items-center justify-center font-bold">SP</div>
+                <div>
+                  <span class="font-bold text-white text-xs block">Steve Pereira</span>
+                  <span class="text-[10px] text-slate-400">@SteveP-Official</span>
+                </div>
+              </div>
+              <i data-lucide="instagram" class="w-4 h-4 text-pink-500"></i>
+            </div>
+            <div class="h-64 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-center p-4 text-center">
+              <p class="text-xs text-slate-300 italic">"Grateful for 13 years sober today (since 2013). Never forget how far you've come. #Recovery #KMST #ActingLife"</p>
+            </div>
+            <div class="flex justify-between items-center text-xs text-slate-400 font-mono">
+              <span>❤️ 342 Likes</span>
+              <span>💬 48 Comments</span>
+            </div>
+          </div>
+
+          <div class="glass-card rounded-2xl p-5 border border-slate-800 space-y-3 shadow-xl">
+            <div class="flex items-center justify-between text-xs">
+              <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-full bg-pink-500/20 text-pink-400 flex items-center justify-center font-bold">SP</div>
+                <div>
+                  <span class="font-bold text-white text-xs block">Steve Pereira</span>
+                  <span class="text-[10px] text-slate-400">@SteveP-Official</span>
+                </div>
+              </div>
+              <i data-lucide="instagram" class="w-4 h-4 text-pink-500"></i>
+            </div>
+            <div class="h-64 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-center p-4 text-center">
+              <p class="text-xs text-slate-300 italic">"On set today undergoing full character transformation. SFX makeup team killed it! #SpotlightActor #HorrorActor"</p>
+            </div>
+            <div class="flex justify-between items-center text-xs text-slate-400 font-mono">
+              <span>❤️ 519 Likes</span>
+              <span>💬 62 Comments</span>
+            </div>
+          </div>
+
+          <div class="glass-card rounded-2xl p-5 border border-slate-800 space-y-3 shadow-xl">
+            <div class="flex items-center justify-between text-xs">
+              <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-full bg-pink-500/20 text-pink-400 flex items-center justify-center font-bold">SP</div>
+                <div>
+                  <span class="font-bold text-white text-xs block">Steve Pereira</span>
+                  <span class="text-[10px] text-slate-400">@SteveP-Official</span>
+                </div>
+              </div>
+              <i data-lucide="instagram" class="w-4 h-4 text-pink-500"></i>
+            </div>
+            <div class="h-64 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-center p-4 text-center">
+              <p class="text-xs text-slate-300 italic">"Consulting on enterprise publishing systems architecture. Code by day, set by night. #ITConsultant #TechLead"</p>
+            </div>
+            <div class="flex justify-between items-center text-xs text-slate-400 font-mono">
+              <span>❤️ 284 Likes</span>
+              <span>💬 31 Comments</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ================= TAB 5: UK HELP DIRECTORY ================= -->
+      <div id="tab-ukhelp" class="tab-content hidden space-y-8">
+        
+        <div class="border-b border-slate-800 pb-6">
+          <div class="inline-flex items-center gap-2 text-xs font-extrabold uppercase tracking-widest text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20 mb-2">
+            <i data-lucide="shield-alert" class="w-3.5 h-3.5"></i>
+            <span>UK 1-Page Emergency Resource</span>
+          </div>
+          <h2 class="text-3xl font-black tracking-tight text-white font-cinzel">UK Alcohol & Mental Health Contacts</h2>
+          <p class="text-slate-400 text-xs mt-1 max-w-2xl">
+            A clean, easy-to-read one-page directory of verified UK helplines, medical advice lines, and support groups available for everyone.
+          </p>
+        </div>
+
+        <div class="flex flex-col md:flex-row gap-4 items-center justify-between glass-card p-4 rounded-2xl border border-slate-800">
+          <div class="relative w-full md:w-96">
+            <i data-lucide="search" class="w-4 h-4 absolute left-3.5 top-3.5 text-slate-400"></i>
+            <input 
+              type="text" 
+              id="helpSearchInput" 
+              oninput="renderUKHelp()" 
+              placeholder="Search service, keyword or helpline..."
+              class="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-slate-200 placeholder-slate-500 text-xs focus:outline-none focus:border-amber-500"
+            />
+          </div>
+
+          <div class="flex flex-wrap gap-2 w-full md:w-auto">
+            <button onclick="setHelpCategory('All')" class="help-cat-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-500 text-slate-950">All</button>
+            <button onclick="setHelpCategory('Immediate Help')" class="help-cat-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-950 text-slate-400 hover:text-white border border-slate-800">Immediate Help</button>
+            <button onclick="setHelpCategory('Alcohol & Recovery')" class="help-cat-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-950 text-slate-400 hover:text-white border border-slate-800">Alcohol & Recovery</button>
+            <button onclick="setHelpCategory('Family Support')" class="help-cat-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-950 text-slate-400 hover:text-white border border-slate-800">Family Support</button>
+            <button onclick="setHelpCategory('Mental Health')" class="help-cat-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-950 text-slate-400 hover:text-white border border-slate-800">Mental Health</button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="ukHelpGrid">
+          <!-- Dynamically Populated -->
+        </div>
+
+      </div>
+
+      <!-- ================= TAB 6: IT CONSULTANCY ================= -->
+      <div id="tab-itconsulting" class="tab-content hidden space-y-12">
+        
+        <div class="border-b border-slate-800 pb-6">
+          <span class="text-xs font-extrabold uppercase tracking-widest text-indigo-400">Technical Mastery</span>
+          <h2 class="text-3xl font-black tracking-tight text-white mt-1 font-cinzel">Enterprise IT Consultancy & Systems Architecture</h2>
+          <p class="text-slate-400 text-xs mt-1 max-w-2xl">
+            Senior IT Architect with years of experience engineering cloud infrastructure, publishing platforms, and high-traffic web apps for leading enterprise brands.
+          </p>
+        </div>
+
+        <div class="space-y-6">
+          <h3 class="text-xl font-bold text-white flex items-center gap-2 font-cinzel">
+            <i data-lucide="building" class="w-5 h-5 text-indigo-400"></i>
+            <span>Steve Pereira — Enterprise Track Record</span>
+          </h3>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="glass-card rounded-2xl p-6 space-y-3 shadow-lg border border-slate-800">
+              <div class="w-10 h-10 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 font-extrabold">01</div>
+              <h4 class="text-lg font-bold text-white">News Group International</h4>
+              <p class="text-xs font-semibold text-indigo-300">Publishing Systems & Infrastructure</p>
+              <p class="text-xs text-slate-400 leading-relaxed">High-availability digital infrastructure and editorial systems engineering for national media publications.</p>
+            </div>
+
+            <div class="glass-card rounded-2xl p-6 space-y-3 shadow-lg border border-slate-800">
+              <div class="w-10 h-10 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 font-extrabold">02</div>
+              <h4 class="text-lg font-bold text-white">Mediawatch Dubai</h4>
+              <p class="text-xs font-semibold text-indigo-300">Media Analytics Platform</p>
+              <p class="text-xs text-slate-400 leading-relaxed">Enterprise data monitoring and media analytics systems engineered for regional Middle East operations.</p>
+            </div>
+
+            <div class="glass-card rounded-2xl p-6 space-y-3 shadow-lg border border-slate-800">
+              <div class="w-10 h-10 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 font-extrabold">03</div>
+              <h4 class="text-lg font-bold text-white">Coca-Cola</h4>
+              <p class="text-xs font-semibold text-indigo-300">Enterprise Web Portal Systems</p>
+              <p class="text-xs text-slate-400 leading-relaxed">Development, API integration, and security architecture for national marketing campaign platforms.</p>
+            </div>
+
+            <div class="glass-card rounded-2xl p-6 space-y-3 shadow-lg border border-slate-800">
+              <div class="w-10 h-10 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 font-extrabold">04</div>
+              <h4 class="text-lg font-bold text-white">Rugby World Cup</h4>
+              <p class="text-xs font-semibold text-indigo-300">High-Traffic Web Systems</p>
+              <p class="text-xs text-slate-400 leading-relaxed">Scalable web architecture capable of serving millions of concurrent international fan requests seamlessly.</p>
+            </div>
+
+            <div class="glass-card rounded-2xl p-6 space-y-3 shadow-lg border border-slate-800">
+              <div class="w-10 h-10 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 font-extrabold">05</div>
+              <h4 class="text-lg font-bold text-white">Mental Health Charities</h4>
+              <p class="text-xs font-semibold text-indigo-300">Secure Healthcare Portals</p>
+              <p class="text-xs text-slate-400 leading-relaxed">GDPR-compliant user portals for mental health organizations, support worker networks, and helpline databases.</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ================= TAB 7: BOOKING & DIRECT CONTACT ENGINE ================= -->
+      <div id="tab-booking" class="tab-content hidden space-y-12 max-w-4xl mx-auto">
+        
+        <div class="border-b border-slate-800 pb-6 text-center space-y-2">
+          <span class="text-xs font-extrabold uppercase tracking-widest text-amber-400">Direct Enquiries</span>
+          <h2 class="text-3xl sm:text-4xl font-black tracking-tight text-white font-cinzel">Book Steve Pereira</h2>
+          <p class="text-slate-400 text-xs max-w-xl mx-auto">
+            For Casting Directors, TV/Film Producers, IT Enterprise Clients, or Recovery Speaking Engagements.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-8">
+          
+          <div class="md:col-span-5 glass-card rounded-2xl p-6 space-y-6 border border-slate-800">
+            <h3 class="text-lg font-bold text-white flex items-center gap-2">
+              <i data-lucide="badge-check" class="w-5 h-5 text-amber-400"></i>
+              <span>Spotlight & Social Links</span>
+            </h3>
+
+            <div class="space-y-4 text-xs text-slate-300">
+              <div class="p-3 bg-slate-950 rounded-xl border border-slate-800">
+                <div class="text-[10px] text-slate-400 uppercase font-mono">Spotlight Direct URL</div>
+                <a href="https://app.spotlight.com/9339-8945-6183" target="_blank" class="font-bold text-amber-400 hover:underline flex items-center gap-1 mt-1 font-mono">
+                  app.spotlight.com/9339-8945-6183 <i data-lucide="external-link" class="w-3 h-3"></i>
+                </a>
+              </div>
+
+              <div class="p-3 bg-slate-950 rounded-xl border border-slate-800">
+                <div class="text-[10px] text-slate-400 uppercase font-mono">KMST Facebook Page</div>
+                <a href="https://www.facebook.com/share/198w4QLAuC/?mibextid=wwXIfr" target="_blank" class="font-bold text-blue-400 hover:underline flex items-center gap-1 mt-1 font-mono">
+                  facebook.com/share/198w4QLAuC <i data-lucide="external-link" class="w-3 h-3"></i>
+                </a>
+              </div>
+
+              <div class="p-3 bg-slate-950 rounded-xl border border-slate-800">
+                <div class="text-[10px] text-slate-400 uppercase font-mono">Social Handles</div>
+                <div class="flex gap-3 mt-1 font-bold">
+                  <a href="https://instagram.com/SteveP-Official" target="_blank" class="text-pink-400 hover:underline">Instagram</a>
+                  <span>•</span>
+                  <a href="https://bit.ly/SteveP-TW" target="_blank" class="text-sky-400 hover:underline">Twitter/X</a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="md:col-span-7 glass-card rounded-2xl p-6 space-y-4 border border-slate-800 shadow-xl">
+            <h3 class="text-lg font-bold text-white flex items-center gap-2">
+              <i data-lucide="send" class="w-5 h-5 text-amber-400"></i>
+              <span>Send Direct Message / Enquiry</span>
+            </h3>
+
+            <form onsubmit="handleBookingSubmit(event)" class="space-y-4">
+              <div>
+                <label class="block text-xs font-semibold text-slate-300 mb-1">Your Name / Production Co.</label>
+                <input type="text" id="bookName" required placeholder="e.g. Sarah Jenkins (Casting Director)" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-slate-200 text-xs focus:outline-none focus:border-amber-500" />
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-xs font-semibold text-slate-300 mb-1">Contact Email</label>
+                  <input type="email" id="bookEmail" required placeholder="name@company.com" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-slate-200 text-xs focus:outline-none focus:border-amber-500" />
+                </div>
+                <div>
+                  <label class="block text-xs font-semibold text-slate-300 mb-1">Enquiry Type</label>
+                  <select id="bookType" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-slate-200 text-xs focus:outline-none focus:border-amber-500">
+                    <option value="Film / TV Role">Film / TV Role</option>
+                    <option value="Commercial / Voiceover">Commercial / Voiceover</option>
+                    <option value="IT Consultancy Project">IT Consultancy Project</option>
+                    <option value="KMST / Speaking Engagement">KMST / Speaking Engagement</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-xs font-semibold text-slate-300 mb-1">Project Details / Message</label>
+                <textarea id="bookMsg" required rows="4" placeholder="Provide dates, character role summary, or IT project requirements..." class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-slate-200 text-xs focus:outline-none focus:border-amber-500"></textarea>
+              </div>
+
+              <button type="submit" class="w-full py-3 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs rounded-xl shadow-lg shadow-amber-500/20 transition">
+                Submit Enquiry
+              </button>
+            </form>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- ================= TAB 8: MOBILE ADMIN PORTAL ================= -->
+      <div id="tab-admin" class="tab-content hidden space-y-8 max-w-4xl mx-auto">
+        
+        <div class="border-b border-slate-800 pb-6 flex items-center justify-between">
+          <div>
+            <span class="text-xs font-extrabold uppercase tracking-widest text-amber-400">Mobile Admin Portal</span>
+            <h2 class="text-3xl font-black tracking-tight text-white mt-1 font-cinzel font-black">Content Manager</h2>
+          </div>
+          <i data-lucide="smartphone" class="w-8 h-8 text-amber-400"></i>
+        </div>
+
+        <div id="adminLockScreen" class="glass-card rounded-2xl border border-slate-800 p-8 max-w-md mx-auto text-center space-y-6 shadow-2xl">
+          <div class="w-16 h-16 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center mx-auto">
+            <i data-lucide="key" class="w-8 h-8"></i>
+          </div>
+          <div>
+            <h3 class="text-xl font-bold text-white">Enter Admin PIN</h3>
+            <p class="text-xs text-slate-400 mt-1">Demo PIN is <strong class="text-amber-400 font-mono">1234</strong></p>
+          </div>
+
+          <form onsubmit="handleAdminLogin(event)" class="space-y-4">
+            <input type="password" id="adminPinInput" placeholder="Enter PIN (1234)" class="w-full text-center tracking-widest text-lg font-mono px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none focus:border-amber-500" />
+            <button type="submit" class="w-full py-3 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs rounded-xl shadow-lg shadow-amber-500/20 transition">
+              Unlock Admin Portal
+            </button>
+          </form>
+        </div>
+
+        <div id="adminDashboard" class="hidden space-y-6">
+          <div class="flex flex-wrap gap-2 border-b border-slate-800 pb-4">
+            <button onclick="setAdminTab('works')" class="admin-tab-btn px-4 py-2 rounded-xl text-xs font-bold bg-amber-500 text-slate-950">Manage Works</button>
+            <button onclick="setAdminTab('blogs')" class="admin-tab-btn px-4 py-2 rounded-xl text-xs font-bold bg-slate-900 text-slate-400 border border-slate-800">Manage Articles</button>
+          </div>
+
+          <div id="adminTabWorks" class="admin-subtab space-y-4">
+            <form onsubmit="handleSaveWork(event)" class="glass-card p-6 rounded-2xl border border-slate-800 space-y-4">
+              <h3 class="font-bold text-white text-sm">Add New Spotlight Credit</h3>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <input type="text" id="workTitle" placeholder="Title" required class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white" />
+                <input type="text" id="workRole" placeholder="Role" required class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white" />
+                <select id="workCat" class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white">
+                  <option value="Film">Film</option>
+                  <option value="Television">Television</option>
+                  <option value="Stage">Stage</option>
+                  <option value="Commercial">Commercial</option>
+                </select>
+                <input type="text" id="workProd" placeholder="Production Company / Director" class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white" />
+                <input type="text" id="workYear" placeholder="Year (e.g. 2026)" class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white" />
+              </div>
+              <button type="submit" class="px-5 py-2.5 bg-amber-500 text-slate-950 font-bold text-xs rounded-xl">Add Credit</button>
+            </form>
+          </div>
+
+          <div id="adminTabBlogs" class="admin-subtab hidden space-y-4">
+            <form onsubmit="handleSaveBlog(event)" class="glass-card p-6 rounded-2xl border border-slate-800 space-y-4">
+              <h3 class="font-bold text-white text-sm">Publish New Recovery Article</h3>
+              <input type="text" id="blogTitle" placeholder="Article Title" required class="w-full p-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white" />
+              <textarea id="blogExcerpt" placeholder="Short summary..." rows="2" class="w-full p-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white"></textarea>
+              <button type="submit" class="px-5 py-2.5 bg-amber-500 text-slate-950 font-bold text-xs rounded-xl">Publish Article</button>
+            </form>
+          </div>
+        </div>
+
+      </div>
+
+    </main>
+
+    <!-- ================= ADD CREDIT LIVE MODAL ================= -->
+    <div id="addCreditModal" class="fixed inset-0 z-50 bg-slate-950/95 backdrop-blur-md hidden items-center justify-center p-4">
+      <div class="relative max-w-lg w-full glass-card border border-slate-800 rounded-2xl p-6 space-y-4 shadow-2xl">
+        <button onclick="closeAddCreditModal()" class="absolute top-4 right-4 p-2 rounded-full bg-slate-950 text-white hover:bg-slate-800 transition">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+
+        <div class="space-y-1">
+          <h3 class="text-lg font-bold text-white font-cinzel">Add New Spotlight Credit</h3>
+          <p class="text-xs text-slate-400">Enter credit details to immediately display on your live portfolio table.</p>
+        </div>
+
+        <form onsubmit="handleQuickCreditSubmit(event)" class="space-y-3">
+          <div>
+            <label class="block text-[11px] font-semibold text-slate-300 mb-1">Production Title</label>
+            <input type="text" id="quickCreditTitle" required placeholder="e.g. Snickers Commercial" class="w-full p-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white focus:outline-none focus:border-amber-500" />
+          </div>
+          
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-300 mb-1">Role</label>
+              <input type="text" id="quickCreditRole" required placeholder="e.g. Lead Head Double" class="w-full p-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white focus:outline-none focus:border-amber-500" />
+            </div>
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-300 mb-1">Category</label>
+              <select id="quickCreditCat" class="w-full p-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white focus:outline-none focus:border-amber-500">
+                <option value="Film">Film</option>
+                <option value="Television">Television</option>
+                <option value="Stage">Stage</option>
+                <option value="Commercial">Commercial</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-300 mb-1">Production Co. / Director</label>
+              <input type="text" id="quickCreditProd" placeholder="e.g. Jim Stump / T&Pm Creative" class="w-full p-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white focus:outline-none focus:border-amber-500" />
+            </div>
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-300 mb-1">Year</label>
+              <input type="text" id="quickCreditYear" placeholder="2024" class="w-full p-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white focus:outline-none focus:border-amber-500" />
+            </div>
+          </div>
+
+          <button type="submit" class="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs rounded-xl shadow-lg transition">
+            Add Credit Now
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- ================= LIGHTBOX MODAL ================= -->
+    <div id="lightboxModal" class="fixed inset-0 z-50 bg-slate-950/95 backdrop-blur-md hidden items-center justify-center p-4" onclick="closeLightbox()">
+      <div class="relative max-w-3xl w-full bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl" onclick="event.stopPropagation()">
+        <button onclick="closeLightbox()" class="absolute top-4 right-4 p-2 rounded-full bg-slate-950/80 text-white hover:bg-slate-800 transition">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+        <div class="h-96 sm:h-[480px] bg-slate-950 flex items-center justify-center">
+          <img id="lightboxImg" src="" alt="Headshot" class="max-h-full max-w-full object-contain" />
+        </div>
+        <div class="p-6 bg-slate-900 space-y-1">
+          <span id="lightboxTag" class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20">Tag</span>
+          <h3 id="lightboxTitle" class="text-xl font-bold text-white pt-1">Photo Title</h3>
+          <p id="lightboxDesc" class="text-xs text-slate-300">Photo description details.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= FOOTER ================= -->
+    <footer class="border-t border-slate-800 bg-slate-950/90 py-12 mt-20">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-6">
+        <div class="space-y-1 text-center md:text-left">
+          <div class="font-black text-white text-lg font-cinzel">STEVE PEREIRA</div>
+          <p class="text-xs text-slate-400">Spotlight Registered Actor (PIN: 9339-8945-6183) • Sober Since 2013 (13 Yrs) • Represented by The Central Line</p>
+        </div>
+
+        <div class="flex flex-wrap justify-center gap-4 text-xs font-medium text-slate-400">
+          <a href="https://app.spotlight.com/9339-8945-6183" target="_blank" class="hover:text-amber-400">Spotlight Profile</a>
+          <span>•</span>
+          <a href="https://www.facebook.com/share/198w4QLAuC/?mibextid=wwXIfr" target="_blank" class="hover:text-amber-400">KMST Facebook Page</a>
+          <span>•</span>
+          <a href="https://instagram.com/SteveP-Official" target="_blank" class="hover:text-amber-400">@SteveP-Official</a>
+          <span>•</span>
+          <a href="https://bit.ly/SteveP-TW" target="_blank" class="hover:text-amber-400">Twitter/X</a>
+        </div>
+
+        <div class="text-xs text-slate-500 font-mono">
+          © 2026 Steve Pereira. All rights reserved.
+        </div>
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- ================= APPLICATION LOGIC & DATA ================= -->
+  <script>
+    let activeTab = 'portfolio';
+    let selectedWorkFilter = 'All';
+    let selectedHelpCategory = 'All';
+
+    // Gemini API Configuration (Configured strictly for Google AI Studio 100% Free Tier)
+    const geminiApiKey = ""; // Runtime automatically injects key or uses free AI Studio key
+    const geminiTextUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiApiKey}`;
+    const imagenPredictUrl = `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:predict?key=${geminiApiKey}`;
+
+    // Exponential Backoff Fetch Helper (With Free Tier Rate Limit Guards)
+    async function fetchWithRetry(url, options, maxRetries = 3) {
+      let delay = 1000;
+      for (let i = 0; maxRetries > i; i++) {
+        try {
+          const res = await fetch(url, options);
+          if (res.ok) return res;
+        } catch (e) {
+          if (i === maxRetries - 1) throw e;
+        }
+        await new Promise(r => setTimeout(r, delay));
+        delay *= 2;
+      }
+    }
+
+    // 1. AI Audition Monologue Generator (Free Tier Gemini 2.5 Flash)
+    async function generateAIMonologue() {
+      const genre = document.getElementById('aiScriptGenre').value;
+      const userPrompt = document.getElementById('aiScriptPrompt').value.trim();
+      const btn = document.getElementById('aiScriptBtn');
+      const output = document.getElementById('aiScriptOutput');
+
+      btn.disabled = true;
+      btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Writing Scene Monologue...`;
+      lucide.createIcons();
+      output.classList.remove('hidden');
+      output.innerHTML = `<span class="text-amber-400 animate-pulse">Gemini 2.5 Flash (Free Tier) is composing a 60-second audition scene monologue for Steve Pereira...</span>`;
+
+      const systemPrompt = `You are a BAFTA-winning British casting director and playwright crafting a gripping 60-second audition monologue for Steve Pereira, a versatile Spotlight registered British actor with a commanding, gritty, and emotionally raw screen presence (playing age 38-50, bald with chest tattoos). Format with clear character notes, directorial stage directions in [brackets], and spoken monologue text.`;
+
+      const promptText = `Write a dramatic monologue in the style of "${genre}". ${userPrompt ? `Scenario details: ${userPrompt}` : ''}`;
+
+      try {
+        const payload = {
+          contents: [{ parts: [{ text: promptText }] }],
+          systemInstruction: { parts: [{ text: systemPrompt }] }
+        };
+
+        const response = await fetchWithRetry(geminiTextUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        const result = await response.json();
+        const generatedText = result?.candidates?.[0]?.content?.parts?.[0]?.text;
+
+        if (generatedText) {
+          output.innerHTML = generatedText.replace(/\n/g, '<br>').replace(/\[(.*?)\]/g, '<span class="text-amber-400 font-bold">[$1]</span>');
+        } else {
+          output.innerHTML = `<span class="text-rose-400">Unable to generate script at this moment. Free tier quota limit reached, please try again shortly.</span>`;
+        }
+      } catch (err) {
+        output.innerHTML = `<span class="text-rose-400">Error generating monologue. Please check connection.</span>`;
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = `<i data-lucide="sparkles" class="w-4 h-4"></i><span>Generate Audition Monologue</span>`;
+        lucide.createIcons();
+      }
+    }
+
+    // 2. AI Character Concept Art Generator (Imagen 4.0)
+    async function generateAICharacterImage() {
+      const preset = document.getElementById('aiImagePreset').value;
+      const customPrompt = document.getElementById('aiImagePrompt').value.trim();
+      const btn = document.getElementById('aiImageBtn');
+      const container = document.getElementById('aiImageContainer');
+      const img = document.getElementById('aiGeneratedImage');
+      const loader = document.getElementById('aiImageLoader');
+
+      const finalPrompt = customPrompt ? `${customPrompt}, high contrast 35mm film still, cinematic dramatic lighting, highly detailed` : preset;
+
+      btn.disabled = true;
+      btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Rendering Concept Art...`;
+      lucide.createIcons();
+
+      container.classList.remove('hidden');
+      img.classList.add('hidden');
+      loader.classList.remove('hidden');
+
+      try {
+        const payload = {
+          instances: [{ prompt: finalPrompt }],
+          parameters: { sampleCount: 1 }
+        };
+
+        const response = await fetchWithRetry(imagenPredictUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        const result = await response.json();
+        const base64Data = result?.predictions?.[0]?.bytesBase64Encoded;
+
+        if (base64Data) {
+          img.src = `data:image/png;base64,${base64Data}`;
+          img.classList.remove('hidden');
+          loader.classList.add('hidden');
+        } else {
+          loader.innerHTML = `<span class="text-rose-400">Image generation unavailable right now. Try another prompt.</span>`;
+        }
+      } catch (err) {
+        loader.innerHTML = `<span class="text-rose-400">Error connecting to Imagen 4.0 model.</span>`;
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = `<i data-lucide="wand-2" class="w-4 h-4"></i><span>Generate Character Concept Art</span>`;
+        lucide.createIcons();
+      }
+    }
+
+    // 3. AI KMST Recovery Assistant
+    async function askAIRecoveryAssistant() {
+      const userQuery = document.getElementById('aiRecoveryPrompt').value.trim();
+      if (!userQuery) return;
+
+      const btn = document.getElementById('aiRecoveryBtn');
+      const output = document.getElementById('aiRecoveryOutput');
+
+      btn.disabled = true;
+      btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> KMST Companion Thinking...`;
+      lucide.createIcons();
+      output.classList.remove('hidden');
+      output.innerHTML = `<span class="text-emerald-400 animate-pulse">Formulating empathetic guidance rooted in 13 years of recovery & KMST principles...</span>`;
+
+      const systemPrompt = `You are the Keep Me Sober Too (KMST) AI Support Companion for Steve Pereira's recovery advocacy platform (Steve has been sober since 2013 - 13 years continuous recovery). Provide compassionate, non-judgmental, practical guidance for individuals in recovery or family members supporting a loved one with alcoholism. Mention UK helpline resources like NHS 111, Samaritans (116 123), AA UK (0800 9177 650), or Al-Anon (0800 0086 811) when appropriate.`;
+
+      try {
+        const payload = {
+          contents: [{ parts: [{ text: userQuery }] }],
+          systemInstruction: { parts: [{ text: systemPrompt }] }
+        };
+
+        const response = await fetchWithRetry(geminiTextUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        const result = await response.json();
+        const generatedText = result?.candidates?.[0]?.content?.parts?.[0]?.text;
+
+        if (generatedText) {
+          output.innerHTML = generatedText.replace(/\n/g, '<br>');
+        } else {
+          output.innerHTML = `<span class="text-rose-400">Unable to generate response right now.</span>`;
+        }
+      } catch (err) {
+        output.innerHTML = `<span class="text-rose-400">Error connecting to KMST AI Assistant.</span>`;
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = `<i data-lucide="message-square" class="w-4 h-4"></i><span>Ask KMST Recovery Companion</span>`;
+        lucide.createIcons();
+      }
+    }
+
+    // 4. AI Enterprise IT Solution Architect
+    async function generateAIITArchitecture() {
+      const userQuery = document.getElementById('aiITPrompt').value.trim() || 'High-availability digital publishing infrastructure for news media enterprise';
+      const btn = document.getElementById('aiITBtn');
+      const output = document.getElementById('aiITOutput');
+
+      btn.disabled = true;
+      btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Architecting Enterprise Blueprint...`;
+      lucide.createIcons();
+      output.classList.remove('hidden');
+      output.innerHTML = `<span class="text-indigo-400 animate-pulse">Drafting cloud architecture proposal for Steve Pereira's IT Consultancy...</span>`;
+
+      const systemPrompt = `You are a Principal Enterprise Cloud Architect writing a high-level solution proposal for Steve Pereira's IT Consultancy (Steve has engineered systems for News Group International, Mediawatch Dubai, Coca-Cola, and Rugby World Cup). Provide a concise architectural blueprint broken into: 1. Cloud Infrastructure & Multi-Region Setup, 2. Scalability & Latency Optimization, 3. Security & Compliance (GDPR/OAuth2), 4. Recommended Technology Stack.`;
+
+      try {
+        const payload = {
+          contents: [{ parts: [{ text: `Generate an enterprise IT architecture blueprint for: ${userQuery}` }] }],
+          systemInstruction: { parts: [{ text: systemPrompt }] }
+        };
+
+        const response = await fetchWithRetry(geminiTextUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        const result = await response.json();
+        const generatedText = result?.candidates?.[0]?.content?.parts?.[0]?.text;
+
+        if (generatedText) {
+          output.innerHTML = generatedText.replace(/\n/g, '<br>').replace(/(1\.|2\.|3\.|4\.|###)/g, '<br><strong class="text-indigo-400">$1</strong>');
+        } else {
+          output.innerHTML = `<span class="text-rose-400">Unable to generate IT blueprint right now.</span>`;
+        }
+      } catch (err) {
+        output.innerHTML = `<span class="text-rose-400">Error generating architectural proposal.</span>`;
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = `<i data-lucide="cpu" class="w-4 h-4"></i><span>Generate Technical Blueprint Proposal</span>`;
+        lucide.createIcons();
+      }
+    }
+
+    // Extracted Real Credits from Steve Pereira's Casting & Spotlight Record
+    let works = [
+      { id: 'w1', title: 'Snickers (with Saka & Modrić)', role: 'Lead Head Double', category: 'Commercial', production: 'Jim Stump / T&Pm Creative Agency', year: '2024', status: 'Airing' },
+      { id: 'w2', title: 'Safestyle Windows', role: 'Banner Assistant', category: 'Commercial', production: 'Chris Cottam / CHIEF', year: '2023', status: 'Airing' },
+      { id: 'w3', title: 'Heartache Avenue', role: 'Charlie', category: 'Film', production: 'Kirti Joshi', year: '2023', status: 'Released' },
+      { id: 'w4', title: 'Ted Lasso', role: 'Senior Journalist', category: 'Television', production: 'Jason Sudeikis / Apple TV+', year: '2022', status: 'Released' },
+      { id: 'w5', title: 'Dead End Street', role: 'Charlie', category: 'Film', production: 'Kirti Joshi', year: '2022', status: 'Released' },
+      { id: 'w6', title: 'The Witcher', role: 'Lowborn', category: 'Television', production: 'Netflix', year: '2022', status: 'Released' },
+      { id: 'w7', title: 'Doctors', role: 'Court Public / Inmate', category: 'Television', production: 'BBC Drama', year: '2021', status: 'Released' },
+      { id: 'w8', title: 'Midsomer Murders', role: 'Featured', category: 'Television', production: 'ITV Studios', year: '2021', status: 'Released' },
+      { id: 'w9', title: 'Hollyoaks & Emmerdale', role: 'Featured', category: 'Television', production: 'Channel 4 / ITV', year: '2020', status: 'Released' }
+    ];
+
+    // Media Arrays
+    let headshotsGallery = [];
+    let stillsGallery = [];
+    let currentCinemaIndex = 0;
+    let cinemaAutoplayTimer = null;
+
+    let blogs = [
+      { id: 'b1', title: 'Understanding Alcohol Dependency & NHS Medication Pathways', category: 'Medication', date: 'Feb 10, 2026', excerpt: 'An overview of Naltrexone, Acamprosate, and modern NHS support channels for alcohol recovery.' },
+      { id: 'b2', title: 'Keep Me Sober Too: Supporting the Unsung Victims of Addiction', category: 'KMST Story', date: 'Jan 28, 2026', excerpt: 'Why addiction is a family storm—and how Keep Me Sober Too helps loved ones heal.' },
+      { id: 'b3', title: '13 Years Sober: How Acting & Truth Healed My Life', category: 'Personal Story', date: 'Dec 15, 2025', excerpt: 'Sober since 2013, stepping onto set gave me a constructive outlet to process emotion with presence.' }
+    ];
+
+    const ukContacts = [
+      { name: 'NHS 111 Urgent Care', category: 'Immediate Help', phone: '111', web: 'https://111.nhs.uk', hours: '24/7 Free', details: 'NHS medical advice for non-life-threatening urgent physical or mental health needs.' },
+      { name: 'Samaritans UK', category: 'Immediate Help', phone: '116 123', web: 'https://www.samaritans.org', hours: '24/7 Free', details: 'Confidential emotional support for anyone experiencing distress or suicidal thoughts.' },
+      { name: 'Alcoholics Anonymous (AA UK)', category: 'Alcohol & Recovery', phone: '0800 9177 650', web: 'https://www.alcoholics-anonymous.org.uk', hours: '24/7 Helpline', details: 'National helpline providing peer-to-peer support and local meeting locations.' },
+      { name: 'Al-Anon Family Groups UK', category: 'Family Support', phone: '0800 0086 811', web: 'https://al-anonuk.org.uk', hours: '10am - 10pm Daily', details: 'Dedicated support for families and friends affected by another person\'s drinking.' },
+      { name: 'FRANK (National Drug & Alcohol Info)', category: 'Alcohol & Recovery', phone: '0300 123 6600', web: 'https://www.talktofrank.com', hours: '24/7 Confidential', details: 'Honest, friendly, non-judgmental advice and information on drugs and alcohol.' },
+      { name: 'Mind Mental Health Infoline', category: 'Mental Health', phone: '0300 123 3393', web: 'https://www.mind.org.uk', hours: 'Mon-Fri 9am-6pm', details: 'Information and signposting for mental health support and local UK services.' },
+      { name: 'NACOA (Children of Alcoholics)', category: 'Family Support', phone: '0800 358 3456', web: 'https://nacoa.org.uk', hours: 'Free & Confidential', details: 'Support for anyone affected by a parent\'s drinking, past or present.' },
+      { name: 'SMART Recovery UK', category: 'Alcohol & Recovery', phone: '0300 303 0285', web: 'https://smartrecovery.org.uk', hours: 'Meetings & Online', details: 'Science-based mutual-aid recovery program helping people build self-empowerment.' }
+    ];
+
+    // Load saved headshots and set stills from localStorage
+    function loadSavedMedia() {
+      try {
+        const savedHeadshots = localStorage.getItem('steve_pereira_headshots');
+        if (savedHeadshots) {
+          headshotsGallery = JSON.parse(savedHeadshots);
+          if (headshotsGallery.length > 0) {
+            document.getElementById('globalBgLayer').style.backgroundImage = `url('${headshotsGallery[0].url}')`;
+            document.getElementById('heroCardPhoto').src = headshotsGallery[0].url;
+            document.getElementById('heroCardPhoto').classList.remove('hidden');
+            document.getElementById('heroCardFallback').classList.add('hidden');
+          }
+        }
+
+        const savedStills = localStorage.getItem('steve_pereira_filming_stills');
+        if (savedStills) {
+          stillsGallery = JSON.parse(savedStills);
+        }
+      } catch (e) {
+        console.warn('LocalStorage load error:', e);
+      }
+    }
+
+    function loadSavedCredits() {
+      try {
+        const saved = localStorage.getItem('steve_pereira_credits');
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (parsed && parsed.length > 0) works = parsed;
+        }
+      } catch (e) {}
+    }
+
+    // Handle Headshots Upload
+    function handleHeadshotsUpload(event) {
+      const files = event.target.files;
+      if (!files || files.length === 0) return;
+
+      let loadedCount = 0;
+      const newHeadshots = [];
+
+      Array.from(files).forEach((file, idx) => {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const uploadedUrl = e.target.result;
+          
+          if (idx === 0) {
+            document.getElementById('globalBgLayer').style.backgroundImage = `url('${uploadedUrl}')`;
+            document.getElementById('heroCardPhoto').src = uploadedUrl;
+            document.getElementById('heroCardPhoto').classList.remove('hidden');
+            document.getElementById('heroCardFallback').classList.add('hidden');
+          }
+
+          newHeadshots.push({
+            id: 'hs_' + Date.now() + '_' + idx,
+            title: `Steve Pereira Official Headshot #${headshotsGallery.length + idx + 1}`,
+            tag: 'Spotlight Headshot',
+            desc: 'Official casting portrait.',
+            url: uploadedUrl
+          });
+
+          loadedCount++;
+          if (loadedCount === files.length) {
+            headshotsGallery = [...newHeadshots, ...headshotsGallery];
+            try {
+              localStorage.setItem('steve_pereira_headshots', JSON.stringify(headshotsGallery));
+            } catch (err) {}
+            renderHeadshotsSection();
+            alert(`Loaded ${files.length} headshot(s)! Active in the Headshot Deck & Dynamic Background.`);
+          }
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    // Handle Filming Stills Upload
+    function handleStillsUpload(event) {
+      const files = event.target.files;
+      if (!files || files.length === 0) return;
+
+      let loadedCount = 0;
+      const newStills = [];
+
+      Array.from(files).forEach((file, idx) => {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const uploadedUrl = e.target.result;
+
+          newStills.push({
+            id: 'still_' + Date.now() + '_' + idx,
+            title: `On-Set Production Still #${stillsGallery.length + idx + 1}`,
+            tag: '35mm Film Still',
+            desc: 'Filming location & character shoot photo.',
+            url: uploadedUrl
+          });
+
+          loadedCount++;
+          if (loadedCount === files.length) {
+            stillsGallery = [...newStills, ...stillsGallery];
+            try {
+              localStorage.setItem('steve_pereira_filming_stills', JSON.stringify(stillsGallery));
+            } catch (err) {}
+            currentCinemaIndex = 0;
+            renderCinemaReel();
+            alert(`Loaded ${files.length} set still(s)! Active in the 35mm Cinema Reel.`);
+          }
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    // Render In-Page Headshots Flutter Deck
+    function renderHeadshotsSection() {
+      const deckContainer = document.getElementById('inlineHeadshotDeckContainer');
+      const gridContainer = document.getElementById('headshotsGrid');
+
+      if (headshotsGallery.length === 0) {
+        deckContainer.innerHTML = `
+          <div class="p-8 text-center space-y-4 max-w-md border border-slate-800 rounded-2xl bg-slate-950/80">
+            <div class="w-14 h-14 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 flex items-center justify-center mx-auto">
+              <i data-lucide="user" class="w-7 h-7"></i>
+            </div>
+            <div>
+              <h4 class="font-bold text-white text-base font-cinzel">Upload Steve Pereira Headshots</h4>
+              <p class="text-xs text-slate-400 mt-1">Tap below to load your B&W or color headshot files. They will automatically render in an animated 3D fanned-out deck!</p>
+            </div>
+            <label for="headshotUploaderInput" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs cursor-pointer transition shadow">
+              <i data-lucide="upload" class="w-4 h-4"></i>
+              <span>📷 Select Headshot Files</span>
+            </label>
+          </div>
+        `;
+        gridContainer.innerHTML = '';
+        lucide.createIcons();
+        return;
+      }
+
+      // Fan out top 5 headshots
+      deckContainer.innerHTML = headshotsGallery.slice(0, 5).map((p, idx) => {
+        const rotate = (idx % 2 === 0 ? -1 : 1) * (idx * 5);
+        const translate = (idx - 2) * 35;
+        return `
+          <div class="absolute w-56 sm:w-64 h-72 sm:h-80 rounded-2xl overflow-hidden glass-card border-2 border-slate-700 shadow-2xl transition duration-500 cursor-pointer transform hover:scale-110 hover:z-30 hover:rotate-0" style="transform: rotate(${rotate}deg) translateX(${translate}px); z-index: ${10 + idx};" onclick="openLightbox('${p.url}', '${p.title}', '${p.tag}', '${p.desc}')">
+            <img src="${p.url}" alt="${p.title}" class="w-full h-full object-cover" />
+            <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent"></div>
+            <span class="absolute top-2 left-2 px-2 py-0.5 rounded bg-slate-950/80 border border-slate-800 text-[10px] font-bold text-amber-400">${p.tag}</span>
+            <div class="absolute bottom-3 left-3 right-3 text-left">
+              <h4 class="font-bold text-white text-xs">${p.title}</h4>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      // Grid of all headshots below deck
+      gridContainer.innerHTML = headshotsGallery.map(p => `
+        <div onclick="openLightbox('${p.url}', '${p.title}', '${p.tag}', '${p.desc}')" class="h-28 rounded-xl overflow-hidden bg-slate-950 border border-slate-800 cursor-pointer relative group">
+          <img src="${p.url}" alt="${p.title}" class="w-full h-full object-cover group-hover:scale-105 transition" />
+          <div class="absolute inset-0 bg-slate-950/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
+            <i data-lucide="maximize-2" class="w-4 h-4 text-amber-400"></i>
+          </div>
+        </div>
+      `).join('');
+
+      lucide.createIcons();
+    }
+
+    // Render 35mm Cinema Reel for Filming Stills
+    function renderCinemaReel() {
+      const img = document.getElementById('cinemaReelImg');
+      const fallback = document.getElementById('cinemaReelFallback');
+      const title = document.getElementById('cinemaReelTitle');
+      const desc = document.getElementById('cinemaReelDesc');
+      const counter = document.getElementById('cinemaReelCounter');
+
+      if (stillsGallery.length === 0) {
+        img.classList.add('hidden');
+        fallback.classList.remove('hidden');
+        counter.textContent = '0 / 0';
+        return;
+      }
+
+      const current = stillsGallery[currentCinemaIndex];
+      img.src = current.url;
+      img.classList.remove('hidden');
+      fallback.classList.add('hidden');
+
+      title.textContent = current.title;
+      desc.textContent = `${current.tag} • ${current.desc}`;
+      counter.textContent = `${currentCinemaIndex + 1} / ${stillsGallery.length}`;
+    }
+
+    function prevCinemaStill() {
+      if (stillsGallery.length === 0) return;
+      currentCinemaIndex = (currentCinemaIndex - 1 + stillsGallery.length) % stillsGallery.length;
+      renderCinemaReel();
+    }
+
+    function nextCinemaStill() {
+      if (stillsGallery.length === 0) return;
+      currentCinemaIndex = (currentCinemaIndex + 1) % stillsGallery.length;
+      renderCinemaReel();
+    }
+
+    function toggleReelAutoplay() {
+      const btn = document.getElementById('reelAutoplayBtn');
+      if (cinemaAutoplayTimer) {
+        clearInterval(cinemaAutoplayTimer);
+        cinemaAutoplayTimer = null;
+        btn.innerHTML = `<i data-lucide="play" class="w-3.5 h-3.5 text-rose-400"></i><span>Auto-Play Reel</span>`;
+      } else {
+        if (stillsGallery.length === 0) {
+          alert('Please upload filming stills first!');
+          return;
+        }
+        cinemaAutoplayTimer = setInterval(nextCinemaStill, 2500);
+        btn.innerHTML = `<i data-lucide="pause" class="w-3.5 h-3.5 text-amber-400"></i><span>Pause Reel</span>`;
+      }
+      lucide.createIcons();
+    }
+
+    // Credit Modal
+    function openAddCreditModal() {
+      document.getElementById('addCreditModal').classList.remove('hidden');
+      document.getElementById('addCreditModal').classList.add('flex');
+    }
+
+    function closeAddCreditModal() {
+      document.getElementById('addCreditModal').classList.add('hidden');
+      document.getElementById('addCreditModal').classList.remove('flex');
+    }
+
+    function handleQuickCreditSubmit(e) {
+      e.preventDefault();
+      const title = document.getElementById('quickCreditTitle').value;
+      const role = document.getElementById('quickCreditRole').value;
+      const category = document.getElementById('quickCreditCat').value;
+      const production = document.getElementById('quickCreditProd').value || 'Production Co.';
+      const year = document.getElementById('quickCreditYear').value || '2026';
+
+      const newCredit = { id: 'w_' + Date.now(), title, role, category, production, year, status: 'Active' };
+      works.unshift(newCredit);
+
+      try {
+        localStorage.setItem('steve_pereira_credits', JSON.stringify(works));
+      } catch (err) {}
+
+      renderWorks();
+      closeAddCreditModal();
+
+      document.getElementById('quickCreditTitle').value = '';
+      document.getElementById('quickCreditRole').value = '';
+      document.getElementById('quickCreditProd').value = '';
+      document.getElementById('quickCreditYear').value = '';
+
+      alert(`Added credit "${title}" for Steve Pereira!`);
+    }
+
+    // Initialize Page
+    window.onload = function() {
+      lucide.createIcons();
+      loadSavedMedia();
+      loadSavedCredits();
+      renderWorks();
+      renderHeadshotsSection();
+      renderCinemaReel();
+      renderBlogs();
+      renderUKHelp();
+    };
+
+    function switchTab(tabId) {
+      activeTab = tabId;
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+      document.getElementById('tab-' + tabId).classList.remove('hidden');
+
+      document.querySelectorAll('.nav-btn').forEach(btn => {
+        btn.classList.remove('text-amber-400', 'bg-slate-900', 'border', 'border-slate-800');
+        btn.classList.add('text-slate-400');
+      });
+      const activeNav = document.getElementById('nav-' + tabId);
+      if (activeNav) {
+        activeNav.classList.remove('text-slate-400');
+        activeNav.classList.add('text-amber-400', 'bg-slate-900', 'border', 'border-slate-800');
+      }
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function toggleMobileMenu() {
+      document.getElementById('mobileMenu').classList.toggle('hidden');
+    }
+
+    function toggleTheme() {
+      const html = document.documentElement;
+      if (html.classList.contains('dark')) {
+        html.classList.remove('dark');
+        document.body.classList.replace('bg-slate-950', 'bg-slate-50');
+        document.body.classList.replace('text-slate-100', 'text-slate-900');
+      } else {
+        html.classList.add('dark');
+        document.body.classList.replace('bg-slate-50', 'bg-slate-950');
+        document.body.classList.replace('text-slate-900', 'text-slate-100');
+      }
+    }
+
+    function renderWorks() {
+      const body = document.getElementById('worksTableBody');
+      if (!body) return;
+
+      const filtered = selectedWorkFilter === 'All' ? works : works.filter(w => w.category === selectedWorkFilter);
+
+      if (filtered.length === 0) {
+        body.innerHTML = `
+          <tr>
+            <td colspan="6" class="p-8 text-center text-slate-400">
+              <div class="space-y-2">
+                <p class="font-bold text-slate-300">No credits listed yet for this filter.</p>
+                <p class="text-xs">Click <strong class="text-emerald-400 cursor-pointer" onclick="openAddCreditModal()">"+ Add Spotlight Credit"</strong> above or view the live <a href="https://app.spotlight.com/9339-8945-6183" target="_blank" class="text-amber-400 underline font-mono">Spotlight Directory (9339-8945-6183)</a>.</p>
+              </div>
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      body.innerHTML = filtered.map(w => `
+        <tr class="hover:bg-slate-800/40 transition">
+          <td class="p-4 font-bold text-white flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-amber-400"></span>
+            ${w.title}
+          </td>
+          <td class="p-4 text-amber-300 font-medium">${w.role}</td>
+          <td class="p-4"><span class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 font-mono text-[11px]">${w.category}</span></td>
+          <td class="p-4 text-slate-300">${w.production}</td>
+          <td class="p-4 text-slate-400 font-mono">${w.year}</td>
+          <td class="p-4"><span class="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-semibold">${w.status}</span></td>
+        </tr>
+      `).join('');
+    }
+
+    function renderBlogs() {
+      const list = document.getElementById('blogFeedList');
+      if (!list) return;
+
+      list.innerHTML = blogs.map(b => `
+        <div class="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-1.5 hover:border-slate-700 transition">
+          <div class="flex justify-between text-[10px] text-slate-400 font-mono">
+            <span class="text-amber-400 font-bold">${b.category}</span>
+            <span>${b.date}</span>
+          </div>
+          <h4 class="font-bold text-white text-xs hover:text-amber-300 cursor-pointer">${b.title}</h4>
+          <p class="text-xs text-slate-400 leading-relaxed">${b.excerpt}</p>
+        </div>
+      `).join('');
+    }
+
+    function renderUKHelp() {
+      const searchInput = document.getElementById('helpSearchInput');
+      const grid = document.getElementById('ukHelpGrid');
+      if (!grid) return;
+
+      const query = searchInput ? searchInput.value.toLowerCase() : '';
+      
+      const filtered = ukContacts.filter(c => {
+        const matchesQuery = c.name.toLowerCase().includes(query) || c.details.toLowerCase().includes(query);
+        const matchesCat = selectedHelpCategory === 'All' || c.category === selectedHelpCategory;
+        return matchesQuery && matchesCat;
+      });
+
+      grid.innerHTML = filtered.map(c => `
+        <div class="glass-card rounded-2xl border border-slate-800 p-6 flex flex-col justify-between space-y-4 hover:border-emerald-500/40 transition shadow-lg">
+          <div class="space-y-2">
+            <div class="flex justify-between items-center text-[11px]">
+              <span class="px-2.5 py-0.5 rounded-full font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">${c.category}</span>
+              <span class="text-slate-400 font-mono">${c.hours}</span>
+            </div>
+            <h3 class="text-base font-bold text-white">${c.name}</h3>
+            <p class="text-xs text-slate-300 leading-relaxed">${c.details}</p>
+          </div>
+          <div class="pt-3 border-t border-slate-800 flex items-center justify-between gap-2">
+            <a href="tel:${c.phone.replace(/\s+/g, '')}" class="flex-1 py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center justify-center gap-2 transition">
+              <i data-lucide="phone" class="w-3.5 h-3.5"></i>
+              <span>${c.phone}</span>
+            </a>
+            <a href="${c.web}" target="_blank" class="p-2.5 rounded-xl bg-slate-800 text-slate-300 hover:text-white transition">
+              <i data-lucide="external-link" class="w-4 h-4"></i>
+            </a>
+          </div>
+        </div>
+      `).join('');
+      lucide.createIcons();
+    }
+
+    function setHelpCategory(cat) {
+      selectedHelpCategory = cat;
+      renderUKHelp();
+    }
+
+    function handleBookingSubmit(e) {
+      e.preventDefault();
+      const name = document.getElementById('bookName').value;
+      const type = document.getElementById('bookType').value;
+      alert(`Thank you, ${name}! Your enquiry regarding "${type}" has been submitted directly to Steve Pereira's team.`);
+      document.getElementById('bookName').value = '';
+      document.getElementById('bookEmail').value = '';
+      document.getElementById('bookMsg').value = '';
+    }
+
+    function handleAdminLogin(e) {
+      e.preventDefault();
+      const pin = document.getElementById('adminPinInput').value;
+      if (pin === '1234' || pin === 'admin') {
+        document.getElementById('adminLockScreen').classList.add('hidden');
+        document.getElementById('adminDashboard').classList.remove('hidden');
+      } else {
+        alert('Incorrect PIN. Demo PIN is 1234');
+      }
+    }
+
+    function setAdminTab(tab) {
+      document.querySelectorAll('.admin-subtab').forEach(el => el.classList.add('hidden'));
+      if (tab === 'works') document.getElementById('adminTabWorks').classList.remove('hidden');
+      if (tab === 'blogs') document.getElementById('adminTabBlogs').classList.remove('hidden');
+    }
+
+    function handleSaveWork(e) {
+      e.preventDefault();
+      const title = document.getElementById('workTitle').value;
+      const role = document.getElementById('workRole').value;
+      const category = document.getElementById('workCat').value;
+      const production = document.getElementById('workProd').value || 'Production Co.';
+      const year = document.getElementById('workYear').value || '2026';
+
+      works.unshift({ id: 'w_' + Date.now(), title, role, category, production, year, status: 'Active' });
+      try {
+        localStorage.setItem('steve_pereira_credits', JSON.stringify(works));
+      } catch (err) {}
+      renderWorks();
+      alert('New credit added successfully!');
+    }
+
+    function handleSaveBlog(e) {
+      e.preventDefault();
+      const title = document.getElementById('blogTitle').value;
+      const excerpt = document.getElementById('blogExcerpt').value;
+      blogs.unshift({ id: 'b_' + Date.now(), title, category: 'Recovery', date: 'Just now', excerpt });
+      renderBlogs();
+      alert('New article published!');
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,27 @@
+{
+  "name": "steve-pereira-pro-website",
+  "version": "2.0.0",
+  "description": "Steve Pereira - Actor, 34-Year IT Architect, KMST Alcohol Recovery Hub & Money Saving Deals Platform",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "build": "echo 'No build step required for static SPA + Express API'"
+  },
+  "keywords": [
+    "steve-pereira",
+    "actor-portfolio",
+    "spotlight-actor",
+    "cloud-architect",
+    "kmst-recovery",
+    "dubai-mediawatch",
+    "affiliate-hacks"
+  ],
+  "author": "Steve Pereira",
+  "license": "MIT",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2"
+  }
+}

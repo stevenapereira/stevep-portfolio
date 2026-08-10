@@ -1,0 +1,393 @@
+{
+  "credits": [
+    {
+      "id": "w1",
+      "title": "Snickers (with Saka & Modrić)",
+      "role": "Lead Head Double",
+      "category": "Commercial",
+      "production": "Jim Stump / T&Pm Creative Agency",
+      "year": "2024",
+      "status": "Airing"
+    },
+    {
+      "id": "w2",
+      "title": "Safestyle Windows",
+      "role": "Banner Assistant",
+      "category": "Commercial",
+      "production": "Chris Cottam / CHIEF",
+      "year": "2023",
+      "status": "Airing"
+    },
+    {
+      "id": "w3",
+      "title": "Heartache Avenue",
+      "role": "Charlie",
+      "category": "Film",
+      "production": "Kirti Joshi",
+      "year": "2023",
+      "status": "Released"
+    },
+    {
+      "id": "w4",
+      "title": "Ted Lasso",
+      "role": "Senior Journalist",
+      "category": "Television",
+      "production": "Jason Sudeikis / Apple TV+",
+      "year": "2022",
+      "status": "Released"
+    },
+    {
+      "id": "w5",
+      "title": "Dead End Street",
+      "role": "Charlie",
+      "category": "Film",
+      "production": "Kirti Joshi",
+      "year": "2022",
+      "status": "Released"
+    },
+    {
+      "id": "w6",
+      "title": "The Witcher",
+      "role": "Lowborn",
+      "category": "Television",
+      "production": "Netflix",
+      "year": "2022",
+      "status": "Released"
+    },
+    {
+      "id": "w7",
+      "title": "Doctors",
+      "role": "Court Public / Inmate",
+      "category": "Television",
+      "production": "BBC Drama",
+      "year": "2021",
+      "status": "Released"
+    },
+    {
+      "id": "w8",
+      "title": "Midsomer Murders",
+      "role": "Featured",
+      "category": "Television",
+      "production": "ITV Studios",
+      "year": "2021",
+      "status": "Released"
+    },
+    {
+      "id": "w9",
+      "title": "Hollyoaks & Emmerdale",
+      "role": "Featured",
+      "category": "Television",
+      "production": "Channel 4 / ITV",
+      "year": "2020",
+      "status": "Released"
+    }
+  ],
+  "headshots": [
+    {
+      "id": "hs1",
+      "title": "Full Body Standing Slate & Tattoo Portrait",
+      "tag": "Full Body",
+      "desc": "Head-to-toe standing portrait in black shirt showing chest Phoenix tattoo & cross. High-contrast theatrical pose.",
+      "url": "assets/steve_signature_tattoo_bg.jpg"
+    },
+    {
+      "id": "hs2",
+      "title": "Full Body Character Pose - Executive Suit",
+      "tag": "Full Body",
+      "desc": "Head-to-toe standing corporate suit portrait. Tailored presentation.",
+      "url": "assets/steve_brown_suit.jpeg"
+    },
+    {
+      "id": "hs3",
+      "title": "Spotlight Dramatic B&W Close-Up",
+      "tag": "Spotlight Headshot",
+      "desc": "Casting headshot with intense gaze.",
+      "url": "assets/steve_headshot_bw_tattoo_main.jpg"
+    },
+    {
+      "id": "hs4",
+      "title": "Commercial Classic Portrait",
+      "tag": "Commercial",
+      "desc": "Warm, engaging portrait for screen & TV.",
+      "url": "assets/steve_headshot_bw_portrait.jpg"
+    },
+    {
+      "id": "hs5",
+      "title": "Character Dramatic Study",
+      "tag": "Drama",
+      "desc": "Gritty character study headshot.",
+      "url": "assets/steve_headshot_bw_dramatic.jpg"
+    }
+  ],
+  "stills": [
+    {
+      "id": "st1",
+      "title": "The Central Line - Supervisor Role",
+      "tag": "Filming Still",
+      "desc": "On-set production still from drama production.",
+      "url": "assets/steve_still_0047.jpg"
+    },
+    {
+      "id": "st2",
+      "title": "Snickers Commercial Set - Lead Double",
+      "tag": "Commercial Still",
+      "desc": "Behind the scenes with Saka & Modrić campaign.",
+      "url": "assets/steve_still_0059.jpg"
+    },
+    {
+      "id": "st3",
+      "title": "Location Film Shoot - Character Still",
+      "tag": "Feature Film",
+      "desc": "On location camera capture.",
+      "url": "assets/steve_still_0175.jpg"
+    },
+    {
+      "id": "st4",
+      "title": "Television Drama Set - High Tension",
+      "tag": "TV Production",
+      "desc": "Dramatic set capture.",
+      "url": "assets/steve_still_0215.jpg"
+    }
+  ],
+  "stats": {
+    "playingAge": "35 – 50 Years",
+    "height": "5'6.5\" (169cm)",
+    "hair": "Bald",
+    "eyes": "Brown",
+    "location": "London / UK",
+    "accents": "RP, London, Cockney, Firearms, Driving",
+    "equity": "Member"
+  },
+  "socials": {
+    "instagram": "https://instagram.com",
+    "twitter": "https://x.com",
+    "facebook": "https://facebook.com",
+    "spotlight": "https://app.spotlight.com/9339-8945-6183",
+    "imdb": "https://imdb.com"
+  },
+  "aboutTimeline": [
+    {
+      "year": "Birth: Friday the 13th",
+      "title": "Born 2 Weeks Early in a Lift",
+      "location": "Leicester Royal Infirmary",
+      "desc": "Steve entered the world 2 weeks early in an elevator lift at Leicester Royal Infirmary on Friday the 13th—setting the tone for a resilient life."
+    },
+    {
+      "year": "1992 (Age 17)",
+      "title": "Started 34-Year Tech Career",
+      "location": "UK Systems Engineering",
+      "desc": "Began programming and hardware systems engineering at 17, building foundational IT network protocols and software systems."
+    },
+    {
+      "year": "2008 – 2013",
+      "title": "5 Years in Dubai (UAE)",
+      "location": "News Group International & Mediawatch Dubai",
+      "desc": "Lived and worked in Dubai for 5 years as Lead Enterprise Cloud Architect for News Group International and Mediawatch Dubai."
+    },
+    {
+      "year": "The Phoenix Rebirth",
+      "title": "Gatwick Crisis & Phoenix Tattoo",
+      "location": "Gatwick Airport, London",
+      "desc": "Returning home from Dubai, Steve suffered cardiac arrest on the plane as it landed at Gatwick Airport. Simultaneously contracting MRSA and Pneumonia, medical teams gave near-zero odds of survival. Defying all predictions, Steve survived—commemorating his rebirth with his iconic Phoenix Tattoo on his chest."
+    },
+    {
+      "year": "2013 – Present",
+      "title": "Sobriety & Founding KEEP ME SOBER TOO (KMST)",
+      "location": "UK & Global Community",
+      "desc": "Sober since 2013 (13 years of continuous recovery). Steve founded KEEP ME SOBER TOO (KMST) to support individuals struggling with addiction and help their families navigate recovery."
+    },
+    {
+      "year": "Present Day (Age 51)",
+      "title": "Actor & Enterprise IT Architect",
+      "location": "London / Spotlight PIN: 9339-8945-6183",
+      "desc": "Combining 34 years of tech expertise with professional screen acting in major commercials (Snickers with Saka & Modrić) and TV productions (Ted Lasso, The Witcher, BBC Doctors)."
+    }
+  ],
+  "itTimeline": [
+    {
+      "id": "it1",
+      "year": "1992 (Age 17)",
+      "title": "Started Tech & Systems Engineering",
+      "company": "UK Tech Sector",
+      "role": "Junior Systems Engineer",
+      "desc": "Began programming and hardware engineering at age 17, building foundational network protocols and software systems."
+    },
+    {
+      "id": "it2",
+      "year": "2008 - 2013",
+      "title": "5 Years in Dubai (UAE) - Enterprise Architect",
+      "company": "News Group International & Mediawatch Dubai",
+      "role": "Lead Enterprise Cloud & Media Architect",
+      "desc": "Lived and worked in Dubai for 5 years. Engineered mission-critical media broadcasting, real-time news aggregation, and high-availability server clusters across the Middle East."
+    },
+    {
+      "id": "it3",
+      "year": "2014 - 2020",
+      "title": "Global Cloud & Infrastructure Architect",
+      "company": "Coca-Cola & Rugby World Cup",
+      "role": "Principal Cloud Solution Architect",
+      "desc": "Architected multi-region cloud backends, microservices, load balancing, and real-time event infrastructure for global brand campaigns."
+    },
+    {
+      "id": "it4",
+      "year": "2021 - Present (Age 51)",
+      "title": "Senior Cloud Solutions & AI Architect",
+      "company": "Steve Pereira IT Consultancy",
+      "role": "Principal Architect & Technology Strategist",
+      "desc": "34 years of total IT industry expertise. Specializing in cloud scalability, cybersecurity, enterprise DevOps, and AI-assisted cloud migrations."
+    }
+  ],
+  "hacks": [
+    {
+      "id": "hk1",
+      "title": "Pro Cloud Hosting & VPS - 70% Off Voucher",
+      "category": "Tech & Cloud",
+      "tag": "Top Money Saver",
+      "code": "STEVEVIPSAVE",
+      "link": "https://www.digitalocean.com",
+      "desc": "Get $200 free cloud hosting credits for hosting high-speed web apps, APIs, and portfolios.",
+      "badge": "70% OFF"
+    },
+    {
+      "id": "hk2",
+      "title": "Casting & Audition Audio Setup Under £50",
+      "category": "Acting Gear",
+      "tag": "Casting Hack",
+      "code": "ACTORAUDIO",
+      "link": "https://www.amazon.co.uk",
+      "desc": "The exact condenser USB mic & pop filter setup Steve uses for self-tapes and voice reel recordings without spending hundreds.",
+      "badge": "STEVE RECOMMENDS"
+    },
+    {
+      "id": "hk3",
+      "title": "Sober Living & Habit Tracker Tool (Free Trial)",
+      "category": "Sobriety & Mind",
+      "tag": "KMST Approved",
+      "code": "KMSTSOBER",
+      "link": "https://www.iamsober.com",
+      "desc": "Track daily sobriety streaks, mood logs, and financial savings from quitting alcohol.",
+      "badge": "100% FREE"
+    },
+    {
+      "id": "hk4",
+      "title": "Password Manager & Zero-Trust Security Suite",
+      "category": "Tech & Cloud",
+      "tag": "Cyber Security",
+      "code": "CYBERSTEVE",
+      "link": "https://1password.com",
+      "desc": "Secure your passwords, API keys, and audition scripts across all iOS, Android, and Desktop devices.",
+      "badge": "BEST TECH DEAL"
+    }
+  ],
+  "blogs": [
+    {
+      "id": "b1",
+      "title": "Understanding Alcohol Dependency & NHS Medication Pathways",
+      "category": "Medication & Health",
+      "date": "Feb 10, 2026",
+      "excerpt": "An overview of Naltrexone, Acamprosate, and modern NHS support channels for alcohol recovery."
+    },
+    {
+      "id": "b2",
+      "title": "KEEP ME SOBER TOO (KMST): Supporting the Unsung Victims of Addiction",
+      "category": "KMST Story",
+      "date": "Jan 28, 2026",
+      "excerpt": "Why addiction is a family storm—and how KEEP ME SOBER TOO helps loved ones heal."
+    },
+    {
+      "id": "b3",
+      "title": "13 Years Sober: How Phoenix Rebirth & Acting Saved My Life",
+      "category": "Personal Story",
+      "date": "Dec 15, 2025",
+      "excerpt": "Sober since 2013 following the Gatwick airport crisis. Stepping onto set gave me purpose and presence."
+    }
+  ],
+  "seo": {
+    "title": "Steve Pereira | Actor, 34-Yr IT Architect & KEEP ME SOBER TOO (KMST)",
+    "description": "Official website of Steve Pereira. Actor (Spotlight PIN: 9339-8945-6183, 5'6.5\", Bald, Brown eyes), Senior IT Cloud Architect (34 yrs experience), and founder of KEEP ME SOBER TOO (KMST). Born Friday 13th at Leicester Royal Infirmary.",
+    "keywords": "Steve Pereira, Actor, Spotlight Actor, IT Architect, Cloud Architect, Dubai Mediawatch, News Group International, Ted Lasso, Snickers Saka, KEEP ME SOBER TOO, KMST, Phoenix Tattoo, Gatwick Airport, Alcohol Recovery UK",
+    "ogImage": "assets/steve_signature_tattoo_bg.jpg",
+    "spotlightPin": "9339-8945-6183",
+    "agentName": "The Central Line Agency",
+    "agentContact": "agency@thecentralline.co.uk"
+  },
+  "analytics": {
+    "pageViews": 1463,
+    "spotlightClicks": 320,
+    "cvDownloads": 190,
+    "showreelPlays": 506,
+    "bookingEnquiries": 30,
+    "recentEvents": [
+      {
+        "type": "page_view",
+        "timestamp": "2026-08-10T12:44:57.943Z",
+        "details": {}
+      },
+      {
+        "type": "page_view",
+        "timestamp": "2026-08-10T12:44:15.604Z",
+        "details": {}
+      },
+      {
+        "type": "page_view",
+        "timestamp": "2026-08-10T12:30:07.949Z",
+        "details": {}
+      },
+      {
+        "type": "page_view",
+        "timestamp": "2026-08-10T12:15:27.959Z",
+        "details": {}
+      },
+      {
+        "type": "page_view",
+        "timestamp": "2026-08-10T12:10:54.344Z",
+        "details": {}
+      },
+      {
+        "type": "page_view",
+        "timestamp": "2026-08-10T12:08:45.799Z",
+        "details": {}
+      },
+      {
+        "type": "page_view",
+        "timestamp": "2026-08-10T12:00:10.228Z",
+        "details": {}
+      },
+      {
+        "type": "page_view",
+        "timestamp": "2026-08-10T04:37:07.869Z",
+        "details": {}
+      },
+      {
+        "type": "page_view",
+        "timestamp": "2026-08-10T04:34:28.593Z",
+        "details": {}
+      },
+      {
+        "type": "page_view",
+        "timestamp": "2026-08-10T04:27:12.250Z",
+        "details": {}
+      },
+      {
+        "type": "page_view",
+        "timestamp": "2026-08-10T04:10:04.280Z",
+        "details": {}
+      },
+      {
+        "type": "page_view",
+        "timestamp": "2026-08-10T04:09:59.422Z",
+        "details": {}
+      },
+      {
+        "type": "page_view",
+        "timestamp": "2026-08-10T04:08:29.545Z",
+        "details": {}
+      },
+      {
+        "type": "showreel_play",
+        "timestamp": "2026-08-10T04:08:08.305Z",
+        "details": {}
+      }
+    ]
+  }
+}

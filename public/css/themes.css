@@ -1,0 +1,276 @@
+/* ==========================================================================
+   STEVE PEREIRA WEBSITE - MULTI-THEME DESIGN SYSTEM (THEMES.CSS)
+   ========================================================================== */
+
+/* Google Fonts Import */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=Cinzel:wght@600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap');
+
+/* Default Theme Tokens: Noir Tattoo & Drama */
+:root {
+  --bg-main: #030712;
+  --bg-nav: rgba(3, 7, 18, 0.65);
+  --bg-card: rgba(10, 15, 28, 0.48);
+  --border-card: rgba(255, 255, 255, 0.18);
+  --text-main: #ffffff;
+  --text-muted: #cbd5e1;
+  --accent-gold: #f59e0b;
+  --accent-spotlight: #ffcc00;
+  --accent-rose: #e11d48;
+  --accent-emerald: #10b981;
+  --accent-glow: rgba(245, 158, 11, 0.3);
+  --font-heading: 'Plus Jakarta Sans', sans-serif;
+  --font-body: 'Plus Jakarta Sans', sans-serif;
+  --font-serif: 'Cinzel', serif;
+  --font-code: 'JetBrains Mono', monospace;
+  --bg-overlay: linear-gradient(to bottom, rgba(3, 7, 18, 0.45), rgba(3, 7, 18, 0.68));
+}
+
+/* Theme 2: Spotlight Gold & Actor Glamour */
+[data-theme="spotlight"] {
+  --bg-main: #0a0a0c;
+  --bg-nav: rgba(10, 10, 12, 0.72);
+  --bg-card: rgba(18, 18, 22, 0.52);
+  --border-card: rgba(255, 204, 0, 0.3);
+  --text-main: #ffffff;
+  --text-muted: #e2e8f0;
+  --accent-gold: #ffcc00;
+  --accent-spotlight: #ffe066;
+  --accent-rose: #f43f5e;
+  --accent-emerald: #34d399;
+  --accent-glow: rgba(255, 204, 0, 0.4);
+  --font-heading: 'Cinzel', serif;
+  --font-body: 'Plus Jakarta Sans', sans-serif;
+  --bg-overlay: linear-gradient(to bottom, rgba(10, 10, 12, 0.4), rgba(10, 10, 12, 0.65));
+}
+
+/* Theme 3: Cyber Architecture & IT Architect */
+[data-theme="cyber"] {
+  --bg-main: #050b14;
+  --bg-nav: rgba(5, 11, 20, 0.7);
+  --bg-card: rgba(8, 18, 38, 0.5);
+  --border-card: rgba(6, 182, 212, 0.3);
+  --text-main: #ffffff;
+  --text-muted: #94a3b8;
+  --accent-gold: #06b6d4;
+  --accent-spotlight: #38bdf8;
+  --accent-rose: #818cf8;
+  --accent-emerald: #10b981;
+  --accent-glow: rgba(6, 182, 212, 0.4);
+  --font-heading: 'JetBrains Mono', monospace;
+  --font-body: 'Plus Jakarta Sans', sans-serif;
+  --bg-overlay: linear-gradient(to bottom, rgba(5, 11, 20, 0.42), rgba(5, 11, 20, 0.68));
+}
+
+/* Theme 4: Editorial Studio Light */
+[data-theme="editorial-light"] {
+  --bg-main: #f8fafc;
+  --bg-nav: rgba(255, 255, 255, 0.75);
+  --bg-card: rgba(255, 255, 255, 0.65);
+  --border-card: rgba(0, 0, 0, 0.15);
+  --text-main: #0f172a;
+  --text-muted: #334155;
+  --accent-gold: #d97706;
+  --accent-spotlight: #eab308;
+  --accent-rose: #be123c;
+  --accent-emerald: #059669;
+  --accent-glow: rgba(217, 119, 6, 0.2);
+  --font-heading: 'Cinzel', serif;
+  --font-body: 'Plus Jakarta Sans', sans-serif;
+  --bg-overlay: linear-gradient(to bottom, rgba(248, 250, 252, 0.5), rgba(248, 250, 252, 0.75));
+}
+
+/* Base Styles */
+body {
+  background-color: var(--bg-main);
+  color: var(--text-main);
+  font-family: var(--font-body);
+  transition: background-color 0.4s ease, color 0.4s ease;
+}
+
+.font-cinzel {
+  font-family: var(--font-serif);
+}
+
+.font-mono-code {
+  font-family: var(--font-code);
+}
+
+/* Dynamic High-Contrast B&W Background Layer with Downward Parallax Motion */
+.bw-dynamic-bg {
+  position: fixed;
+  top: -15%;
+  left: 0;
+  right: 0;
+  bottom: -15%;
+  width: 100%;
+  height: 130vh;
+  background-size: cover;
+  background-position: center 8%;
+  filter: grayscale(100%) contrast(150%) brightness(0.48);
+  transition: background-image 0.6s ease-in-out, filter 0.4s ease, transform 0.1s cubic-bezier(0.1, 0.5, 0.1, 1);
+  will-change: transform;
+}
+
+/* High Translucency See-Through Glassmorphism Cards */
+.glass-card {
+  background: var(--bg-card);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border-card);
+  box-shadow: 0 12px 40px -10px rgba(0, 0, 0, 0.6);
+  transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
+}
+
+.glass-card:hover {
+  border-color: var(--accent-gold);
+  box-shadow: 0 16px 45px -8px var(--accent-glow);
+  background: rgba(15, 23, 42, 0.58);
+}
+
+/* Hero Portrait Photo Positioning (Head Framed Higher Up) */
+.hero-portrait-img {
+  object-fit: cover;
+  object-position: center 8%;
+}
+
+/* Circular Social Media Icon Badges */
+.social-icon-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(15, 23, 42, 0.7);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #cbd5e1;
+  transition: all 0.3s ease;
+}
+
+.social-icon-btn:hover {
+  transform: translateY(-3px) scale(1.1);
+  color: #ffffff;
+}
+
+.social-icon-btn.instagram:hover {
+  background: linear-gradient(135deg, #833ab4, #fd1d1d, #fcb045);
+  box-shadow: 0 0 15px rgba(253, 29, 29, 0.5);
+  border-color: transparent;
+}
+
+.social-icon-btn.twitter:hover {
+  background: #000000;
+  border-color: #ffffff;
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.4);
+}
+
+.social-icon-btn.facebook:hover {
+  background: #1877f2;
+  box-shadow: 0 0 15px rgba(24, 119, 242, 0.5);
+  border-color: transparent;
+}
+
+.social-icon-btn.spotlight:hover {
+  background: #ffcc00;
+  color: #111111;
+  box-shadow: 0 0 15px rgba(255, 204, 0, 0.6);
+  border-color: transparent;
+}
+
+.social-icon-btn.imdb:hover {
+  background: #f5c518;
+  color: #111111;
+  box-shadow: 0 0 15px rgba(245, 197, 24, 0.6);
+  border-color: transparent;
+}
+
+/* 3D Spin Out & Spread Headshot Deck on Hover */
+.deck-container {
+  perspective: 1000px;
+}
+
+.deck-card {
+  transition: all 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
+  transform-origin: center bottom;
+}
+
+.deck-container:hover .deck-card-0 {
+  transform: translateX(-240px) rotate(-14deg) scale(1.05) !important;
+  z-index: 30 !important;
+}
+.deck-container:hover .deck-card-1 {
+  transform: translateX(-120px) rotate(-7deg) scale(1.05) !important;
+  z-index: 31 !important;
+}
+.deck-container:hover .deck-card-2 {
+  transform: translateX(0px) rotate(0deg) scale(1.1) !important;
+  z-index: 35 !important;
+}
+.deck-container:hover .deck-card-3 {
+  transform: translateX(120px) rotate(7deg) scale(1.05) !important;
+  z-index: 31 !important;
+}
+.deck-container:hover .deck-card-4 {
+  transform: translateX(240px) rotate(14deg) scale(1.05) !important;
+  z-index: 30 !important;
+}
+
+.deck-card:hover {
+  transform: translateY(-20px) scale(1.18) rotate(0deg) !important;
+  z-index: 50 !important;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8), 0 0 20px var(--accent-glow) !important;
+}
+
+/* Text Sharpness & Legibility for See-Through Cards */
+p, h1, h2, h3, h4, span, td, th {
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.7);
+}
+
+/* Spotlight Glow Button */
+.btn-spotlight {
+  background: var(--accent-spotlight);
+  color: #111111;
+  font-weight: 800;
+  box-shadow: 0 0 20px var(--accent-glow);
+  transition: all 0.25s ease;
+  text-shadow: none;
+}
+
+.btn-spotlight:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.15);
+  box-shadow: 0 0 30px var(--accent-glow);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-main);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.25);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-gold);
+}
+
+/* Print Styles for CV */
+@media print {
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+  header, footer, .no-print, nav, #globalBgLayer, #globalBgOverlay {
+    display: none !important;
+  }
+  .print-only {
+    display: block !important;
+  }
+}
