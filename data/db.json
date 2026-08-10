@@ -623,12 +623,37 @@
     "keywords": "Steve Pereira, British Indian Actor, Actor, Leicester, London, Spotlight Actor, IT Nerd, IT Expert, Survival, Unique Story, Alcoholism, Sober , Edge of Life"
   },
   "analytics": {
-    "pageViews": 1477,
+    "pageViews": 1478,
     "spotlightClicks": 320,
     "cvDownloads": 190,
-    "showreelPlays": 506,
+    "showreelPlays": 510,
     "bookingEnquiries": 30,
     "recentEvents": [
+      {
+        "type": "showreel_play",
+        "timestamp": "2026-08-10T22:42:31.210Z",
+        "details": {}
+      },
+      {
+        "type": "showreel_play",
+        "timestamp": "2026-08-10T22:42:29.334Z",
+        "details": {}
+      },
+      {
+        "type": "showreel_play",
+        "timestamp": "2026-08-10T22:42:25.711Z",
+        "details": {}
+      },
+      {
+        "type": "showreel_play",
+        "timestamp": "2026-08-10T22:40:00.806Z",
+        "details": {}
+      },
+      {
+        "type": "page_view",
+        "timestamp": "2026-08-10T22:39:50.025Z",
+        "details": {}
+      },
       {
         "type": "page_view",
         "timestamp": "2026-08-10T22:36:18.278Z",
