@@ -472,7 +472,7 @@ const server = http.createServer(async (req, res) => {
 
     writeDB(db);
     return sendJSON(res, { success: true });
-  }}
+  }
 
   if (reqPath === '/api/booking' && req.method === 'POST') {
     const body = await parseJSON(req);
