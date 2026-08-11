@@ -873,8 +873,14 @@
             <button onclick="setAdminSubTab('analytics')" id="adminSubNav-analytics" class="admin-subnav-btn px-4 py-2 rounded-xl bg-amber-500/20 text-amber-400 border border-amber-500/30">
               <i data-lucide="bar-chart-2" class="w-4 h-4 inline mr-1"></i> Insights & Analytics
             </button>
+            <button onclick="setAdminSubTab('sitetexts')" id="adminSubNav-sitetexts" class="admin-subnav-btn px-4 py-2 rounded-xl bg-slate-900 text-slate-300 hover:text-white">
+              <i data-lucide="edit-3" class="w-4 h-4 inline mr-1"></i> Edit Banner, Hero & Page Text
+            </button>
+            <button onclick="setAdminSubTab('hacks')" id="adminSubNav-hacks" class="admin-subnav-btn px-4 py-2 rounded-xl bg-slate-900 text-slate-300 hover:text-white">
+              <i data-lucide="zap" class="w-4 h-4 inline mr-1"></i> Hacks & Deals Manager
+            </button>
             <button onclick="setAdminSubTab('media')" id="adminSubNav-media" class="admin-subnav-btn px-4 py-2 rounded-xl bg-slate-900 text-slate-300 hover:text-white">
-              <i data-lucide="image" class="w-4 h-4 inline mr-1"></i> Bulk Media Upload & Target Role Picker
+              <i data-lucide="image" class="w-4 h-4 inline mr-1"></i> Bulk Media Manager
             </button>
             <button onclick="setAdminSubTab('pages')" id="adminSubNav-pages" class="admin-subnav-btn px-4 py-2 rounded-xl bg-slate-900 text-slate-300 hover:text-white">
               <i data-lucide="file-plus" class="w-4 h-4 inline mr-1"></i> Custom Page Builder
@@ -883,7 +889,7 @@
               <i data-lucide="award" class="w-4 h-4 inline mr-1"></i> Spotlight Credits & Sync
             </button>
             <button onclick="setAdminSubTab('seo')" id="adminSubNav-seo" class="admin-subnav-btn px-4 py-2 rounded-xl bg-slate-900 text-slate-300 hover:text-white">
-              <i data-lucide="search" class="w-4 h-4 inline mr-1"></i> SEO & Meta Config
+              <i data-lucide="search" class="w-4 h-4 inline mr-1"></i> Search Engine Submissions & SEO
             </button>
             <button onclick="setAdminSubTab('backup')" id="adminSubNav-backup" class="admin-subnav-btn px-4 py-2 rounded-xl bg-slate-900 text-slate-300 hover:text-white">
               <i data-lucide="database" class="w-4 h-4 inline mr-1"></i> 1-Click Backup & Restore
@@ -914,6 +920,124 @@
                 <span class="text-slate-300 block text-[10px]">Booking Requests</span>
                 <strong id="statBooking" class="text-xl font-extrabold text-rose-400">30</strong>
               </div>
+            </div>
+          </div>
+
+          <!-- SUB-TAB: EDIT PAGE TEXT, HERO & BANNER CONTENT -->
+          <div id="adminSection-sitetexts" class="admin-section hidden space-y-6">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+              <div>
+                <h3 class="text-sm font-black text-amber-400 uppercase tracking-wider font-mono-code flex items-center gap-2">
+                  <i data-lucide="edit-3" class="w-4 h-4"></i> Edit Top Banner, Hero Section & All Page Text
+                </h3>
+                <p class="text-xs text-slate-300 mt-0.5">Customize headings, taglines, hero biographies, and section text across every page with live auto-save.</p>
+              </div>
+              <button onclick="saveSiteTexts()" class="px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs flex items-center gap-2 shadow">
+                <i data-lucide="save" class="w-4 h-4"></i> Save All Page Text
+              </button>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs">
+              <!-- Top Banner & Agency Text -->
+              <div class="glass-card rounded-2xl border border-slate-800 p-5 space-y-4">
+                <h4 class="font-black text-white font-cinzel text-sm text-amber-400 flex items-center gap-2">
+                  <i data-lucide="flag" class="w-4 h-4"></i> Top Header Banner & Agency Pin Text
+                </h4>
+                <div class="space-y-1">
+                  <label class="font-bold text-slate-300">Spotlight Pin Badge Text:</label>
+                  <input type="text" id="editTopBannerPin" class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white font-mono-code" value="Spotlight Pin: 9339-8945-6183">
+                </div>
+                <div class="space-y-1">
+                  <label class="font-bold text-slate-300">Agency Representation Text:</label>
+                  <input type="text" id="editTopBannerAgent" class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white" value="Represented by The Central Line Agency">
+                </div>
+              </div>
+
+              <!-- Hero Main Heading & Subtitle -->
+              <div class="glass-card rounded-2xl border border-slate-800 p-5 space-y-4">
+                <h4 class="font-black text-white font-cinzel text-sm text-amber-400 flex items-center gap-2">
+                  <i data-lucide="sparkles" class="w-4 h-4"></i> Hero Section Heading & Tagline
+                </h4>
+                <div class="space-y-1">
+                  <label class="font-bold text-slate-300">Hero Main Title:</label>
+                  <input type="text" id="editHeroTitle" class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white font-cinzel font-bold" value="Steve Pereira: Actor & Screen Producer">
+                </div>
+                <div class="space-y-1">
+                  <label class="font-bold text-slate-300">Hero Subtitle / Tagline:</label>
+                  <input type="text" id="editHeroSubtitle" class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white" value="Screen Actor, Executive Producer & Cybersecurity Founder">
+                </div>
+              </div>
+
+              <!-- Hero Story Bio Paragraph -->
+              <div class="md:col-span-2 glass-card rounded-2xl border border-slate-800 p-5 space-y-4">
+                <h4 class="font-black text-white font-cinzel text-sm text-amber-400 flex items-center gap-2">
+                  <i data-lucide="user" class="w-4 h-4"></i> Hero Bio Summary Paragraph
+                </h4>
+                <textarea id="editHeroBio" rows="3" class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs leading-relaxed font-sans">From being born 2 weeks early in an elevator lift on Friday the 13th to surviving cardiac arrest landing at Gatwick Airport and founding KEEP ME SOBER TOO (KMST)—explore Steve Pereira's remarkable story.</textarea>
+              </div>
+
+              <!-- Section Titles: Headshots, Showreels, Filmography, Hacks -->
+              <div class="glass-card rounded-2xl border border-slate-800 p-5 space-y-4">
+                <h4 class="font-black text-white font-cinzel text-sm text-amber-400 flex items-center gap-2">
+                  <i data-lucide="camera" class="w-4 h-4"></i> Photos & Headshots Section Titles
+                </h4>
+                <div class="space-y-1">
+                  <label class="font-bold text-slate-300">35mm Location Stills Title:</label>
+                  <input type="text" id="editStillsTitle" class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white" value="35mm Filming Location & On-Set Stills">
+                </div>
+                <div class="space-y-1">
+                  <label class="font-bold text-slate-300">Headshots & Slates Section Title:</label>
+                  <input type="text" id="editHeadshotsTitle" class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white" value="Professional Headshots & Full Body Standing Slates">
+                </div>
+              </div>
+
+              <div class="glass-card rounded-2xl border border-slate-800 p-5 space-y-4">
+                <h4 class="font-black text-white font-cinzel text-sm text-amber-400 flex items-center gap-2">
+                  <i data-lucide="film" class="w-4 h-4"></i> Showreels & Hacks Section Titles
+                </h4>
+                <div class="space-y-1">
+                  <label class="font-bold text-slate-300">Showreels Section Title:</label>
+                  <input type="text" id="editShowreelsTitle" class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white" value="Featured Acting Showreels & On-Set Production Clips">
+                </div>
+                <div class="space-y-1">
+                  <label class="font-bold text-slate-300">Hacks & Deals Section Title:</label>
+                  <input type="text" id="editHacksTitle" class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white" value="SteveP Tech Hacks & Money-Saving Deals">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- SUB-TAB: HACKS & TECH DEALS MANAGER -->
+          <div id="adminSection-hacks" class="admin-section hidden space-y-6">
+            <div class="flex flex-wrap items-center justify-between gap-4 border-b border-slate-800 pb-4">
+              <div>
+                <h3 class="text-sm font-black text-amber-400 uppercase tracking-wider font-mono-code flex items-center gap-2">
+                  <i data-lucide="zap" class="w-4 h-4"></i> Hacks & Money-Saving Deals Manager
+                </h3>
+                <p class="text-xs text-slate-300 mt-0.5">Add, edit, delete, and manage money-saving deals and tech hacks displayed on the Hacks page.</p>
+              </div>
+
+              <button onclick="openAddHackModal()" class="px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs flex items-center gap-2 shadow">
+                <i data-lucide="plus" class="w-4 h-4"></i> Add New Hack / Deal
+              </button>
+            </div>
+
+            <!-- Hacks Admin Table -->
+            <div class="glass-card rounded-2xl overflow-hidden border border-slate-800">
+              <table class="w-full text-left border-collapse text-xs">
+                <thead>
+                  <tr class="border-b border-slate-800 bg-slate-950/80 text-slate-400 font-mono-code">
+                    <th class="p-3">Category</th>
+                    <th class="p-3">Title & Summary</th>
+                    <th class="p-3">Promo Code</th>
+                    <th class="p-3">Badge</th>
+                    <th class="p-3 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="adminHacksTableBody" class="divide-y divide-slate-800/60">
+                  <!-- Dynamically rendered via JS -->
+                </tbody>
+              </table>
             </div>
           </div>
 
@@ -1174,10 +1298,59 @@
             </div>
           </div>
 
-          <!-- SUB-TAB 5: SEO EDITOR -->
-          <div id="adminSection-seo" class="admin-section hidden space-y-4">
-            <h3 class="text-sm font-black text-amber-400 uppercase tracking-wider font-mono-code">Live SEO & Meta Tags Editor</h3>
-            <form onsubmit="handleSaveSEO(event)" class="space-y-3 text-xs">
+          <!-- SUB-TAB 5: SEO EDITOR & SEARCH ENGINE SUBMISSIONS -->
+          <div id="adminSection-seo" class="admin-section hidden space-y-6">
+            <h3 class="text-sm font-black text-amber-400 uppercase tracking-wider font-mono-code">Live SEO, Search Engine Submissions & Meta Config</h3>
+            
+            <!-- Search Engine Submissions & Sitemap Generator Panel -->
+            <div class="glass-card rounded-2xl border border-amber-500/40 p-5 space-y-4 bg-slate-950/80">
+              <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-3">
+                <div>
+                  <h4 class="font-black text-amber-400 font-cinzel text-sm flex items-center gap-2">
+                    <i data-lucide="globe" class="w-4 h-4"></i> 1-Click Search Engine Submissions & Sitemap Generator
+                  </h4>
+                  <p class="text-xs text-slate-300">Submit your sitemap instantly to Google Search Console, Bing Webmaster, Yandex & DuckDuckGo IndexNow.</p>
+                </div>
+                
+                <div class="flex items-center gap-2">
+                  <a href="/sitemap.xml" target="_blank" class="px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-700 hover:border-amber-400 text-amber-400 font-mono-code font-bold text-xs flex items-center gap-1">
+                    <i data-lucide="file-code" class="w-3.5 h-3.5"></i> View Sitemap.xml
+                  </a>
+                  <a href="/robots.txt" target="_blank" class="px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-700 hover:border-amber-400 text-cyan-400 font-mono-code font-bold text-xs flex items-center gap-1">
+                    <i data-lucide="bot" class="w-3.5 h-3.5"></i> View Robots.txt
+                  </a>
+                </div>
+              </div>
+
+              <div class="flex flex-wrap items-center justify-between gap-4">
+                <button onclick="submitSitemapToSearchEngines()" id="submitSitemapBtn" class="px-5 py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs flex items-center gap-2 shadow">
+                  <i data-lucide="send" class="w-4 h-4"></i> Submit Sitemap to Google, Bing & IndexNow Search Engines
+                </button>
+
+                <span id="sitemapSubmitStatus" class="text-xs font-mono-code text-slate-400">Ready to submit</span>
+              </div>
+
+              <div id="searchEngineStatusGrid" class="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 text-xs">
+                <div class="p-2.5 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-between">
+                  <span class="font-bold text-slate-300">Google:</span>
+                  <span class="text-emerald-400 font-bold font-mono-code">Ready</span>
+                </div>
+                <div class="p-2.5 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-between">
+                  <span class="font-bold text-slate-300">Bing:</span>
+                  <span class="text-emerald-400 font-bold font-mono-code">Ready</span>
+                </div>
+                <div class="p-2.5 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-between">
+                  <span class="font-bold text-slate-300">Yandex:</span>
+                  <span class="text-emerald-400 font-bold font-mono-code">Ready</span>
+                </div>
+                <div class="p-2.5 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-between">
+                  <span class="font-bold text-slate-300">DuckDuckGo:</span>
+                  <span class="text-emerald-400 font-bold font-mono-code">Ready</span>
+                </div>
+              </div>
+            </div>
+
+            <form onsubmit="handleSaveSEO(event)" class="space-y-3 text-xs glass-card p-5 rounded-2xl border border-slate-800">
               <div class="space-y-1">
                 <label class="font-bold text-slate-300 block">Page Title Tag *</label>
                 <input type="text" id="adminSEOTitle" required class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900/80 border border-slate-800 text-white">
@@ -1308,6 +1481,69 @@
           <i data-lucide="download" class="w-4 h-4"></i> Download Video File
         </a>
       </div>
+    </div>
+  </div>
+
+  <!-- ADD / EDIT HACK MODAL -->
+  <div id="hackModal" class="hidden fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-4" onclick="closeHackModal()">
+    <div class="relative w-full max-w-lg glass-card rounded-3xl p-6 sm:p-8 border border-slate-800 space-y-6" onclick="event.stopPropagation()">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+        <h3 id="hackModalHeader" class="text-lg font-black text-white font-cinzel">Add New Tech Hack / Deal</h3>
+        <button onclick="closeHackModal()" class="p-2 rounded-full bg-slate-900 text-slate-400 hover:text-white">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <form onsubmit="handleSaveHack(event)" class="space-y-4 text-xs">
+        <input type="hidden" id="hackEditId" value="">
+
+        <div class="space-y-1">
+          <label class="font-bold text-slate-300">Hack / Deal Title *</label>
+          <input type="text" id="hackTitle" required placeholder="e.g. AWS & Cloud Infrastructure Discount" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white font-bold">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div class="space-y-1">
+            <label class="font-bold text-slate-300">Category</label>
+            <select id="hackCategory" class="w-full px-3 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white">
+              <option value="Developer Tools">Developer Tools</option>
+              <option value="Cloud & Hosting">Cloud & Hosting</option>
+              <option value="Cyber Security">Cyber Security</option>
+              <option value="Software & AI">Software & AI</option>
+              <option value="Hardware & Tech">Hardware & Tech</option>
+            </select>
+          </div>
+
+          <div class="space-y-1">
+            <label class="font-bold text-slate-300">Badge Label</label>
+            <input type="text" id="hackBadge" placeholder="EXCLUSIVE / 50% OFF" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-emerald-400 font-mono-code font-bold" value="EXCLUSIVE">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div class="space-y-1">
+            <label class="font-bold text-slate-300">Promo / Coupon Code</label>
+            <input type="text" id="hackCode" placeholder="e.g. STEVEVIP50" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-amber-400 font-mono-code font-bold" value="STEVEVIP">
+          </div>
+
+          <div class="space-y-1">
+            <label class="font-bold text-slate-300">Target Deal Link (URL)</label>
+            <input type="url" id="hackLink" placeholder="https://..." class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-cyan-400" value="https://">
+          </div>
+        </div>
+
+        <div class="space-y-1">
+          <label class="font-bold text-slate-300">Description & Claim Instructions</label>
+          <textarea id="hackDesc" rows="3" placeholder="Explain the deal and how users can claim it..." class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs"></textarea>
+        </div>
+
+        <div class="flex items-center justify-end gap-3 pt-2">
+          <button type="button" onclick="closeHackModal()" class="px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-slate-300 font-bold">Cancel</button>
+          <button type="submit" class="px-5 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black flex items-center gap-2 shadow">
+            <i data-lucide="check" class="w-4 h-4"></i> Save Hack / Deal
+          </button>
+        </div>
+      </form>
     </div>
   </div>
 

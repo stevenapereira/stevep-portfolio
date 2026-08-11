@@ -623,12 +623,17 @@
     "keywords": "Steve Pereira, British Indian Actor, Actor, Leicester, London, Spotlight Actor, IT Nerd, IT Expert, Survival, Unique Story, Alcoholism, Sober , Edge of Life"
   },
   "analytics": {
-    "pageViews": 1491,
+    "pageViews": 1492,
     "spotlightClicks": 320,
     "cvDownloads": 190,
     "showreelPlays": 510,
     "bookingEnquiries": 30,
     "recentEvents": [
+      {
+        "type": "page_view",
+        "timestamp": "2026-08-11T00:16:47.663Z",
+        "details": {}
+      },
       {
         "type": "page_view",
         "timestamp": "2026-08-11T00:12:53.753Z",
@@ -865,5 +870,42 @@
         "details": {}
       }
     ]
-  }
+  },
+  "spotlightVideos": [
+    {
+      "id": "v2",
+      "title": "2. SteveP-Showreel",
+      "url": "assets/SteveP-Showreel.mp4",
+      "poster": "assets/thumb_stevep_showreel.jpg",
+      "size": "39.4 MB",
+      "tag": "Showreel Video",
+      "type": "video"
+    },
+    {
+      "id": "v1",
+      "title": "1. The Meeting - Up to 4K.mov",
+      "url": "assets/The_Meeting_Up_to_4K.mov",
+      "poster": "assets/thumb_the_meeting.jpg",
+      "size": "24.6 MB",
+      "tag": "Showreel Video",
+      "type": "video"
+    },
+    {
+      "id": "v3",
+      "title": "3. Combat Certificate Training",
+      "url": "assets/Combat_Certificate_Training.mp4",
+      "poster": "assets/thumb_combat_training.jpg",
+      "size": "6.0 MB",
+      "tag": "Showreel Video",
+      "type": "video"
+    }
+  ],
+  "fullBodySlates": [],
+  "sectionRouting": {
+    "leftPanelCategory": "Filming Still",
+    "flutterDeckCategory": "Headshot",
+    "fullBodyCategory": "Full Body",
+    "heroCategory": "Headshot"
+  },
+  "customPages": []
 }

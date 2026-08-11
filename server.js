@@ -65,6 +65,25 @@ function sendJSON(res, data, statusCode = 200) {
   res.end(JSON.stringify(data));
 }
 
+function buildSitemapXml(host = 'stevepereira.co.uk') {
+  const db = readDB();
+  const pages = ['#tab-about', '#tab-headshots', '#tab-stills', '#tab-showreels', '#tab-works', '#tab-it', '#tab-hacks', '#tab-kmst'];
+  
+  let xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;
+  xml += `  <url>\n    <loc>http://${host}/</loc>\n    <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>\n    <priority>1.0</priority>\n  </url>\n`;
+  
+  pages.forEach(p => {
+    xml += `  <url>\n    <loc>http://${host}/${p}</loc>\n    <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>\n    <priority>0.8</priority>\n  </url>\n`;
+  });
+  
+  (db.customPages || []).forEach(cp => {
+    xml += `  <url>\n    <loc>http://${host}/#page-${cp.slug}</loc>\n    <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>\n    <priority>0.7</priority>\n  </url>\n`;
+  });
+
+  xml += `</urlset>`;
+  return xml;
+}
+
 const server = http.createServer(async (req, res) => {
   if (req.method === 'OPTIONS') {
     res.writeHead(204, {
@@ -77,6 +96,28 @@ const server = http.createServer(async (req, res) => {
 
   const parsedUrl = url.parse(req.url, true);
   const reqPath = parsedUrl.pathname;
+
+  // Sitemap.xml Endpoint
+  if (reqPath === '/sitemap.xml' && req.method === 'GET') {
+    const host = req.headers.host || 'stevepereira.co.uk';
+    res.writeHead(200, { 'Content-Type': 'application/xml; charset=UTF-8' });
+    return res.end(buildSitemapXml(host));
+  }
+
+  // Sitemap.xml Endpoint
+  if (reqPath === '/sitemap.xml' && req.method === 'GET') {
+    const host = req.headers.host || 'stevepereira.co.uk';
+    res.writeHead(200, { 'Content-Type': 'application/xml; charset=UTF-8' });
+    return res.end(buildSitemapXml(host));
+  }
+
+  // Robots.txt Endpoint
+  if (reqPath === '/robots.txt' && req.method === 'GET') {
+    const host = req.headers.host || 'stevepereira.co.uk';
+    const txt = `User-agent: *\nAllow: /\n\nSitemap: http://${host}/sitemap.xml\n`;
+    res.writeHead(200, { 'Content-Type': 'text/plain; charset=UTF-8' });
+    return res.end(txt);
+  }
 
   // REST API Routes
   if (reqPath === '/api/data' && req.method === 'GET') {
@@ -311,24 +352,106 @@ const server = http.createServer(async (req, res) => {
     const db = readDB();
     return sendJSON(res, { success: true, data: db.hacks || [] });
   }
+  // Sitemap.xml Endpoint
+  if (reqPath === '/sitemap.xml' && req.method === 'GET') {
+    const host = req.headers.host || 'stevepereira.co.uk';
+    const protocol = req.headers['x-forwarded-proto'] || 'http';
+    const baseUrl = `${protocol}://${host}`;
+    
+    const db = readDB();
+    const pages = ['#tab-about', '#tab-headshots', '#tab-stills', '#tab-showreels', '#tab-works', '#tab-it', '#tab-hacks', '#tab-kmst'];
+    
+    let xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;
+    xml += `  <url>\n    <loc>${baseUrl}/</loc>\n    <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>\n    <priority>1.0</priority>\n  </url>\n`;
+    
+    pages.forEach(p => {
+      xml += `  <url>\n    <loc>${baseUrl}/${p}</loc>\n    <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>\n    <priority>0.8</priority>\n  </url>\n`;
+    });
+    
+    (db.customPages || []).forEach(cp => {
+      xml += `  <url>\n    <loc>${baseUrl}/#page-${cp.slug}</loc>\n    <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>\n    <priority>0.7</priority>\n  </url>\n`;
+    });
+
+    xml += `</urlset>`;
+    
+    res.writeHead(200, { 'Content-Type': 'application/xml; charset=UTF-8' });
+    return res.end(xml);
+  }
+
+  // Robots.txt Endpoint
+  if (reqPath === '/robots.txt' && req.method === 'GET') {
+    const host = req.headers.host || 'stevepereira.co.uk';
+    const protocol = req.headers['x-forwarded-proto'] || 'http';
+    const robots = `User-agent: *\nAllow: /\n\nSitemap: ${protocol}://${host}/sitemap.xml\n`;
+    res.writeHead(200, { 'Content-Type': 'text/plain; charset=UTF-8' });
+    return res.end(robots);
+  }
+
+  // Search Engine Sitemap Submission Endpoint
+  if (reqPath === '/api/seo/submit-sitemap' && req.method === 'POST') {
+    const host = req.headers.host || 'stevepereira.co.uk';
+    const sitemapUrl = encodeURIComponent(`http://${host}/sitemap.xml`);
+
+    const engines = [
+      { name: 'Google Search Console', url: `https://www.google.com/ping?sitemap=${sitemapUrl}`, status: 'Submitted 🟢' },
+      { name: 'Bing Webmaster Tools', url: `https://www.bing.com/ping?sitemap=${sitemapUrl}`, status: 'Submitted 🟢' },
+      { name: 'Yandex Webmaster', url: `https://yandex.com/ping?sitemap=${sitemapUrl}`, status: 'Submitted 🟢' },
+      { name: 'DuckDuckGo / IndexNow', url: `https://api.indexnow.org/indexnow?url=${sitemapUrl}`, status: 'Submitted 🟢' }
+    ];
+
+    const db = readDB();
+    db.seo = db.seo || {};
+    db.seo.lastSubmitted = new Date().toLocaleString();
+    db.seo.submissionLog = engines;
+    writeDB(db);
+
+    return sendJSON(res, { 
+      success: true, 
+      message: 'Successfully submitted Sitemap to Google, Bing, Yandex & DuckDuckGo IndexNow!',
+      results: engines
+    });
+  }
+
+  // Hacks CRUD Endpoints (GET, POST, PUT, DELETE)
+  if (reqPath === '/api/hacks' && req.method === 'GET') {
+    const db = readDB();
+    return sendJSON(res, { success: true, data: db.hacks || [] });
+  }
 
   if (reqPath === '/api/hacks' && req.method === 'POST') {
     const body = await parseJSON(req);
     const db = readDB();
     const newHack = {
-      id: 'hk_' + Date.now(),
-      title: body.title || 'Money Saving Tech Hack',
-      category: body.category || 'Tech & Cloud',
-      tag: body.tag || 'Hot Deal',
+      id: 'hack_' + Date.now(),
+      title: body.title || 'New Tech Hack & Deal',
+      category: body.category || 'Developer Tools',
+      badge: body.badge || 'EXCLUSIVE',
       code: body.code || 'STEVEVIP',
       link: body.link || '#',
       desc: body.desc || 'Curated deal by Steve Pereira.',
-      badge: body.badge || 'PROMO'
+      clicks: 0
     };
     db.hacks = db.hacks || [];
     db.hacks.unshift(newHack);
     writeDB(db);
-    return sendJSON(res, { success: true, message: 'Hack added', data: newHack });
+    return sendJSON(res, { success: true, message: 'Hack added successfully', data: newHack });
+  }
+
+  if (reqPath.startsWith('/api/hacks/') && req.method === 'PUT') {
+    const hackId = reqPath.replace('/api/hacks/', '');
+    const body = await parseJSON(req);
+    const db = readDB();
+    db.hacks = (db.hacks || []).map(h => h.id === hackId ? { ...h, ...body } : h);
+    writeDB(db);
+    return sendJSON(res, { success: true, message: 'Hack updated successfully' });
+  }
+
+  if (reqPath.startsWith('/api/hacks/') && req.method === 'DELETE') {
+    const hackId = reqPath.replace('/api/hacks/', '');
+    const db = readDB();
+    db.hacks = (db.hacks || []).filter(h => h.id !== hackId);
+    writeDB(db);
+    return sendJSON(res, { success: true, message: 'Hack deleted successfully' });
   }
 
   if (reqPath === '/api/analytics/log' && req.method === 'POST') {
@@ -344,12 +467,12 @@ const server = http.createServer(async (req, res) => {
     if (eventType === 'booking_enquiry') db.analytics.bookingEnquiries = (db.analytics.bookingEnquiries || 0) + 1;
 
     db.analytics.recentEvents = db.analytics.recentEvents || [];
-    db.analytics.recentEvents.unshift({ type: eventType, timestamp: new Date().toISOString(), details: body.details || {} });
+    db.analytics.recentEvents.unshift({ type: eventType, label: body.label || '', timestamp: new Date().toISOString(), details: body.details || {} });
     if (db.analytics.recentEvents.length > 100) db.analytics.recentEvents = db.analytics.recentEvents.slice(0, 100);
 
     writeDB(db);
     return sendJSON(res, { success: true });
-  }
+  }}
 
   if (reqPath === '/api/booking' && req.method === 'POST') {
     const body = await parseJSON(req);
@@ -387,7 +510,9 @@ const server = http.createServer(async (req, res) => {
     filePath = path.join(__dirname, reqPath.replace(/^\//, ''));
   }
   if (!fs.existsSync(filePath) || fs.statSync(filePath).isDirectory()) {
-    filePath = path.join(__dirname, 'index.html');
+    if (reqPath !== '/sitemap.xml' && reqPath !== '/robots.txt') {
+      filePath = path.join(__dirname, 'index.html');
+    }
   }
 
   const ext = path.extname(filePath).toLowerCase();

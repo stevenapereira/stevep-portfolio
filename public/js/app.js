@@ -88,8 +88,10 @@ async function loadData() {
 }
 
 function renderAll() {
+  applySiteTexts();
   renderWorks();
   renderAdminCreditsTable();
+  renderAdminHacksTable();
   renderAboutTimeline();
   renderHeadshotsDeck();
   renderFullBodyGrid();
@@ -1372,4 +1374,186 @@ function toggleReelAutoPlay() {
     if (btn) btn.innerHTML = `<i data-lucide="pause" class="w-4 h-4"></i> Pause Slideshow`;
   }
   if (window.lucide) lucide.createIcons();
+}
+
+// --------------------------------------------------------------------------
+// PAGE TEXT & HERO CONTENT EDITOR
+// --------------------------------------------------------------------------
+function applySiteTexts() {
+  const t = appData.siteTexts || {};
+  
+  if (t.topBannerPin) {
+    const el = document.getElementById('topBannerPinText');
+    if (el) el.textContent = t.topBannerPin;
+  }
+  if (t.topBannerAgent) {
+    const el = document.getElementById('topBannerAgentText');
+    if (el) el.textContent = t.topBannerAgent;
+  }
+  if (t.heroTitle) {
+    const el = document.getElementById('heroTitleText');
+    if (el) el.textContent = t.heroTitle;
+  }
+  if (t.heroSubtitle) {
+    const el = document.getElementById('heroSubtitleText');
+    if (el) el.textContent = t.heroSubtitle;
+  }
+  if (t.heroBio) {
+    const el = document.getElementById('heroBioText');
+    if (el) el.textContent = t.heroBio;
+  }
+  if (t.stillsTitle) {
+    const el = document.getElementById('stillsSectionTitle');
+    if (el) el.textContent = t.stillsTitle;
+  }
+  if (t.headshotsTitle) {
+    const el = document.getElementById('headshotsSectionTitle');
+    if (el) el.textContent = t.headshotsTitle;
+  }
+  if (t.showreelsTitle) {
+    const el = document.getElementById('showreelsSectionTitle');
+    if (el) el.textContent = t.showreelsTitle;
+  }
+  if (t.hacksTitle) {
+    const el = document.getElementById('hacksSectionTitle');
+    if (el) el.textContent = t.hacksTitle;
+  }
+}
+
+async function saveSiteTexts() {
+  appData.siteTexts = appData.siteTexts || {};
+  
+  appData.siteTexts.topBannerPin = document.getElementById('editTopBannerPin')?.value || appData.siteTexts.topBannerPin;
+  appData.siteTexts.topBannerAgent = document.getElementById('editTopBannerAgent')?.value || appData.siteTexts.topBannerAgent;
+  appData.siteTexts.heroTitle = document.getElementById('editHeroTitle')?.value || appData.siteTexts.heroTitle;
+  appData.siteTexts.heroSubtitle = document.getElementById('editHeroSubtitle')?.value || appData.siteTexts.heroSubtitle;
+  appData.siteTexts.heroBio = document.getElementById('editHeroBio')?.value || appData.siteTexts.heroBio;
+  appData.siteTexts.stillsTitle = document.getElementById('editStillsTitle')?.value || appData.siteTexts.stillsTitle;
+  appData.siteTexts.headshotsTitle = document.getElementById('editHeadshotsTitle')?.value || appData.siteTexts.headshotsTitle;
+  appData.siteTexts.showreelsTitle = document.getElementById('editShowreelsTitle')?.value || appData.siteTexts.showreelsTitle;
+  appData.siteTexts.hacksTitle = document.getElementById('editHacksTitle')?.value || appData.siteTexts.hacksTitle;
+
+  applySiteTexts();
+  const ok = await saveAppDataToServer();
+  alert(ok ? 'Successfully saved all page text and banner content!' : 'Error saving page text.');
+}
+
+// --------------------------------------------------------------------------
+// HACKS & MONEY SAVING DEALS CRUD MANAGER
+// --------------------------------------------------------------------------
+function renderAdminHacksTable() {
+  const tbody = document.getElementById('adminHacksTableBody');
+  if (!tbody) return;
+
+  const hacks = appData.hacks || [];
+  if (hacks.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-400 italic">No hacks or deals added yet. Click "Add New Hack / Deal" above.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = hacks.map(h => `
+    <tr class="hover:bg-slate-900/60 transition">
+      <td class="p-3 font-mono-code text-slate-300 font-bold">${h.category}</td>
+      <td class="p-3">
+        <strong class="text-white text-xs block">${h.title}</strong>
+        <span class="text-slate-400 text-[11px] block truncate max-w-xs">${h.desc}</span>
+      </td>
+      <td class="p-3 font-mono-code font-bold text-amber-400">${h.code}</td>
+      <td class="p-3"><span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-bold text-[10px]">${h.badge}</span></td>
+      <td class="p-3 text-right space-x-1">
+        <button onclick="openEditHackModal('${h.id}')" class="px-2.5 py-1 rounded bg-slate-800 text-amber-400 hover:bg-slate-700 font-bold text-[10px]">Edit</button>
+        <button onclick="deleteHack('${h.id}')" class="px-2.5 py-1 rounded bg-rose-600/80 text-white hover:bg-rose-500 font-bold text-[10px]">Delete</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function openAddHackModal() {
+  document.getElementById('hackModalHeader').textContent = 'Add New Tech Hack / Deal';
+  document.getElementById('hackEditId').value = '';
+  document.getElementById('hackTitle').value = '';
+  document.getElementById('hackCategory').value = 'Developer Tools';
+  document.getElementById('hackBadge').value = 'EXCLUSIVE';
+  document.getElementById('hackCode').value = 'STEVEVIP';
+  document.getElementById('hackLink').value = 'https://';
+  document.getElementById('hackDesc').value = '';
+  document.getElementById('hackModal')?.classList.remove('hidden');
+}
+
+function openEditHackModal(id) {
+  const hack = (appData.hacks || []).find(h => h.id === id);
+  if (!hack) return;
+
+  document.getElementById('hackModalHeader').textContent = 'Edit Tech Hack / Deal';
+  document.getElementById('hackEditId').value = hack.id;
+  document.getElementById('hackTitle').value = hack.title || '';
+  document.getElementById('hackCategory').value = hack.category || 'Developer Tools';
+  document.getElementById('hackBadge').value = hack.badge || 'EXCLUSIVE';
+  document.getElementById('hackCode').value = hack.code || 'STEVEVIP';
+  document.getElementById('hackLink').value = hack.link || 'https://';
+  document.getElementById('hackDesc').value = hack.desc || '';
+  document.getElementById('hackModal')?.classList.remove('hidden');
+}
+
+function closeHackModal() {
+  document.getElementById('hackModal')?.classList.add('hidden');
+}
+
+async function handleSaveHack(e) {
+  e.preventDefault();
+  const id = document.getElementById('hackEditId').value;
+  const newHack = {
+    id: id || ('hack_' + Date.now()),
+    title: document.getElementById('hackTitle').value,
+    category: document.getElementById('hackCategory').value,
+    badge: document.getElementById('hackBadge').value,
+    code: document.getElementById('hackCode').value,
+    link: document.getElementById('hackLink').value,
+    desc: document.getElementById('hackDesc').value,
+    clicks: 0
+  };
+
+  appData.hacks = appData.hacks || [];
+  if (id) {
+    appData.hacks = appData.hacks.map(h => h.id === id ? { ...h, ...newHack } : h);
+  } else {
+    appData.hacks.unshift(newHack);
+  }
+
+  renderAll();
+  closeHackModal();
+  await saveAppDataToServer();
+  alert('Hack deal saved successfully!');
+}
+
+async function deleteHack(id) {
+  if (!confirm('Are you sure you want to delete this hack deal?')) return;
+  appData.hacks = (appData.hacks || []).filter(h => h.id !== id);
+  renderAll();
+  await saveAppDataToServer();
+}
+
+// --------------------------------------------------------------------------
+// SEARCH ENGINE SITEMAP SUBMISSION
+// --------------------------------------------------------------------------
+async function submitSitemapToSearchEngines() {
+  const btn = document.getElementById('submitSitemapBtn');
+  const statusEl = document.getElementById('sitemapSubmitStatus');
+  if (btn) btn.disabled = true;
+  if (statusEl) statusEl.textContent = 'Pinging Google, Bing, Yandex & DuckDuckGo...';
+
+  try {
+    const res = await fetch('/api/seo/submit-sitemap', { method: 'POST' });
+    const json = await res.json();
+    if (json.success) {
+      if (statusEl) statusEl.textContent = 'Submitted to all 4 Search Engines! 🟢';
+      alert('Sitemap successfully submitted to Google Search Console, Bing Webmaster, Yandex & DuckDuckGo IndexNow!');
+    } else {
+      if (statusEl) statusEl.textContent = 'Submission error.';
+    }
+  } catch (e) {
+    if (statusEl) statusEl.textContent = 'Error connecting to search engine ping API.';
+  } finally {
+    if (btn) btn.disabled = false;
+  }
 }
