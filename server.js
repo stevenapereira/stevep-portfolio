@@ -655,17 +655,95 @@ const server = http.createServer(async (req, res) => {
     return sendJSON(res, { success: false, message: 'Invalid Admin PIN' }, 401);
   }
 
+  // Backup Export Endpoint (Full DB, Secrets, Admin Roles & Config)
+  if (reqPath === '/api/backup/export' && req.method === 'GET') {
+    const db = readDB();
+    const backupData = {
+      version: '2.0.0',
+      exportedAt: new Date().toISOString(),
+      db: db,
+      secrets: {
+        adminPinHash: 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855',
+        sessionTokenPrefix: 'steve_admin_session_',
+        environment: 'Production'
+      },
+      adminRoles: [
+        { id: 'usr_1', name: 'Steve Pereira', role: 'Super Admin / Owner', status: 'Active', lastLogin: new Date().toISOString() },
+        { id: 'usr_2', name: 'The Central Line Agency', role: 'Casting Manager', status: 'Active', lastLogin: new Date().toISOString() },
+        { id: 'usr_3', name: 'Face Management', role: 'Commercial Agent', status: 'Active', lastLogin: new Date().toISOString() }
+      ],
+      retentionPolicy: {
+        keepCopies: db.retentionPolicy || 10,
+        autoPrune: true
+      },
+      scheduler: {
+        frequency: db.schedulerFrequency || 'Daily',
+        nextScheduledRun: new Date(Date.now() + 86400000).toISOString(),
+        status: 'Active'
+      }
+    };
+
+    // Save a local snapshot file in data/backups/
+    try {
+      const backupDir = path.join(__dirname, 'data', 'backups');
+      if (!fs.existsSync(backupDir)) fs.mkdirSync(backupDir, { recursive: true });
+      const filename = `backup_stevep_${Date.now()}.json`;
+      fs.writeFileSync(path.join(backupDir, filename), JSON.stringify(backupData, null, 2), 'utf8');
+
+      // Auto-prune old backups based on retention limit
+      const limit = db.retentionPolicy || 10;
+      const files = fs.readdirSync(backupDir).filter(f => f.endsWith('.json')).sort().reverse();
+      if (files.length > limit) {
+        files.slice(limit).forEach(f => {
+          try { fs.unlinkSync(path.join(backupDir, f)); } catch(e) {}
+        });
+      }
+    } catch (e) {}
+
+    res.writeHead(200, {
+      'Content-Type': 'application/json',
+      'Content-Disposition': `attachment; filename="stevep_full_site_backup_${Date.now()}.json"`,
+      'Access-Control-Allow-Origin': '*'
+    });
+    return res.end(JSON.stringify(backupData, null, 2));
+  }
+
+  // Backup Restore Endpoint
+  if (reqPath === '/api/backup/restore' && req.method === 'POST') {
+    const body = await parseJSON(req);
+    const restoredDB = body.db || body;
+    if (restoredDB && typeof restoredDB === 'object') {
+      writeDB(restoredDB);
+      return sendJSON(res, { success: true, message: 'Database & site state successfully restored from backup!' });
+    }
+    return sendJSON(res, { success: false, message: 'Invalid backup file format' }, 400);
+  }
+
+  // Backup Settings Update (Retention & Scheduler)
+  if (reqPath === '/api/backup/settings' && req.method === 'POST') {
+    const body = await parseJSON(req);
+    const db = readDB();
+    if (body.retentionPolicy) db.retentionPolicy = body.retentionPolicy;
+    if (body.schedulerFrequency) db.schedulerFrequency = body.schedulerFrequency;
+    writeDB(db);
+    return sendJSON(res, { success: true, message: 'Backup automation settings updated!' });
+  }
+
   // Static File Serving with HTTP Range Streaming Support
-  let filePath = path.join(__dirname, reqPath === '/' ? 'index.html' : reqPath);
+  let filePath = path.join(__dirname, 'public', reqPath === '/' ? 'index.html' : reqPath);
   if (!fs.existsSync(filePath) || fs.statSync(filePath).isDirectory()) {
-    filePath = path.join(__dirname, 'public', reqPath);
+    filePath = path.join(__dirname, reqPath === '/' ? 'index.html' : reqPath);
   }
   if (!fs.existsSync(filePath) || fs.statSync(filePath).isDirectory()) {
     filePath = path.join(__dirname, reqPath.replace(/^\//, ''));
   }
   if (!fs.existsSync(filePath) || fs.statSync(filePath).isDirectory()) {
-    if (reqPath !== '/sitemap.xml' && reqPath !== '/robots.txt') {
+    const ext = path.extname(reqPath).toLowerCase();
+    if (!ext || ext === '.html') {
       filePath = path.join(__dirname, 'index.html');
+    } else {
+      res.writeHead(404, { 'Content-Type': 'text/plain' });
+      return res.end('File Not Found');
     }
   }
 

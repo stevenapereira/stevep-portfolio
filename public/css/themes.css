@@ -111,20 +111,19 @@ body {
   will-change: transform;
 }
 
+/* Glassmorphic Card Transparency Controller */
+:root {
+  --glass-opacity: 0.48;
+}
+
 /* High Translucency See-Through Glassmorphism Cards */
 .glass-card {
-  background: var(--bg-card);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: rgba(10, 15, 28, var(--glass-opacity));
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
   border: 1px solid var(--border-card);
   box-shadow: 0 12px 40px -10px rgba(0, 0, 0, 0.6);
   transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
-}
-
-.glass-card:hover {
-  border-color: var(--accent-gold);
-  box-shadow: 0 16px 45px -8px var(--accent-glow);
-  background: rgba(15, 23, 42, 0.58);
 }
 
 /* Hero Portrait Photo Positioning (Head Framed Higher Up) */
@@ -133,76 +132,84 @@ body {
   object-position: center 8%;
 }
 
-/* Circular Social Media Icon Badges (Trendy 2026 Glassmorphism) */
+/* Circular Social Media Icon Badges (Graphical 3D & Vibrant Colors) */
 .social-icon-btn {
-  width: 40px;
-  height: 40px;
+  width: 42px;
+  height: 42px;
   border-radius: 50%;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: rgba(15, 23, 42, 0.75);
+  background: rgba(15, 23, 42, 0.85);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: #e2e8f0;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.2);
   transition: all 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   overflow: hidden;
   position: relative;
 }
 
 .social-icon-btn img {
-  width: 22px;
-  height: 22px;
+  width: 24px;
+  height: 24px;
   object-fit: contain;
   transition: transform 0.35s ease;
 }
 
 .social-icon-btn:hover {
-  transform: translateY(-3px) scale(1.12);
-  color: #ffffff;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+  transform: translateY(-4px) scale(1.15);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.7);
 }
 
+.social-icon-btn.instagram {
+  background: linear-gradient(135deg, #833ab4, #fd1d1d 50%, #fcb045);
+  border-color: rgba(253, 29, 29, 0.6);
+}
 .social-icon-btn.instagram:hover {
-  background: linear-gradient(135deg, #833ab4, #fd1d1d, #fcb045);
-  box-shadow: 0 0 20px rgba(253, 29, 29, 0.6);
-  border-color: rgba(253, 29, 29, 0.8);
+  box-shadow: 0 0 25px rgba(253, 29, 29, 0.8);
+  border-color: #ffffff;
 }
 
+.social-icon-btn.twitter {
+  background: linear-gradient(135deg, #1d9bf0, #0f1419);
+  border-color: rgba(29, 155, 240, 0.6);
+}
 .social-icon-btn.twitter:hover {
-  background: #0f1419;
-  border-color: rgba(255, 255, 255, 0.8);
-  box-shadow: 0 0 20px rgba(255, 255, 255, 0.4);
+  box-shadow: 0 0 25px rgba(29, 155, 240, 0.8);
+  border-color: #ffffff;
 }
 
+.social-icon-btn.facebook {
+  background: linear-gradient(135deg, #1877f2, #0052cc);
+  border-color: rgba(24, 119, 242, 0.6);
+}
 .social-icon-btn.facebook:hover {
-  background: #1877f2;
-  box-shadow: 0 0 20px rgba(24, 119, 242, 0.6);
-  border-color: rgba(24, 119, 242, 0.8);
+  box-shadow: 0 0 25px rgba(24, 119, 242, 0.8);
+  border-color: #ffffff;
 }
 
 .social-icon-btn.spotlight {
-  background: rgba(15, 23, 42, 0.85);
-  border-color: rgba(245, 158, 11, 0.4);
+  background: linear-gradient(135deg, #ffffff, #fffbeb);
+  border-color: rgba(245, 158, 11, 0.6);
+  padding: 3px;
 }
-
 .social-icon-btn.spotlight:hover {
   background: #ffffff;
-  box-shadow: 0 0 22px rgba(245, 158, 11, 0.8);
+  box-shadow: 0 0 25px rgba(245, 158, 11, 0.9);
   border-color: #f59e0b;
 }
 
-.social-icon-btn.spotlight:hover img {
-  transform: scale(1.15);
-}
-
-.social-icon-btn.imdb:hover {
-  background: #f5c518;
+.social-icon-btn.imdb {
+  background: linear-gradient(135deg, #f5c518, #e2b100);
   color: #111111;
-  box-shadow: 0 0 20px rgba(245, 197, 24, 0.7);
-  border-color: #f5c518;
+  font-weight: 900;
+  border-color: rgba(245, 197, 24, 0.8);
+}
+.social-icon-btn.imdb:hover {
+  box-shadow: 0 0 25px rgba(245, 197, 24, 0.9);
+  border-color: #ffffff;
 }
 
 /* 3D Spin Out & Spread Headshot Deck on Hover */
