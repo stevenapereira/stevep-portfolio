@@ -58,10 +58,13 @@
   </script>
 
   <!-- Custom Themes CSS -->
-  <link rel="stylesheet" href="css/themes.css">
+  <link rel="stylesheet" href="/css/themes.css">
 
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Application Logic -->
+  <script src="/js/app.js"></script>
 </head>
 <body class="min-h-screen relative transition-colors duration-400">
 
@@ -71,113 +74,122 @@
 
   <div class="relative z-10">
 
-    <!-- ================= TOP SPOTLIGHT BANNER ================= -->
-    <div class="bg-gradient-to-r from-amber-600/90 via-rose-600/90 to-indigo-600/90 text-white text-[11px] font-black py-2 px-4 text-center tracking-wider flex items-center justify-center gap-2 shadow-md backdrop-blur-md">
-      <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
-      <span>STEVE PEREIRA • SOBER SINCE 2013 (13 YEARS RECOVERY) • FOUNDER OF KEEP ME SOBER TOO (KMST) • SPOTLIGHT PIN: 9339-8945-6183</span>
-      <a href="https://app.spotlight.com/9339-8945-6183" target="_blank" onclick="trackEvent('spotlight_click')" class="underline ml-2 text-amber-200 hover:text-white flex items-center gap-1 font-mono-code font-bold">
-        View Spotlight Profile <i data-lucide="external-link" class="w-3 h-3"></i>
-      </a>
-    </div>
+    <!-- ================= COMBINED STICKY TOP CONTAINER ================= -->
+    <div class="sticky top-0 z-50 shadow-2xl">
+      
+      <!-- ================= TOP SPOTLIGHT BANNER ================= -->
+      <div class="bg-gradient-to-r from-amber-600/95 via-rose-600/95 to-indigo-600/95 text-white text-[11px] sm:text-xs font-black py-2.5 sm:py-3 px-4 text-center tracking-wider flex items-center justify-center gap-2 border-t-2 border-b-2 border-amber-400/90 shadow-[0_0_15px_rgba(245,158,11,0.35)] backdrop-blur-md">
+        <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
+        <span>STEVE PEREIRA • SOBER SINCE 2013 (13 YEARS RECOVERY) • FOUNDER OF KEEP ME SOBER TOO (KMST) • SPOTLIGHT PIN: 9339-8945-6183</span>
+        <a href="https://app.spotlight.com/9339-8945-6183" target="_blank" onclick="trackEvent('spotlight_click')" class="underline ml-2 text-amber-200 hover:text-white flex items-center gap-1.5 font-mono-code font-bold bg-black/30 px-2.5 py-0.5 rounded-lg border border-amber-300/40 hover:bg-black/50 transition">
+          <img src="assets/talent_systems_logo.png" class="w-4 h-4 object-contain" alt="Talent Systems">
+          <span>View Spotlight Profile</span>
+          <i data-lucide="external-link" class="w-3 h-3"></i>
+        </a>
+      </div>
 
-    <!-- ================= HEADER & NAVIGATION ================= -->
-    <header class="sticky top-0 z-40 backdrop-blur-xl border-b border-slate-800/60" style="background-color: var(--bg-nav);">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-        
-        <!-- Brand Identity -->
-        <div class="flex items-center space-x-3 cursor-pointer" onclick="switchTab('casting')">
-          <div class="w-11 h-11 rounded-xl bg-gradient-to-tr from-rose-600 via-amber-500 to-indigo-600 p-0.5 shadow-lg">
-            <div class="w-full h-full rounded-[10px] bg-slate-950/90 flex items-center justify-center font-black text-lg text-amber-400">
-              SP
+      <!-- ================= HEADER & NAVIGATION ================= -->
+      <header class="backdrop-blur-xl border-b border-slate-800/80" style="background-color: var(--bg-nav);">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 sm:h-22 flex items-center justify-between py-2">
+          
+          <!-- Brand Identity -->
+          <div class="flex items-center space-x-3 cursor-pointer group" onclick="switchTab('casting')">
+            <div class="w-11 h-11 rounded-xl bg-gradient-to-tr from-rose-600 via-amber-500 to-indigo-600 p-0.5 shadow-lg group-hover:scale-105 transition">
+              <div class="w-full h-full rounded-[10px] bg-slate-950/90 flex items-center justify-center font-black text-lg text-amber-400">
+                SP
+              </div>
+            </div>
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="text-xl sm:text-2xl font-black tracking-tight text-white font-cinzel group-hover:text-amber-300 transition">
+                  STEVE PEREIRA
+                </span>
+                <a href="https://app.spotlight.com/9339-8945-6183" target="_blank" class="inline-flex items-center gap-1.5 bg-slate-900 border border-amber-400/80 text-amber-300 font-black text-[10px] px-2.5 py-1 rounded-lg shadow hover:bg-amber-400 hover:text-slate-950 transition">
+                  <img src="assets/talent_systems_logo.png" class="w-3.5 h-3.5 object-contain" alt="Talent Systems">
+                  <span>SPOTLIGHT 9339-8945-6183</span>
+                </a>
+              </div>
+              <p class="text-[11px] font-bold text-slate-300 flex items-center gap-1.5 mt-0.5">
+                <span class="text-emerald-400 font-bold">Sober Since 2013 (13 Yrs)</span> • <span>Actor</span> • <span>34-Yr IT Architect</span>
+              </p>
             </div>
           </div>
-          <div>
-            <div class="flex items-center gap-2">
-              <span class="text-xl font-black tracking-tight text-white font-cinzel">
-                STEVE PEREIRA
-              </span>
-              <a href="https://app.spotlight.com/9339-8945-6183" target="_blank" class="inline-flex items-center gap-1 bg-amber-400 text-slate-950 font-black text-[10px] px-2 py-0.5 rounded shadow hover:bg-yellow-300 transition">
-                <i data-lucide="award" class="w-3 h-3"></i> SPOTLIGHT 9339-8945-6183
+
+          <!-- Navigation Links -->
+          <nav class="hidden xl:flex items-center space-x-1 text-xs font-extrabold">
+            <button onclick="switchTab('casting')" id="nav-casting" class="nav-btn flex items-center gap-1.5 px-3 py-2 rounded-xl text-amber-400 bg-slate-950/60 border border-slate-700/80 backdrop-blur-md">
+              <i data-lucide="clapperboard" class="w-4 h-4"></i>
+              <span>Casting Director Hub</span>
+            </button>
+
+            <button onclick="switchTab('about')" id="nav-about" class="nav-btn flex items-center gap-1.5 px-3 py-2 rounded-xl text-slate-200 hover:text-white hover:bg-slate-900/60 transition backdrop-blur-md">
+              <i data-lucide="user" class="w-4 h-4 text-amber-400"></i>
+              <span>About SteveP Timeline</span>
+            </button>
+
+            <button onclick="switchTab('headshots')" id="nav-headshots" class="nav-btn flex items-center gap-1.5 px-3 py-2 rounded-xl text-slate-200 hover:text-white hover:bg-slate-900/60 transition backdrop-blur-md">
+              <i data-lucide="camera" class="w-4 h-4"></i>
+              <span>Professional Headshots & Full Body</span>
+            </button>
+
+            <button onclick="switchTab('itexpert')" id="nav-itexpert" class="nav-btn flex items-center gap-1.5 px-3 py-2 rounded-xl text-slate-200 hover:text-white hover:bg-slate-900/60 transition backdrop-blur-md">
+              <i data-lucide="cpu" class="w-4 h-4 text-cyan-400"></i>
+              <span>34-Yr IT Architect</span>
+            </button>
+
+            <button onclick="switchTab('hacks')" id="nav-hacks" class="nav-btn flex items-center gap-1.5 px-3 py-2 rounded-xl text-slate-200 hover:text-white hover:bg-slate-900/60 transition backdrop-blur-md">
+              <i data-lucide="tag" class="w-4 h-4 text-emerald-400"></i>
+              <span>Hacks & Money Savings</span>
+            </button>
+
+            <button onclick="switchTab('sobriety')" id="nav-sobriety" class="nav-btn flex items-center gap-1.5 px-3 py-2 rounded-xl text-slate-200 hover:text-white hover:bg-slate-900/60 transition backdrop-blur-md">
+              <i data-lucide="heart" class="w-4 h-4 text-rose-500"></i>
+              <span>KEEP ME SOBER TOO (KMST)</span>
+            </button>
+
+            <button onclick="switchTab('booking')" id="nav-booking" class="nav-btn flex items-center gap-1.5 px-3 py-2 rounded-xl text-slate-200 hover:text-white hover:bg-slate-900/60 transition backdrop-blur-md">
+              <i data-lucide="send" class="w-4 h-4"></i>
+              <span>Book / Contact</span>
+            </button>
+          </nav>
+
+          <!-- Right Circular Social Media Icons & Tools -->
+          <div class="flex items-center space-x-2">
+            <div class="hidden sm:flex items-center space-x-2 mr-2">
+              <a href="https://instagram.com" target="_blank" title="Instagram" class="social-icon-btn instagram">
+                <i data-lucide="instagram" class="w-4 h-4"></i>
+              </a>
+              <a href="https://x.com" target="_blank" title="X (Twitter)" class="social-icon-btn twitter">
+                <i data-lucide="twitter" class="w-4 h-4"></i>
+              </a>
+              <a href="https://facebook.com" target="_blank" title="Facebook" class="social-icon-btn facebook">
+                <i data-lucide="facebook" class="w-4 h-4"></i>
+              </a>
+              <a href="https://app.spotlight.com/9339-8945-6183" target="_blank" title="Spotlight UK Profile (Talent Systems)" class="social-icon-btn spotlight">
+                <img src="assets/talent_systems_logo.png" alt="Spotlight / Talent Systems" class="w-5 h-5 object-contain">
               </a>
             </div>
-            <p class="text-[11px] font-bold text-slate-300 flex items-center gap-1.5">
-              <span class="text-emerald-400 font-bold">Sober Since 2013 (13 Yrs)</span> • <span>Actor</span> • <span>34-Yr IT Architect</span>
-            </p>
+
+            <!-- Theme Switcher Button -->
+            <button onclick="toggleThemeDrawer()" title="Change Theme Options" class="px-3 py-2 rounded-xl border border-amber-500/40 bg-amber-500/10 text-amber-400 hover:bg-amber-500/20 font-bold text-xs flex items-center gap-1.5 transition backdrop-blur-md">
+              <i data-lucide="palette" class="w-4 h-4"></i>
+              <span class="hidden sm:inline">Theme Presets</span>
+            </button>
+
+            <!-- Admin Portal -->
+            <button onclick="switchTab('admin')" title="Admin CMS Portal" class="p-2.5 rounded-xl border border-slate-800 bg-slate-900/80 text-rose-400 hover:bg-slate-800 transition">
+              <i data-lucide="lock" class="w-4 h-4"></i>
+            </button>
+
+            <!-- Mobile Menu Toggle -->
+            <button onclick="toggleMobileMenu()" class="xl:hidden p-2 rounded-xl border border-slate-800 text-slate-300">
+              <i data-lucide="menu" class="w-5 h-5"></i>
+            </button>
           </div>
         </div>
+      </header>
 
-        <!-- Navigation Links -->
-        <nav class="hidden xl:flex items-center space-x-1 text-xs font-extrabold">
-          <button onclick="switchTab('casting')" id="nav-casting" class="nav-btn flex items-center gap-1.5 px-3 py-2 rounded-xl text-amber-400 bg-slate-950/60 border border-slate-700/80 backdrop-blur-md">
-            <i data-lucide="clapperboard" class="w-4 h-4"></i>
-            <span>Casting Director Hub</span>
-          </button>
-
-          <button onclick="switchTab('about')" id="nav-about" class="nav-btn flex items-center gap-1.5 px-3 py-2 rounded-xl text-slate-200 hover:text-white hover:bg-slate-900/60 transition backdrop-blur-md">
-            <i data-lucide="user" class="w-4 h-4 text-amber-400"></i>
-            <span>About SteveP Timeline</span>
-          </button>
-
-          <button onclick="switchTab('headshots')" id="nav-headshots" class="nav-btn flex items-center gap-1.5 px-3 py-2 rounded-xl text-slate-200 hover:text-white hover:bg-slate-900/60 transition backdrop-blur-md">
-            <i data-lucide="camera" class="w-4 h-4"></i>
-            <span>Professional Headshots & Full Body</span>
-          </button>
-
-          <button onclick="switchTab('itexpert')" id="nav-itexpert" class="nav-btn flex items-center gap-1.5 px-3 py-2 rounded-xl text-slate-200 hover:text-white hover:bg-slate-900/60 transition backdrop-blur-md">
-            <i data-lucide="cpu" class="w-4 h-4 text-cyan-400"></i>
-            <span>34-Yr IT Architect</span>
-          </button>
-
-          <button onclick="switchTab('hacks')" id="nav-hacks" class="nav-btn flex items-center gap-1.5 px-3 py-2 rounded-xl text-slate-200 hover:text-white hover:bg-slate-900/60 transition backdrop-blur-md">
-            <i data-lucide="tag" class="w-4 h-4 text-emerald-400"></i>
-            <span>Hacks & Money Savings</span>
-          </button>
-
-          <button onclick="switchTab('sobriety')" id="nav-sobriety" class="nav-btn flex items-center gap-1.5 px-3 py-2 rounded-xl text-slate-200 hover:text-white hover:bg-slate-900/60 transition backdrop-blur-md">
-            <i data-lucide="heart" class="w-4 h-4 text-rose-500"></i>
-            <span>KEEP ME SOBER TOO (KMST)</span>
-          </button>
-
-          <button onclick="switchTab('booking')" id="nav-booking" class="nav-btn flex items-center gap-1.5 px-3 py-2 rounded-xl text-slate-200 hover:text-white hover:bg-slate-900/60 transition backdrop-blur-md">
-            <i data-lucide="send" class="w-4 h-4"></i>
-            <span>Book / Contact</span>
-          </button>
-        </nav>
-
-        <!-- Right Circular Social Media Icons & Tools -->
-        <div class="flex items-center space-x-2">
-          <div class="hidden sm:flex items-center space-x-1.5 mr-2">
-            <a href="https://instagram.com" target="_blank" title="Instagram" class="social-icon-btn instagram">
-              <i data-lucide="instagram" class="w-4 h-4"></i>
-            </a>
-            <a href="https://x.com" target="_blank" title="X (Twitter)" class="social-icon-btn twitter">
-              <i data-lucide="twitter" class="w-4 h-4"></i>
-            </a>
-            <a href="https://facebook.com" target="_blank" title="Facebook" class="social-icon-btn facebook">
-              <i data-lucide="facebook" class="w-4 h-4"></i>
-            </a>
-            <a href="https://app.spotlight.com/9339-8945-6183" target="_blank" title="Spotlight UK Profile" class="social-icon-btn spotlight">
-              <i data-lucide="award" class="w-4 h-4"></i>
-            </a>
-          </div>
-
-          <!-- Theme Switcher Button -->
-          <button onclick="toggleThemeDrawer()" title="Change Theme Options" class="px-3 py-2 rounded-xl border border-amber-500/40 bg-amber-500/10 text-amber-400 hover:bg-amber-500/20 font-bold text-xs flex items-center gap-1.5 transition backdrop-blur-md">
-            <i data-lucide="palette" class="w-4 h-4"></i>
-            <span class="hidden sm:inline">Theme Presets</span>
-          </button>
-
-          <!-- Admin Portal -->
-          <button onclick="switchTab('admin')" title="Admin CMS Portal" class="p-2.5 rounded-xl border border-slate-800 bg-slate-900/80 text-rose-400 hover:bg-slate-800 transition">
-            <i data-lucide="lock" class="w-4 h-4"></i>
-          </button>
-
-          <!-- Mobile Menu Toggle -->
-          <button onclick="toggleMobileMenu()" class="xl:hidden p-2 rounded-xl border border-slate-800 text-slate-300">
-            <i data-lucide="menu" class="w-5 h-5"></i>
-          </button>
-        </div>
-      </div>
+    </div>
 
       <!-- ================= THEME SELECTOR DRAWER ================= -->
       <div id="themeDrawer" class="hidden border-t border-slate-800/80 bg-slate-950/95 py-3 px-4 transition-all">
@@ -1662,6 +1674,5 @@
     </div>
   </div>
 
-  <script src="public/js/app.js"></script>
 </body>
 </html>

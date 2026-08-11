@@ -133,56 +133,76 @@ body {
   object-position: center 8%;
 }
 
-/* Circular Social Media Icon Badges */
+/* Circular Social Media Icon Badges (Trendy 2026 Glassmorphism) */
 .social-icon-btn {
-  width: 38px;
-  height: 38px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: rgba(15, 23, 42, 0.7);
-  backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  color: #cbd5e1;
-  transition: all 0.3s ease;
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #e2e8f0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  transition: all 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  overflow: hidden;
+  position: relative;
+}
+
+.social-icon-btn img {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+  transition: transform 0.35s ease;
 }
 
 .social-icon-btn:hover {
-  transform: translateY(-3px) scale(1.1);
+  transform: translateY(-3px) scale(1.12);
   color: #ffffff;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
 }
 
 .social-icon-btn.instagram:hover {
   background: linear-gradient(135deg, #833ab4, #fd1d1d, #fcb045);
-  box-shadow: 0 0 15px rgba(253, 29, 29, 0.5);
-  border-color: transparent;
+  box-shadow: 0 0 20px rgba(253, 29, 29, 0.6);
+  border-color: rgba(253, 29, 29, 0.8);
 }
 
 .social-icon-btn.twitter:hover {
-  background: #000000;
-  border-color: #ffffff;
-  box-shadow: 0 0 15px rgba(255, 255, 255, 0.4);
+  background: #0f1419;
+  border-color: rgba(255, 255, 255, 0.8);
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.4);
 }
 
 .social-icon-btn.facebook:hover {
   background: #1877f2;
-  box-shadow: 0 0 15px rgba(24, 119, 242, 0.5);
-  border-color: transparent;
+  box-shadow: 0 0 20px rgba(24, 119, 242, 0.6);
+  border-color: rgba(24, 119, 242, 0.8);
+}
+
+.social-icon-btn.spotlight {
+  background: rgba(15, 23, 42, 0.85);
+  border-color: rgba(245, 158, 11, 0.4);
 }
 
 .social-icon-btn.spotlight:hover {
-  background: #ffcc00;
-  color: #111111;
-  box-shadow: 0 0 15px rgba(255, 204, 0, 0.6);
-  border-color: transparent;
+  background: #ffffff;
+  box-shadow: 0 0 22px rgba(245, 158, 11, 0.8);
+  border-color: #f59e0b;
+}
+
+.social-icon-btn.spotlight:hover img {
+  transform: scale(1.15);
 }
 
 .social-icon-btn.imdb:hover {
   background: #f5c518;
   color: #111111;
-  box-shadow: 0 0 15px rgba(245, 197, 24, 0.6);
-  border-color: transparent;
+  box-shadow: 0 0 20px rgba(245, 197, 24, 0.7);
+  border-color: #f5c518;
 }
 
 /* 3D Spin Out & Spread Headshot Deck on Hover */
