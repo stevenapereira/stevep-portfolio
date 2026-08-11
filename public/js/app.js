@@ -70,7 +70,12 @@ async function loadData() {
     if (res.ok) {
       const json = await res.json();
       if (json.data) {
-        appData = json.data;
+        appData = {
+          ...appData,
+          ...json.data,
+          spotlightVideos: (json.data.spotlightVideos && json.data.spotlightVideos.length > 0) ? json.data.spotlightVideos : appData.spotlightVideos,
+          sectionRouting: json.data.sectionRouting || appData.sectionRouting
+        };
         renderAll();
         return;
       }
@@ -1025,7 +1030,14 @@ function renderAdminMediaGrid() {
   const categoryVal = document.getElementById('mediaCategoryFilter')?.value || 'ALL';
   const typeVal = document.getElementById('mediaTypeFilter')?.value || 'ALL';
 
-  const vids = (appData.spotlightVideos || []).map(v => ({ ...v, tag: 'Showreel Video', type: 'video' }));
+  const defaultVids = [
+    { id: 'v1', title: '1. The Meeting - Up to 4K.mov', url: 'assets/The_Meeting_Up_to_4K.mov', poster: 'assets/thumb_the_meeting.jpg', size: '24.6 MB', tag: 'Showreel Video', type: 'video' },
+    { id: 'v2', title: '2. SteveP-Showreel', url: 'assets/SteveP-Showreel.mp4', poster: 'assets/thumb_stevep_showreel.jpg', size: '39.4 MB', tag: 'Showreel Video', type: 'video' },
+    { id: 'v3', title: '3. Combat Certificate Training', url: 'assets/Combat_Certificate_Training.mp4', poster: 'assets/thumb_combat_training.jpg', size: '6.0 MB', tag: 'Showreel Video', type: 'video' }
+  ];
+
+  const rawVids = (appData.spotlightVideos && appData.spotlightVideos.length > 0) ? appData.spotlightVideos : defaultVids;
+  const vids = rawVids.map(v => ({ ...v, tag: 'Showreel Video', type: 'video' }));
   const headshots = (appData.headshots || []).map(h => ({ ...h, type: h.type || 'photo' }));
   const stills = (appData.stills || []).map(s => ({ ...s, tag: s.tag || 'Filming Still', type: s.type || 'photo' }));
   const slates = (appData.fullBodySlates || []).map(f => ({ ...f, tag: 'Full Body', type: f.type || 'photo' }));
@@ -1033,11 +1045,20 @@ function renderAdminMediaGrid() {
   let allMedia = [...vids, ...headshots, ...stills, ...slates];
 
   if (categoryVal !== 'ALL') {
-    allMedia = allMedia.filter(m => m.tag === categoryVal);
+    allMedia = allMedia.filter(m => {
+      if (categoryVal === 'Showreel Video' || categoryVal === 'Showreel') {
+        return m.tag === 'Showreel Video' || m.tag === 'Showreel' || m.type === 'video';
+      }
+      return m.tag === categoryVal;
+    });
   }
 
   if (typeVal !== 'ALL') {
-    allMedia = allMedia.filter(m => (m.type || 'photo') === typeVal);
+    allMedia = allMedia.filter(m => {
+      if (typeVal === 'video') return m.type === 'video' || m.tag === 'Showreel Video' || m.tag === 'Showreel';
+      if (typeVal === 'photo') return m.type !== 'video' && m.tag !== 'Showreel Video' && m.tag !== 'Showreel';
+      return true;
+    });
   }
 
   const badgeEl = document.getElementById('mediaSummaryBadge');
@@ -1057,19 +1078,21 @@ function renderAdminMediaGrid() {
 
   container.innerHTML = allMedia.map(m => {
     const isChecked = selectedMediaIds.has(m.id);
-    const isVideo = m.type === 'video' || m.tag === 'Showreel Video';
+    const isVideo = m.type === 'video' || m.tag === 'Showreel Video' || m.tag === 'Showreel';
     let typeBadge = isVideo ? "bg-purple-500 text-white font-black" : "bg-amber-500 text-slate-950 font-black";
 
     return `
       <div draggable="true" ondragstart="handleMediaDragStart(event, '${m.id}')" ondragover="handleMediaDragOver(event)" ondrop="handleMediaDrop(event, '${m.id}')" class="relative group rounded-xl overflow-hidden glass-card border ${isChecked ? 'border-amber-400 ring-2 ring-amber-400/50' : 'border-slate-800'} aspect-square flex flex-col justify-between cursor-move shadow-md">
         
         ${isVideo ? `
-          <video src="${m.url}" class="w-full h-full object-cover absolute inset-0"></video>
-          <div class="absolute inset-0 bg-slate-950/30 flex items-center justify-center">
-            <i data-lucide="video" class="w-8 h-8 text-purple-400"></i>
+          <video src="${m.url}" poster="${m.poster || 'assets/thumb_stevep_showreel.jpg'}" class="w-full h-full object-cover absolute inset-0" preload="metadata"></video>
+          <div class="absolute inset-0 bg-slate-950/40 flex items-center justify-center group-hover:bg-purple-600/30 transition">
+            <div class="w-10 h-10 rounded-full bg-purple-600 text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition cursor-pointer" onclick="openVideoModal('${m.url}', '${(m.title || 'Video').replace(/'/g, "\\'")}')">
+              <i data-lucide="play" class="w-5 h-5 fill-current ml-0.5"></i>
+            </div>
           </div>
         ` : `
-          <img src="${m.url}" class="w-full h-full object-cover absolute inset-0">
+          <img src="${m.url}" class="w-full h-full object-cover object-top absolute inset-0">
         `}
         
         <!-- Top Controls Overlay -->
