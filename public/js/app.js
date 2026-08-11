@@ -633,12 +633,39 @@ function generateITBlueprint() {
 // --------------------------------------------------------------------------
 // HACKS & MONEY SAVING DEALS
 // --------------------------------------------------------------------------
-function renderHacks() {
-  const container = document.getElementById('hacksGrid');
-  if (!container) return;
+let currentHacksFilter = 'all';
+let currentHacksCategory = 'all';
 
-  const hacks = appData.hacks || [];
-  container.innerHTML = hacks.map(h => {
+function setHacksFilter(filter) {
+  currentHacksFilter = filter;
+  ['all', 'top', 'discount', 'clicked', 'used'].forEach(f => {
+    const btn = document.getElementById(`btnFilter-${f}`);
+    if (btn) {
+      if (f === filter) {
+        btn.className = 'px-3.5 py-1.5 rounded-xl text-xs font-black transition bg-emerald-500 text-slate-950 shadow';
+      } else {
+        btn.className = 'px-3.5 py-1.5 rounded-xl text-xs font-bold text-slate-300 hover:text-amber-400 hover:bg-slate-900 transition';
+      }
+    }
+  });
+  renderHacks();
+}
+
+function setHacksCategory(cat) {
+  currentHacksCategory = cat;
+  renderHacks();
+}
+
+function renderHacks() {
+  const mainContainer = document.getElementById('hacksGrid');
+  const topOffersContainer = document.getElementById('stevesTopOffersContainer');
+  const countBadge = document.getElementById('hacksCountBadge');
+  if (!mainContainer) return;
+
+  let hacks = [...(appData.hacks || [])];
+
+  // Calculate default values if missing
+  hacks = hacks.map(h => {
     let logoSrc = h.logo;
     if (!logoSrc && h.link && h.link.length > 8) {
       try {
@@ -646,46 +673,167 @@ function renderHacks() {
         logoSrc = `https://www.google.com/s2/favicons?domain=${hostname}&sz=128`;
       } catch(e) {}
     }
+    const defaultImg = h.image || 'https://images.unsplash.com/photo-1559526324-4b87b5e36e44?auto=format&fit=crop&w=1200&q=80';
+    const clicks = h.clicks || 0;
+    const usedCount = h.usedCount || (h.clicks ? Math.floor(h.clicks * 0.8) : 5);
+    const discountPercent = h.discountPercent || (h.badge && h.badge.includes('%') ? parseInt(h.badge) : 20);
+
+    return {
+      ...h,
+      logo: logoSrc,
+      image: defaultImg,
+      clicks,
+      usedCount,
+      discountPercent,
+      isTopOffer: h.isTopOffer !== undefined ? h.isTopOffer : (h.badge === 'EXCLUSIVE' || h.badge === 'STEVE RECOMMENDS' || h.clicks > 10)
+    };
+  });
+
+  // Render Steve's Top Offers Showcase Banner
+  if (topOffersContainer) {
+    const topOffers = hacks.filter(h => h.isTopOffer);
+    if (topOffers.length > 0) {
+      topOffersContainer.innerHTML = `
+        <div class="glass-card rounded-3xl border-2 border-amber-500/40 p-6 space-y-4 relative overflow-hidden bg-gradient-to-r from-slate-950 via-amber-950/20 to-slate-950 shadow-2xl">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="px-3 py-1 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30 text-xs font-black uppercase flex items-center gap-1">
+                🔥 Steve's Top Offers & Recommendations
+              </span>
+            </div>
+            <span class="text-xs text-slate-400 font-mono-code">${topOffers.length} Featured Deals</span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1">
+            ${topOffers.slice(0, 2).map(h => `
+              <div class="glass-card rounded-2xl border border-amber-500/30 p-4 flex gap-4 items-center bg-slate-950/80 hover:border-amber-400 transition group">
+                <div class="w-20 h-20 rounded-xl overflow-hidden bg-slate-900 shrink-0 border border-slate-800 relative">
+                  <img src="${h.image}" alt="${h.title}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+                  ${h.logo ? `<img src="${h.logo}" class="absolute bottom-1 right-1 w-6 h-6 rounded-md bg-slate-950 p-0.5 border border-slate-700 shadow" onerror="this.style.display='none'">` : ''}
+                </div>
+                <div class="flex-1 min-w-0 space-y-1">
+                  <div class="flex items-center gap-2">
+                    <span class="text-[10px] font-black text-amber-400 uppercase tracking-wider font-mono-code">${h.badge || 'TOP OFFER'}</span>
+                    <span class="text-[10px] font-bold text-slate-400">• ${h.category}</span>
+                  </div>
+                  <h4 class="text-sm font-black text-white font-cinzel leading-tight truncate group-hover:text-amber-300 transition">${h.title}</h4>
+                  <p class="text-[11px] text-slate-300 line-clamp-1">${h.desc}</p>
+                  <div class="pt-1 flex items-center justify-between">
+                    <span class="text-[10px] font-mono-code text-emerald-400 font-bold">Code: ${h.code}</span>
+                    <a href="${h.link}" target="_blank" onclick="trackEvent('affiliate_click', '${h.title}')" class="px-3 py-1 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-[11px] flex items-center gap-1 shadow">
+                      <span>Get Deal</span> <i data-lucide="arrow-up-right" class="w-3 h-3"></i>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    } else {
+      topOffersContainer.innerHTML = '';
+    }
+  }
+
+  // Filter by Category
+  if (currentHacksCategory !== 'all') {
+    hacks = hacks.filter(h => h.category === currentHacksCategory);
+  }
+
+  // Filter by Toolbar Selection
+  if (currentHacksFilter === 'top') {
+    hacks = hacks.filter(h => h.isTopOffer);
+  } else if (currentHacksFilter === 'discount') {
+    hacks.sort((a, b) => (b.discountPercent || 0) - (a.discountPercent || 0));
+  } else if (currentHacksFilter === 'clicked') {
+    hacks.sort((a, b) => (b.clicks || 0) - (a.clicks || 0));
+  } else if (currentHacksFilter === 'used') {
+    hacks.sort((a, b) => (b.usedCount || 0) - (a.usedCount || 0));
+  }
+
+  if (countBadge) {
+    countBadge.textContent = `${hacks.length} Deals Found`;
+  }
+
+  if (hacks.length === 0) {
+    mainContainer.innerHTML = `
+      <div class="col-span-full p-12 text-center glass-card rounded-2xl border border-slate-800 space-y-2">
+        <i data-lucide="tag-off" class="w-8 h-8 text-slate-500 mx-auto"></i>
+        <h4 class="text-sm font-bold text-white">No deals match your filter criteria</h4>
+        <p class="text-xs text-slate-400">Try selecting 'All Deals' or switching categories above.</p>
+      </div>
+    `;
+    return;
+  }
+
+  mainContainer.innerHTML = hacks.map(h => {
+    const seoTitle = h.seoTitle || `${h.title} | Steve's Verified Deal`;
+    const seoKeywords = h.seoKeywords || `${h.category}, ${h.badge}, money saving hacks`;
 
     return `
-      <div class="glass-card rounded-2xl border border-slate-800 p-6 space-y-4 flex flex-col justify-between overflow-hidden">
-        <div class="space-y-3">
-          <div class="flex items-center justify-between">
-            <span class="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 text-[10px] font-black uppercase border border-emerald-500/30">${h.badge}</span>
-            <span class="text-xs text-slate-300 font-mono-code">${h.category}</span>
-          </div>
+      <div class="glass-card rounded-2xl border border-slate-800 flex flex-col justify-between overflow-hidden hover:border-emerald-500/50 transition group">
+        
+        <!-- Card Cover Banner Image with Badge Overlays -->
+        <div class="relative w-full h-44 overflow-hidden bg-slate-950 border-b border-slate-800">
+          <img src="${h.image}" alt="${h.title}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent"></div>
 
-          ${h.image ? `
-            <div class="w-full h-36 rounded-xl overflow-hidden border border-slate-800 bg-slate-950">
-              <img src="${h.image}" alt="${h.title}" class="w-full h-full object-cover">
-            </div>
-          ` : ''}
-
-          <div class="flex items-center gap-3 pt-1">
-            ${logoSrc ? `
-              <img src="${logoSrc}" alt="Company Logo" class="w-9 h-9 rounded-xl object-contain bg-slate-950 p-1 border border-slate-700 shadow shrink-0" onerror="this.style.display='none'">
+          <!-- Top Badges Overlay -->
+          <div class="absolute top-3 left-3 right-3 flex items-center justify-between">
+            <span class="px-2.5 py-1 rounded-xl bg-emerald-500/90 text-slate-950 font-black text-[10px] uppercase shadow backdrop-blur-md">
+              ${h.badge}
+            </span>
+            ${h.isTopOffer ? `
+              <span class="px-2 py-0.5 rounded-lg bg-amber-500/90 text-slate-950 text-[10px] font-black uppercase flex items-center gap-1 shadow">
+                🔥 TOP OFFER
+              </span>
             ` : ''}
-            <div class="flex-1 min-w-0">
-              <h3 class="text-base font-black text-white font-cinzel leading-snug truncate">${h.title}</h3>
+          </div>
+
+          <!-- Floating Logo Avatar Badge -->
+          <div class="absolute bottom-3 left-3 flex items-center gap-2">
+            ${h.logo ? `
+              <img src="${h.logo}" alt="Logo" class="w-10 h-10 rounded-xl object-contain bg-slate-950 p-1.5 border border-slate-700 shadow-xl" onerror="this.style.display='none'">
+            ` : ''}
+            <div>
+              <span class="text-[10px] font-mono-code font-bold text-emerald-400 block">${h.category}</span>
+              <span class="text-[10px] text-slate-300 font-mono-code">${h.usedCount} Times Claimed</span>
             </div>
           </div>
-
-          <p class="text-xs text-slate-300 leading-relaxed">${h.desc}</p>
         </div>
 
-        <div class="pt-3 border-t border-slate-800/80 flex items-center justify-between gap-3">
-          <div class="bg-slate-950 px-3 py-1.5 rounded-xl border border-slate-800 font-mono-code font-bold text-xs text-amber-400">
-            Code: <span>${h.code}</span>
+        <!-- Card Content Body -->
+        <div class="p-5 space-y-3 flex-1 flex flex-col justify-between">
+          <div class="space-y-2">
+            <h3 class="text-base font-black text-white font-cinzel leading-snug group-hover:text-emerald-400 transition">${h.title}</h3>
+            <p class="text-xs text-slate-300 leading-relaxed line-clamp-3">${h.desc}</p>
           </div>
-          <a href="${h.link}" target="_blank" onclick="trackEvent('affiliate_click', '${h.title}')" class="px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs flex items-center gap-1.5 transition shadow">
-            <span>Claim Deal</span> <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
-          </a>
+
+          <!-- Auto-SEO Metadata Tag Pill -->
+          <div class="pt-2 border-t border-slate-800/60 flex items-center justify-between text-[10px] text-slate-400">
+            <span class="truncate max-w-[200px]" title="SEO: ${seoKeywords}">🔍 ${seoTitle}</span>
+            <span class="font-mono-code font-bold text-slate-300">${h.clicks} clicks</span>
+          </div>
+
+          <!-- Card Actions Footer -->
+          <div class="pt-3 border-t border-slate-800/80 flex items-center justify-between gap-2">
+            <div class="bg-slate-950 px-3 py-1.5 rounded-xl border border-slate-800 font-mono-code font-bold text-xs text-amber-400 flex items-center gap-1.5">
+              <span>Code:</span>
+              <strong class="text-white select-all">${h.code}</strong>
+            </div>
+
+            <a href="${h.link}" target="_blank" onclick="trackEvent('affiliate_click', '${h.title}')" class="px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs flex items-center gap-1.5 transition shadow">
+              <span>Claim Deal</span> <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+            </a>
+          </div>
         </div>
+
       </div>
     `;
   }).join('');
+
   if (window.lucide) lucide.createIcons();
-}
+}"
 
 // --------------------------------------------------------------------------
 // KMST SOBRIETY & UK HELP DIRECTORY
@@ -849,12 +997,85 @@ function lockAdmin() {
 
 function renderAnalytics() {
   const analytics = appData.analytics || {};
-  if (document.getElementById('statViews')) document.getElementById('statViews').textContent = (analytics.pageViews || 1450).toLocaleString();
-  if (document.getElementById('statSpotlight')) document.getElementById('statSpotlight').textContent = (analytics.spotlightClicks || 320).toLocaleString();
-  if (document.getElementById('statShowreel')) document.getElementById('statShowreel').textContent = (analytics.showreelPlays || 505).toLocaleString();
-  if (document.getElementById('statCV')) document.getElementById('statCV').textContent = (analytics.cvDownloads || 190).toLocaleString();
-  if (document.getElementById('statBooking')) document.getElementById('statBooking').textContent = (analytics.bookingEnquiries || 30).toLocaleString();
+  if (document.getElementById('statViews')) document.getElementById('statViews').textContent = (analytics.pageViews || 0).toLocaleString();
+  if (document.getElementById('statSpotlight')) document.getElementById('statSpotlight').textContent = (analytics.spotlightClicks || 0).toLocaleString();
+  if (document.getElementById('statShowreel')) document.getElementById('statShowreel').textContent = (analytics.showreelPlays || 0).toLocaleString();
+  if (document.getElementById('statCV')) document.getElementById('statCV').textContent = (analytics.cvDownloads || 0).toLocaleString();
+  if (document.getElementById('statBooking')) document.getElementById('statBooking').textContent = (analytics.bookingEnquiries || 0).toLocaleString();
+
+  // Render Visual Graph Activity Bars
+  const graphContainer = document.getElementById('analyticsGraphBars');
+  if (graphContainer) {
+    const events = [
+      { label: 'Page Views', count: analytics.pageViews || 0, color: 'from-blue-500 to-cyan-400' },
+      { label: 'Spotlight Profile Clicks', count: analytics.spotlightClicks || 0, color: 'from-amber-500 to-yellow-400' },
+      { label: 'Showreel Video Plays', count: analytics.showreelPlays || 0, color: 'from-indigo-500 to-purple-400' },
+      { label: 'Acting CV Downloads', count: analytics.cvDownloads || 0, color: 'from-emerald-500 to-teal-400' },
+      { label: 'Booking & Casting Enquiries', count: analytics.bookingEnquiries || 0, color: 'from-rose-500 to-pink-400' }
+    ];
+
+    const maxCount = Math.max(...events.map(e => e.count), 1);
+
+    graphContainer.innerHTML = events.map(e => {
+      const pct = Math.round((e.count / maxCount) * 100);
+      return `
+        <div class="space-y-1">
+          <div class="flex justify-between items-center text-[11px] font-mono-code">
+            <span class="text-slate-200 font-bold">${e.label}</span>
+            <span class="text-slate-400">${e.count.toLocaleString()} (${pct}%)</span>
+          </div>
+          <div class="w-full h-3 rounded-full bg-slate-900 border border-slate-800 overflow-hidden">
+            <div class="h-full bg-gradient-to-r ${e.color} transition-all duration-500 rounded-full" style="width: ${pct}%"></div>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
 }
+
+async function resetAnalyticsData() {
+  if (!confirm('Are you sure you want to reset all analytics and metrics counters to 0?')) return;
+  appData.analytics = {
+    pageViews: 0,
+    spotlightClicks: 0,
+    cvDownloads: 0,
+    showreelPlays: 0,
+    bookingEnquiries: 0,
+    recentEvents: []
+  };
+  (appData.hacks || []).forEach(h => { h.clicks = 0; h.usedCount = 0; });
+  renderAll();
+  await saveAppDataToServer();
+  alert('Analytics metrics reset to 0 and saved!');
+}
+
+function exportAnalyticsData(format) {
+  const analytics = appData.analytics || {};
+  if (format === 'json') {
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(analytics, null, 2));
+    const downloadAnchor = document.createElement('a');
+    downloadAnchor.setAttribute("href", dataStr);
+    downloadAnchor.setAttribute("download", `stevep_analytics_${Date.now()}.json`);
+    document.body.appendChild(downloadAnchor);
+    downloadAnchor.click();
+    downloadAnchor.remove();
+  } else {
+    let csv = "Metric,Value\n";
+    csv += `Total Page Views,${analytics.pageViews || 0}\n`;
+    csv += `Spotlight Clicks,${analytics.spotlightClicks || 0}\n`;
+    csv += `Showreel Plays,${analytics.showreelPlays || 0}\n`;
+    csv += `CV Downloads,${analytics.cvDownloads || 0}\n`;
+    csv += `Booking Enquiries,${analytics.bookingEnquiries || 0}\n`;
+    
+    const dataStr = "data:text/csv;charset=utf-8," + encodeURIComponent(csv);
+    const downloadAnchor = document.createElement('a');
+    downloadAnchor.setAttribute("href", dataStr);
+    downloadAnchor.setAttribute("download", `stevep_analytics_${Date.now()}.csv`);
+    document.body.appendChild(downloadAnchor);
+    downloadAnchor.click();
+    downloadAnchor.remove();
+  }
+}"
 
 function updateSEODisplay() {
   const seo = appData.seo || {};

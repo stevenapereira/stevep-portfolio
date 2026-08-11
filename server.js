@@ -557,21 +557,72 @@ const server = http.createServer(async (req, res) => {
     return sendJSON(res, { success: true, message: 'Hack deleted successfully' });
   }
 
+  if (reqPath === '/api/analytics/reset' && req.method === 'POST') {
+    const db = readDB();
+    db.analytics = {
+      pageViews: 0,
+      spotlightClicks: 0,
+      cvDownloads: 0,
+      showreelPlays: 0,
+      bookingEnquiries: 0,
+      affiliateClicks: 0,
+      pageClicks: 0,
+      recentEvents: [],
+      hacksStats: {},
+      pageClickStats: {}
+    };
+    (db.hacks || []).forEach(h => h.clicks = 0);
+    writeDB(db);
+    return sendJSON(res, { success: true, message: 'Analytics stats reset successfully!' });
+  }
+
   if (reqPath === '/api/analytics/log' && req.method === 'POST') {
     const body = await parseJSON(req);
     const db = readDB();
-    db.analytics = db.analytics || { pageViews: 0, spotlightClicks: 0, cvDownloads: 0, showreelPlays: 0, bookingEnquiries: 0, recentEvents: [] };
+    db.analytics = db.analytics || { 
+      pageViews: 0, 
+      spotlightClicks: 0, 
+      cvDownloads: 0, 
+      showreelPlays: 0, 
+      bookingEnquiries: 0, 
+      affiliateClicks: 0,
+      pageClicks: 0,
+      recentEvents: [],
+      hacksStats: {},
+      pageClickStats: {}
+    };
     
     const eventType = body.type || 'page_view';
+    const label = body.name || body.label || '';
+
     if (eventType === 'page_view') db.analytics.pageViews = (db.analytics.pageViews || 0) + 1;
     if (eventType === 'spotlight_click') db.analytics.spotlightClicks = (db.analytics.spotlightClicks || 0) + 1;
     if (eventType === 'cv_download') db.analytics.cvDownloads = (db.analytics.cvDownloads || 0) + 1;
     if (eventType === 'showreel_play') db.analytics.showreelPlays = (db.analytics.showreelPlays || 0) + 1;
     if (eventType === 'booking_enquiry') db.analytics.bookingEnquiries = (db.analytics.bookingEnquiries || 0) + 1;
+    if (eventType === 'affiliate_click') {
+      db.analytics.affiliateClicks = (db.analytics.affiliateClicks || 0) + 1;
+      if (label) {
+        db.analytics.hacksStats = db.analytics.hacksStats || {};
+        db.analytics.hacksStats[label] = (db.analytics.hacksStats[label] || 0) + 1;
+        (db.hacks || []).forEach(h => {
+          if (h.title === label || h.id === body.hackId) {
+            h.clicks = (h.clicks || 0) + 1;
+          }
+        });
+      }
+    }
+    if (eventType === 'click' || eventType === 'page_click') {
+      db.analytics.pageClicks = (db.analytics.pageClicks || 0) + 1;
+      if (label) {
+        db.analytics.pageClickStats = db.analytics.pageClickStats || {};
+        db.analytics.pageClickStats[label] = (db.analytics.pageClickStats[label] || 0) + 1;
+      }
+    }
 
     db.analytics.recentEvents = db.analytics.recentEvents || [];
-    db.analytics.recentEvents.unshift({ type: eventType, label: body.label || '', timestamp: new Date().toISOString(), details: body.details || {} });
-    if (db.analytics.recentEvents.length > 100) db.analytics.recentEvents = db.analytics.recentEvents.slice(0, 100);
+    db.analytics.recentEvents.unshift({ type: eventType, label: label, timestamp: new Date().toISOString(), details: body.details || {} });
+    if (db.analytics.recentEvents.length > 150) db.analytics.recentEvents = db.analytics.recentEvents.slice(0, 150);
 
     writeDB(db);
     return sendJSON(res, { success: true });

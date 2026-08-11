@@ -720,24 +720,71 @@
       <section id="tab-hacks" class="tab-content hidden space-y-8">
         <div class="flex flex-wrap items-center justify-between gap-4">
           <div>
-            <h2 class="text-2xl font-black text-white font-cinzel flex items-center gap-2">
-              <i data-lucide="tag" class="w-6 h-6 text-emerald-400"></i>
+            <h2 class="text-2xl sm:text-3xl font-black text-white font-cinzel flex items-center gap-2">
+              <i data-lucide="tag" class="w-7 h-7 text-emerald-400"></i>
               <span>Life Hacks, Tech Deals & Money Saving Ideas</span>
             </h2>
             <p class="text-xs text-slate-300">Curated discounts, cloud vouchers, acting gear savings, and sobriety tool deals with Steve's direct affiliate links.</p>
           </div>
 
-          <button onclick="openAddHackModal()" class="px-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs flex items-center gap-2 transition shadow">
+          <button onclick="openAddHackModal()" class="px-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs flex items-center gap-2 transition shadow-lg hover:shadow-emerald-500/20">
             <i data-lucide="plus-circle" class="w-4 h-4"></i>
             <span>+ Quick Add Deal (Mobile Friendly)</span>
           </button>
         </div>
 
-        <!-- Hacks Grid -->
-        <div id="hacksGrid" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Sticky Filter Toolbar -->
+        <div class="sticky top-20 z-20 glass-card rounded-2xl border border-slate-800 p-2.5 flex flex-wrap items-center justify-between gap-2 shadow-xl backdrop-blur-xl bg-slate-950/90">
+          <div class="flex flex-wrap items-center gap-1.5 overflow-x-auto py-1 max-w-full" id="hacksFilterTabs">
+            <button onclick="setHacksFilter('all')" id="btnFilter-all" class="px-3.5 py-1.5 rounded-xl text-xs font-black transition bg-emerald-500 text-slate-950 shadow">
+              🌟 All Deals
+            </button>
+            <button onclick="setHacksFilter('top')" id="btnFilter-top" class="px-3.5 py-1.5 rounded-xl text-xs font-bold text-slate-300 hover:text-amber-400 hover:bg-slate-900 transition flex items-center gap-1">
+              🔥 Steve's Top Offers
+            </button>
+            <button onclick="setHacksFilter('discount')" id="btnFilter-discount" class="px-3.5 py-1.5 rounded-xl text-xs font-bold text-slate-300 hover:text-emerald-400 hover:bg-slate-900 transition">
+              🏷️ Highest Discount
+            </button>
+            <button onclick="setHacksFilter('clicked')" id="btnFilter-clicked" class="px-3.5 py-1.5 rounded-xl text-xs font-bold text-slate-300 hover:text-cyan-400 hover:bg-slate-900 transition">
+              📈 Most Clicked
+            </button>
+            <button onclick="setHacksFilter('used')" id="btnFilter-used" class="px-3.5 py-1.5 rounded-xl text-xs font-bold text-slate-300 hover:text-purple-400 hover:bg-slate-900 transition">
+              ⚡ Most Used
+            </button>
+          </div>
+
+          <div class="flex items-center gap-2 shrink-0">
+            <span class="text-[10px] font-mono-code text-slate-400 uppercase tracking-wider">Category:</span>
+            <select id="hacksCategorySelect" onchange="setHacksCategory(this.value)" class="px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-700 text-xs font-bold text-emerald-400 focus:outline-none focus:border-emerald-500">
+              <option value="all">All Categories</option>
+              <option value="Productivity & Finance">Productivity & Finance</option>
+              <option value="Tech & Cloud">Tech & Cloud</option>
+              <option value="Acting Gear">Acting Gear</option>
+              <option value="Sobriety & Mind">Sobriety & Mind</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Steve's Top Offers Spotlight Banner -->
+        <div id="stevesTopOffersContainer" class="space-y-4">
           <!-- Rendered dynamically by JS -->
         </div>
-      </section>
+
+        <!-- Hacks Main Grid -->
+        <div class="space-y-3">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+            <h3 class="text-sm font-black text-white font-mono-code uppercase tracking-wider flex items-center gap-2">
+              <i data-lucide="grid" class="w-4 h-4 text-emerald-400"></i>
+              <span>All Verified Deals & Exclusive Vouchers</span>
+            </h3>
+            <span id="hacksCountBadge" class="text-xs font-bold text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/20">Loading deals...</span>
+          </div>
+
+          <div id="hacksGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Rendered dynamically by JS -->
+          </div>
+        </div>
+      </section>"
 
       <!-- ================= TAB 5: KEEP ME SOBER TOO (KMST) SOBRIETY & RECOVERY ================= -->
       <section id="tab-sobriety" class="tab-content hidden space-y-10">
@@ -894,34 +941,64 @@
             <button onclick="setAdminSubTab('backup')" id="adminSubNav-backup" class="admin-subnav-btn px-4 py-2 rounded-xl bg-slate-900 text-slate-300 hover:text-white">
               <i data-lucide="database" class="w-4 h-4 inline mr-1"></i> 1-Click Backup & Restore
             </button>
-          </div>
-
           <!-- SUB-TAB 1: ANALYTICS -->
-          <div id="adminSection-analytics" class="admin-section space-y-4">
-            <h3 class="text-sm font-black text-amber-400 uppercase tracking-wider font-mono-code">Real-Time Insights & Analytics</h3>
-            <div class="grid grid-cols-2 sm:grid-cols-5 gap-3 text-center text-xs">
-              <div class="p-4 rounded-xl bg-slate-950/70 border border-slate-800 backdrop-blur-md">
-                <span class="text-slate-300 block text-[10px]">Total Page Views</span>
-                <strong id="statViews" class="text-xl font-extrabold text-white">1,450</strong>
+          <div id="adminSection-analytics" class="admin-section space-y-6">
+            <div class="flex flex-wrap items-center justify-between gap-4 border-b border-slate-800 pb-3">
+              <div>
+                <h3 class="text-sm font-black text-amber-400 uppercase tracking-wider font-mono-code flex items-center gap-2">
+                  <i data-lucide="bar-chart-3" class="w-4 h-4 text-amber-400"></i> Real-Time Insights, Graph Metrics & Engagement Analytics
+                </h3>
+                <p class="text-xs text-slate-300 mt-0.5">Detailed engagement metrics including page views, showreel plays, hack deal clicks, and user navigation.</p>
               </div>
-              <div class="p-4 rounded-xl bg-slate-950/70 border border-slate-800 backdrop-blur-md">
-                <span class="text-slate-300 block text-[10px]">Spotlight Clicks</span>
-                <strong id="statSpotlight" class="text-xl font-extrabold text-amber-400">320</strong>
-              </div>
-              <div class="p-4 rounded-xl bg-slate-950/70 border border-slate-800 backdrop-blur-md">
-                <span class="text-slate-300 block text-[10px]">Showreel Plays</span>
-                <strong id="statShowreel" class="text-xl font-extrabold text-indigo-400">505</strong>
-              </div>
-              <div class="p-4 rounded-xl bg-slate-950/70 border border-slate-800 backdrop-blur-md">
-                <span class="text-slate-300 block text-[10px]">CV Downloads</span>
-                <strong id="statCV" class="text-xl font-extrabold text-emerald-400">190</strong>
-              </div>
-              <div class="p-4 rounded-xl bg-slate-950/70 border border-slate-800 backdrop-blur-md">
-                <span class="text-slate-300 block text-[10px]">Booking Requests</span>
-                <strong id="statBooking" class="text-xl font-extrabold text-rose-400">30</strong>
+
+              <div class="flex items-center gap-2">
+                <button onclick="exportAnalyticsData('csv')" class="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center gap-1 shadow">
+                  <i data-lucide="download" class="w-3.5 h-3.5"></i> Export CSV / Excel
+                </button>
+                <button onclick="exportAnalyticsData('json')" class="px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-700 hover:border-amber-400 text-amber-400 font-bold text-xs flex items-center gap-1 shadow">
+                  <i data-lucide="file-text" class="w-3.5 h-3.5"></i> Export JSON
+                </button>
+                <button onclick="resetAnalyticsData()" class="px-3 py-1.5 rounded-xl bg-rose-600/20 border border-rose-500/40 text-rose-400 hover:bg-rose-600 hover:text-white font-bold text-xs flex items-center gap-1 transition shadow">
+                  <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> Reset Stats
+                </button>
               </div>
             </div>
-          </div>
+
+            <!-- KPI Metric Cards -->
+            <div class="grid grid-cols-2 sm:grid-cols-5 gap-3 text-center text-xs">
+              <div class="p-4 rounded-xl bg-slate-950/70 border border-slate-800 backdrop-blur-md">
+                <span class="text-slate-300 block text-[10px] uppercase font-mono-code">Total Page Views</span>
+                <strong id="statViews" class="text-2xl font-black text-white">0</strong>
+              </div>
+              <div class="p-4 rounded-xl bg-slate-950/70 border border-slate-800 backdrop-blur-md">
+                <span class="text-slate-300 block text-[10px] uppercase font-mono-code">Spotlight Clicks</span>
+                <strong id="statSpotlight" class="text-2xl font-black text-amber-400">0</strong>
+              </div>
+              <div class="p-4 rounded-xl bg-slate-950/70 border border-slate-800 backdrop-blur-md">
+                <span class="text-slate-300 block text-[10px] uppercase font-mono-code">Showreel Plays</span>
+                <strong id="statShowreel" class="text-2xl font-black text-indigo-400">0</strong>
+              </div>
+              <div class="p-4 rounded-xl bg-slate-950/70 border border-slate-800 backdrop-blur-md">
+                <span class="text-slate-300 block text-[10px] uppercase font-mono-code">CV Downloads</span>
+                <strong id="statCV" class="text-2xl font-black text-emerald-400">0</strong>
+              </div>
+              <div class="p-4 rounded-xl bg-slate-950/70 border border-slate-800 backdrop-blur-md">
+                <span class="text-slate-300 block text-[10px] uppercase font-mono-code">Booking Enquiries</span>
+                <strong id="statBooking" class="text-2xl font-black text-rose-400">0</strong>
+              </div>
+            </div>
+
+            <!-- Visual Graph Metric Bars Container -->
+            <div class="glass-card rounded-2xl border border-slate-800 p-5 space-y-4 bg-slate-950/80">
+              <h4 class="text-xs font-black text-white uppercase tracking-wider font-mono-code flex items-center gap-2">
+                <i data-lucide="activity" class="w-4 h-4 text-emerald-400"></i> Live Event Distribution & Activity Graph
+              </h4>
+
+              <div id="analyticsGraphBars" class="space-y-3 text-xs">
+                <!-- Rendered dynamically by JS -->
+              </div>
+            </div>
+          </div>"
 
           <!-- SUB-TAB: EDIT PAGE TEXT, HERO & BANNER CONTENT -->
           <div id="adminSection-sitetexts" class="admin-section hidden space-y-6">
