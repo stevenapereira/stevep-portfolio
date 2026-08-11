@@ -357,6 +357,7 @@ function switchTab(tabId) {
 
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
+window.switchTab = switchTab;
 
 function toggleThemeDrawer() {
   const drawer = document.getElementById('themeDrawer');
@@ -833,7 +834,7 @@ function renderHacks() {
   }).join('');
 
   if (window.lucide) lucide.createIcons();
-}"
+}
 
 // --------------------------------------------------------------------------
 // KMST SOBRIETY & UK HELP DIRECTORY
@@ -1075,7 +1076,7 @@ function exportAnalyticsData(format) {
     downloadAnchor.click();
     downloadAnchor.remove();
   }
-}"
+}
 
 function updateSEODisplay() {
   const seo = appData.seo || {};
