@@ -1527,14 +1527,52 @@
           </div>
 
           <div class="space-y-1">
-            <label class="font-bold text-slate-300">Target Deal Link (URL)</label>
-            <input type="url" id="hackLink" placeholder="https://..." class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-cyan-400" value="https://">
+            <div class="flex items-center justify-between">
+              <label class="font-bold text-slate-300">Target Deal Link (URL) *</label>
+              <button type="button" id="fetchHackMetaBtn" onclick="fetchHackMetaFromUrl()" class="px-2 py-0.5 rounded-lg bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500/30 border border-cyan-500/40 text-[10px] font-black flex items-center gap-1 transition">
+                <i data-lucide="sparkles" class="w-3 h-3"></i> Auto-Fetch Meta
+              </button>
+            </div>
+            <input type="url" id="hackLink" required placeholder="https://..." class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-cyan-400" value="https://">
+            <span id="fetchMetaStatus" class="text-[10px] text-amber-400 hidden block mt-0.5 font-bold"></span>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div class="space-y-1">
+            <label class="font-bold text-slate-300">Company Logo (URL)</label>
+            <input type="text" id="hackLogo" oninput="updateHackModalPreview()" placeholder="Auto-fetched or paste URL" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-slate-300 font-mono-code">
+          </div>
+
+          <div class="space-y-1">
+            <label class="font-bold text-slate-300">Company / Product Photo (URL)</label>
+            <input type="text" id="hackImage" oninput="updateHackModalPreview()" placeholder="Auto-fetched or paste URL" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-slate-300 font-mono-code">
           </div>
         </div>
 
         <div class="space-y-1">
           <label class="font-bold text-slate-300">Description & Claim Instructions</label>
-          <textarea id="hackDesc" rows="3" placeholder="Explain the deal and how users can claim it..." class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs"></textarea>
+          <textarea id="hackDesc" rows="2" oninput="updateHackModalPreview()" placeholder="Explain the deal and how users can claim it..." class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs"></textarea>
+        </div>
+
+        <!-- Live Preview Card -->
+        <div id="hackPreviewContainer" class="p-3.5 rounded-2xl bg-slate-950/80 border border-slate-800 space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-[10px] uppercase tracking-wider text-slate-400 font-bold">Live Card Preview:</span>
+            <span id="hackBadgePreview" class="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 text-[9px] font-black">EXCLUSIVE</span>
+          </div>
+          
+          <div id="hackImagePreviewBox" class="hidden w-full h-24 rounded-xl overflow-hidden border border-slate-800 bg-slate-900">
+            <img id="hackImagePreview" src="" class="w-full h-full object-cover">
+          </div>
+
+          <div class="flex items-center gap-3">
+            <img id="hackLogoPreview" src="https://www.google.com/s2/favicons?domain=github.com&sz=128" class="w-8 h-8 rounded-xl object-contain bg-slate-900 p-1 border border-slate-700 shadow">
+            <div class="flex-1 min-w-0">
+              <h5 id="hackTitlePreview" class="text-white font-bold text-xs truncate">Deal Title Preview</h5>
+              <p id="hackDescPreview" class="text-slate-400 text-[11px] truncate">Company description preview...</p>
+            </div>
+          </div>
         </div>
 
         <div class="flex items-center justify-end gap-3 pt-2">

@@ -638,27 +638,53 @@ function renderHacks() {
   if (!container) return;
 
   const hacks = appData.hacks || [];
-  container.innerHTML = hacks.map(h => `
-    <div class="glass-card rounded-2xl border border-slate-800 p-6 space-y-4 flex flex-col justify-between">
-      <div class="space-y-2">
-        <div class="flex items-center justify-between">
-          <span class="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 text-[10px] font-black uppercase border border-emerald-500/30">${h.badge}</span>
-          <span class="text-xs text-slate-300 font-mono-code">${h.category}</span>
-        </div>
-        <h3 class="text-lg font-black text-white font-cinzel">${h.title}</h3>
-        <p class="text-xs text-slate-300 leading-relaxed">${h.desc}</p>
-      </div>
+  container.innerHTML = hacks.map(h => {
+    let logoSrc = h.logo;
+    if (!logoSrc && h.link && h.link.length > 8) {
+      try {
+        const hostname = new URL(h.link.startsWith('http') ? h.link : 'https://' + h.link).hostname;
+        logoSrc = `https://www.google.com/s2/favicons?domain=${hostname}&sz=128`;
+      } catch(e) {}
+    }
 
-      <div class="pt-3 border-t border-slate-800/80 flex items-center justify-between gap-3">
-        <div class="bg-slate-950 px-3 py-1.5 rounded-xl border border-slate-800 font-mono-code font-bold text-xs text-amber-400">
-          Code: <span>${h.code}</span>
+    return `
+      <div class="glass-card rounded-2xl border border-slate-800 p-6 space-y-4 flex flex-col justify-between overflow-hidden">
+        <div class="space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 text-[10px] font-black uppercase border border-emerald-500/30">${h.badge}</span>
+            <span class="text-xs text-slate-300 font-mono-code">${h.category}</span>
+          </div>
+
+          ${h.image ? `
+            <div class="w-full h-36 rounded-xl overflow-hidden border border-slate-800 bg-slate-950">
+              <img src="${h.image}" alt="${h.title}" class="w-full h-full object-cover">
+            </div>
+          ` : ''}
+
+          <div class="flex items-center gap-3 pt-1">
+            ${logoSrc ? `
+              <img src="${logoSrc}" alt="Company Logo" class="w-9 h-9 rounded-xl object-contain bg-slate-950 p-1 border border-slate-700 shadow shrink-0" onerror="this.style.display='none'">
+            ` : ''}
+            <div class="flex-1 min-w-0">
+              <h3 class="text-base font-black text-white font-cinzel leading-snug truncate">${h.title}</h3>
+            </div>
+          </div>
+
+          <p class="text-xs text-slate-300 leading-relaxed">${h.desc}</p>
         </div>
-        <a href="${h.link}" target="_blank" onclick="trackEvent('affiliate_click', '${h.title}')" class="px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs flex items-center gap-1.5 transition shadow">
-          <span>Claim Deal</span> <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
-        </a>
+
+        <div class="pt-3 border-t border-slate-800/80 flex items-center justify-between gap-3">
+          <div class="bg-slate-950 px-3 py-1.5 rounded-xl border border-slate-800 font-mono-code font-bold text-xs text-amber-400">
+            Code: <span>${h.code}</span>
+          </div>
+          <a href="${h.link}" target="_blank" onclick="trackEvent('affiliate_click', '${h.title}')" class="px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs flex items-center gap-1.5 transition shadow">
+            <span>Claim Deal</span> <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+          </a>
+        </div>
       </div>
-    </div>
-  `).join('');
+    `;
+  }).join('');
+  if (window.lucide) lucide.createIcons();
 }
 
 // --------------------------------------------------------------------------
@@ -1476,7 +1502,12 @@ function openAddHackModal() {
   document.getElementById('hackBadge').value = 'EXCLUSIVE';
   document.getElementById('hackCode').value = 'STEVEVIP';
   document.getElementById('hackLink').value = 'https://';
+  document.getElementById('hackLogo').value = '';
+  document.getElementById('hackImage').value = '';
   document.getElementById('hackDesc').value = '';
+  const statusEl = document.getElementById('fetchMetaStatus');
+  if (statusEl) statusEl.classList.add('hidden');
+  updateHackModalPreview();
   document.getElementById('hackModal')?.classList.remove('hidden');
 }
 
@@ -1491,12 +1522,107 @@ function openEditHackModal(id) {
   document.getElementById('hackBadge').value = hack.badge || 'EXCLUSIVE';
   document.getElementById('hackCode').value = hack.code || 'STEVEVIP';
   document.getElementById('hackLink').value = hack.link || 'https://';
+  document.getElementById('hackLogo').value = hack.logo || '';
+  document.getElementById('hackImage').value = hack.image || '';
   document.getElementById('hackDesc').value = hack.desc || '';
+  const statusEl = document.getElementById('fetchMetaStatus');
+  if (statusEl) statusEl.classList.add('hidden');
+  updateHackModalPreview();
   document.getElementById('hackModal')?.classList.remove('hidden');
 }
 
 function closeHackModal() {
   document.getElementById('hackModal')?.classList.add('hidden');
+}
+
+function updateHackModalPreview() {
+  const title = document.getElementById('hackTitle')?.value || 'Deal Title Preview';
+  const desc = document.getElementById('hackDesc')?.value || 'Company description preview...';
+  const logo = document.getElementById('hackLogo')?.value;
+  const image = document.getElementById('hackImage')?.value;
+  const badge = document.getElementById('hackBadge')?.value || 'EXCLUSIVE';
+  const link = document.getElementById('hackLink')?.value;
+
+  const titleEl = document.getElementById('hackTitlePreview');
+  const descEl = document.getElementById('hackDescPreview');
+  const logoEl = document.getElementById('hackLogoPreview');
+  const imageBox = document.getElementById('hackImagePreviewBox');
+  const imageEl = document.getElementById('hackImagePreview');
+  const badgeEl = document.getElementById('hackBadgePreview');
+
+  if (titleEl) titleEl.textContent = title;
+  if (descEl) descEl.textContent = desc;
+  if (badgeEl) badgeEl.textContent = badge;
+
+  let logoSrc = logo;
+  if (!logoSrc && link && link.length > 8) {
+    try {
+      const hostname = new URL(link.startsWith('http') ? link : 'https://' + link).hostname;
+      logoSrc = `https://www.google.com/s2/favicons?domain=${hostname}&sz=128`;
+    } catch(e) {}
+  }
+  if (logoEl) logoEl.src = logoSrc || 'https://www.google.com/s2/favicons?domain=github.com&sz=128';
+
+  if (image && imageBox && imageEl) {
+    imageEl.src = image;
+    imageBox.classList.remove('hidden');
+  } else if (imageBox) {
+    imageBox.classList.add('hidden');
+  }
+}
+
+async function fetchHackMetaFromUrl() {
+  const linkInput = document.getElementById('hackLink');
+  const statusEl = document.getElementById('fetchMetaStatus');
+  const btn = document.getElementById('fetchHackMetaBtn');
+  const rawUrl = (linkInput?.value || '').trim();
+
+  if (!rawUrl || rawUrl === 'https://') {
+    alert('Please enter a target deal URL link first.');
+    return;
+  }
+
+  if (btn) btn.disabled = true;
+  if (statusEl) {
+    statusEl.classList.remove('hidden');
+    statusEl.textContent = 'Fetching company info, logo & picture... ⏳';
+  }
+
+  try {
+    const res = await fetch('/api/hacks/fetch-meta', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url: rawUrl })
+    });
+    const data = await res.json();
+
+    if (data.success) {
+      if (data.title && document.getElementById('hackTitle')) {
+        document.getElementById('hackTitle').value = data.title;
+      }
+      if (data.desc && document.getElementById('hackDesc')) {
+        document.getElementById('hackDesc').value = data.desc;
+      }
+      if (data.logoUrl && document.getElementById('hackLogo')) {
+        document.getElementById('hackLogo').value = data.logoUrl;
+      }
+      if (data.imageUrl && document.getElementById('hackImage')) {
+        document.getElementById('hackImage').value = data.imageUrl;
+      }
+      if (data.link && document.getElementById('hackLink')) {
+        document.getElementById('hackLink').value = data.link;
+      }
+
+      updateHackModalPreview();
+      if (statusEl) statusEl.textContent = `Successfully fetched meta & logo for ${data.domain || 'company'}! 🟢`;
+    } else {
+      if (statusEl) statusEl.textContent = 'Could not fetch metadata automatically. You can fill in logo & details manually.';
+    }
+  } catch (err) {
+    if (statusEl) statusEl.textContent = 'Error connecting to URL meta fetcher.';
+  } finally {
+    if (btn) btn.disabled = false;
+  }
 }
 
 async function handleSaveHack(e) {
@@ -1509,6 +1635,8 @@ async function handleSaveHack(e) {
     badge: document.getElementById('hackBadge').value,
     code: document.getElementById('hackCode').value,
     link: document.getElementById('hackLink').value,
+    logo: document.getElementById('hackLogo').value,
+    image: document.getElementById('hackImage').value,
     desc: document.getElementById('hackDesc').value,
     clicks: 0
   };

@@ -124,6 +124,107 @@ const server = http.createServer(async (req, res) => {
     return sendJSON(res, { success: true, data: readDB() });
   }
 
+  // Auto-Fetch Company Meta & Logo from URL Endpoint
+  if (reqPath === '/api/hacks/fetch-meta' && req.method === 'POST') {
+    const body = await parseJSON(req);
+    let targetUrl = (body.url || '').trim();
+    if (!targetUrl) return sendJSON(res, { success: false, message: 'URL is required' }, 400);
+
+    if (!/^https?:\/\//i.test(targetUrl)) {
+      targetUrl = 'https://' + targetUrl;
+    }
+
+    try {
+      const parsed = new URL(targetUrl);
+      const domain = parsed.hostname.replace(/^www\./, '');
+      const googleLogoUrl = `https://www.google.com/s2/favicons?domain=${domain}&sz=128`;
+
+      const fetchProtocol = parsed.protocol === 'https:' ? require('https') : require('http');
+      
+      const reqOptions = {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
+        },
+        timeout: 6000
+      };
+
+      const reqClient = fetchProtocol.get(targetUrl, reqOptions, (httpRes) => {
+        let html = '';
+        httpRes.on('data', chunk => {
+          if (html.length < 500000) html += chunk.toString('utf8');
+        });
+        httpRes.on('end', () => {
+          let title = '';
+          let desc = '';
+          let imageUrl = '';
+          let logoUrl = googleLogoUrl;
+
+          const ogTitle = html.match(/<meta[^>]*property=["']og:title["'][^>]*content=["']([^"']+)["']/i) ||
+                          html.match(/<meta[^>]*content=["']([^"']+)["'][^>]*property=["']og:title["']/i);
+          const titleTag = html.match(/<title[^>]*>([^<]+)<\/title>/i);
+          title = ogTitle ? ogTitle[1] : (titleTag ? titleTag[1] : domain);
+
+          const ogDesc = html.match(/<meta[^>]*property=["']og:description["'][^>]*content=["']([^"']+)["']/i) ||
+                         html.match(/<meta[^>]*name=["']description["'][^>]*content=["']([^"']+)["']/i) ||
+                         html.match(/<meta[^>]*content=["']([^"']+)["'][^>]*name=["']description["']/i);
+          desc = ogDesc ? ogDesc[1] : `Exclusive deals and tools for ${domain}.`;
+
+          const ogImage = html.match(/<meta[^>]*property=["']og:image["'][^>]*content=["']([^"']+)["']/i) ||
+                          html.match(/<meta[^>]*name=["']twitter:image["'][^>]*content=["']([^"']+)["']/i);
+          if (ogImage) {
+            imageUrl = ogImage[1];
+            if (imageUrl.startsWith('/')) {
+              imageUrl = `${parsed.protocol}//${parsed.host}${imageUrl}`;
+            }
+          }
+
+          title = title.replace(/&amp;/g, '&').replace(/&#39;/g, "'").trim();
+          desc = desc.replace(/&amp;/g, '&').replace(/&#39;/g, "'").trim();
+
+          return sendJSON(res, {
+            success: true,
+            domain,
+            title,
+            desc,
+            logoUrl,
+            imageUrl,
+            link: targetUrl
+          });
+        });
+      });
+
+      reqClient.on('error', () => {
+        return sendJSON(res, {
+          success: true,
+          domain,
+          title: domain.charAt(0).toUpperCase() + domain.slice(1) + ' Deal',
+          desc: `Exclusive tools & savings from ${domain}`,
+          logoUrl: googleLogoUrl,
+          imageUrl: '',
+          link: targetUrl
+        });
+      });
+
+      reqClient.setTimeout(6000, () => {
+        reqClient.destroy();
+        return sendJSON(res, {
+          success: true,
+          domain,
+          title: domain.charAt(0).toUpperCase() + domain.slice(1) + ' Deal',
+          desc: `Exclusive tools & savings from ${domain}`,
+          logoUrl: googleLogoUrl,
+          imageUrl: '',
+          link: targetUrl
+        });
+      });
+
+    } catch (err) {
+      return sendJSON(res, { success: false, message: 'Invalid URL format' }, 400);
+    }
+    return;
+  }
+
   // Backup Export Endpoint
   if (reqPath === '/api/backup/export' && req.method === 'GET') {
     const db = readDB();
@@ -429,6 +530,8 @@ const server = http.createServer(async (req, res) => {
       code: body.code || 'STEVEVIP',
       link: body.link || '#',
       desc: body.desc || 'Curated deal by Steve Pereira.',
+      logo: body.logo || '',
+      image: body.image || '',
       clicks: 0
     };
     db.hacks = db.hacks || [];
