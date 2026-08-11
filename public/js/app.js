@@ -12,6 +12,12 @@ let appData = {
     { id: 'v3', title: '3. Combat Certificate Training', url: 'assets/Combat_Certificate_Training.mp4', poster: 'assets/thumb_combat_training.jpg', size: '6.0 MB', tag: 'Showreel Video', type: 'video' }
   ],
   fullBodySlates: [],
+  sectionRouting: {
+    leftPanelCategory: 'Filming Still',
+    flutterDeckCategory: 'Headshot',
+    fullBodyCategory: 'Full Body',
+    heroCategory: 'Headshot'
+  },
   stats: {},
   aboutTimeline: [],
   itTimeline: [],
@@ -283,6 +289,13 @@ function prevHeroHeadshot() {
   setHeroHeadshot(currentHeroIndex - 1);
 }
 
+async function updateSectionRouting(sectionKey, newCategory) {
+  appData.sectionRouting = appData.sectionRouting || {};
+  appData.sectionRouting[sectionKey] = newCategory;
+  renderAll();
+  await saveAppDataToServer();
+}
+
 // --------------------------------------------------------------------------
 // 3D HEADSHOTS DECK
 // --------------------------------------------------------------------------
@@ -290,19 +303,22 @@ function renderHeadshotsDeck() {
   const container = document.getElementById('inlineHeadshotsDeck');
   if (!container) return;
 
-  const all = appData.headshots || [];
-  // STRICTLY FILTER HEADSHOTS ONLY (EXCLUDE FULL BODY STANDING SLATES)
-  let headshotsOnly = all.filter(h => h.tag === 'Headshot' || (h.tag !== 'Full Body' && h.tag !== 'Signature B&W'));
-  if (headshotsOnly.length === 0) headshotsOnly = all.filter(h => h.tag !== 'Full Body');
+  const targetCategory = appData.sectionRouting?.flutterDeckCategory || 'Headshot';
+  const allHeadshots = appData.headshots || [];
+  const allStills = appData.stills || [];
+  const allSlates = appData.fullBodySlates || [];
+  const combined = [...allHeadshots, ...allStills, ...allSlates];
 
-  if (headshotsOnly.length === 0) return;
+  let deckItems = combined.filter(h => h.tag === targetCategory);
+  if (deckItems.length === 0) deckItems = combined.filter(h => h.tag !== 'Full Body');
+  if (deckItems.length === 0) return;
 
-  container.innerHTML = headshotsOnly.slice(0, 5).map((h, i) => {
+  container.innerHTML = deckItems.slice(0, 5).map((h, i) => {
     return `
       <div onclick="openLightbox('${h.url}', '${h.title}', '${h.desc}')" 
            class="deck-card deck-card-${i} absolute w-48 sm:w-56 h-64 sm:h-72 rounded-2xl overflow-hidden glass-card border-2 border-slate-700 cursor-pointer shadow-2xl"
            style="z-index: ${30 + i};">
-        <img src="${h.url}" alt="${h.title}" class="w-full h-full object-cover">
+        <img src="${h.url}" alt="${h.title}" class="w-full h-full object-cover object-top">
         <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
         <div class="absolute bottom-3 left-3 right-3 text-left">
           <span class="px-2 py-0.5 rounded bg-amber-500 text-slate-950 text-[10px] font-black">${h.tag || 'Headshot'}</span>
