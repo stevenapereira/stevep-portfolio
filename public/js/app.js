@@ -167,7 +167,13 @@ function renderFullBodyGrid() {
   if (!container) return;
 
   const headshots = appData.headshots || [];
-  const fullBodyItems = headshots.filter(h => h.tag === 'Full Body' || h.tag === 'Signature B&W' || h.tag === 'Corporate');
+  const slates = appData.fullBodySlates || [];
+  const fullBodyItems = [...slates, ...headshots.filter(h => h.tag === 'Full Body')];
+
+  if (fullBodyItems.length === 0) {
+    container.innerHTML = `<div class="col-span-full py-8 text-center text-xs text-slate-400 italic">No standing full body slates allocated yet. Assign photos as "Full Body" in Admin Media.</div>`;
+    return;
+  }
 
   container.innerHTML = fullBodyItems.map(h => `
     <div onclick="openLightbox('${h.url}', '${h.title}', '${h.desc}')" class="glass-card rounded-2xl overflow-hidden border border-slate-800 cursor-pointer group hover:border-amber-400 transition">
@@ -175,9 +181,9 @@ function renderFullBodyGrid() {
         <img src="${h.url}" alt="${h.title}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
       </div>
       <div class="p-4 space-y-1">
-        <span class="px-2 py-0.5 rounded bg-amber-500 text-slate-950 text-[10px] font-black">${h.tag}</span>
+        <span class="px-2 py-0.5 rounded bg-yellow-400 text-slate-950 text-[10px] font-black">Full Body Slate</span>
         <h4 class="text-white text-xs font-bold font-cinzel truncate">${h.title}</h4>
-        <p class="text-slate-300 text-[11px] truncate">${h.desc}</p>
+        <p class="text-slate-300 text-[11px] truncate">${h.desc || "Head-to-toe standing slate"}</p>
       </div>
     </div>
   `).join('');
@@ -284,10 +290,14 @@ function renderHeadshotsDeck() {
   const container = document.getElementById('inlineHeadshotsDeck');
   if (!container) return;
 
-  const headshots = appData.headshots || [];
-  if (headshots.length === 0) return;
+  const all = appData.headshots || [];
+  // STRICTLY FILTER HEADSHOTS ONLY (EXCLUDE FULL BODY STANDING SLATES)
+  let headshotsOnly = all.filter(h => h.tag === 'Headshot' || (h.tag !== 'Full Body' && h.tag !== 'Signature B&W'));
+  if (headshotsOnly.length === 0) headshotsOnly = all.filter(h => h.tag !== 'Full Body');
 
-  container.innerHTML = headshots.slice(0, 5).map((h, i) => {
+  if (headshotsOnly.length === 0) return;
+
+  container.innerHTML = headshotsOnly.slice(0, 5).map((h, i) => {
     return `
       <div onclick="openLightbox('${h.url}', '${h.title}', '${h.desc}')" 
            class="deck-card deck-card-${i} absolute w-48 sm:w-56 h-64 sm:h-72 rounded-2xl overflow-hidden glass-card border-2 border-slate-700 cursor-pointer shadow-2xl"
@@ -295,7 +305,7 @@ function renderHeadshotsDeck() {
         <img src="${h.url}" alt="${h.title}" class="w-full h-full object-cover">
         <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
         <div class="absolute bottom-3 left-3 right-3 text-left">
-          <span class="px-2 py-0.5 rounded bg-amber-500 text-slate-950 text-[10px] font-black">${h.tag}</span>
+          <span class="px-2 py-0.5 rounded bg-amber-500 text-slate-950 text-[10px] font-black">${h.tag || 'Headshot'}</span>
           <h4 class="text-white text-xs font-bold font-cinzel mt-1 truncate">${h.title}</h4>
         </div>
       </div>
