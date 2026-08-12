@@ -132,84 +132,119 @@ body {
   object-position: center 8%;
 }
 
-/* Circular Social Media Icon Badges (Graphical 3D & Vibrant Colors) */
+/* Circular Social Media Icon Badges (Metallic Pin Effect matching reference image) */
 .social-icon-btn {
-  width: 42px;
-  height: 42px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: rgba(15, 23, 42, 0.85);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: #090a0f; /* Sleek black badge face */
+  border: 2px solid #7c8594; /* Polished metallic bezel ring */
   color: #ffffff;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.2);
-  transition: all 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: 
+    0 4px 10px rgba(0, 0, 0, 0.65), /* drop shadow under the pin */
+    inset 0 1px 2px rgba(255, 255, 255, 0.45), /* shiny inner edge highlight */
+    inset 0 -2.5px 4px rgba(0, 0, 0, 0.85); /* dark base inner shadow */
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   overflow: hidden;
   position: relative;
 }
 
-.social-icon-btn img {
-  width: 24px;
-  height: 24px;
-  object-fit: contain;
-  transition: transform 0.35s ease;
+/* 3D Glossy Dome Highlight Sheen (Top crescent reflection) */
+.social-icon-btn::before {
+  content: '';
+  position: absolute;
+  top: 1px;
+  left: 8%;
+  width: 84%;
+  height: 42%;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.45) 0%, rgba(255, 255, 255, 0.0) 100%);
+  border-radius: 50% 50% 15% 15% / 80% 80% 20% 20%;
+  pointer-events: none;
+  z-index: 2;
 }
 
+/* Subtle Curvature Light Bounce (Bottom left specular sheen) */
+.social-icon-btn::after {
+  content: '';
+  position: absolute;
+  bottom: 2px;
+  left: 12%;
+  width: 76%;
+  height: 25%;
+  background: linear-gradient(to top, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.0) 100%);
+  border-radius: 10% 10% 50% 50% / 20% 20% 80% 80%;
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* Polished Hover/Press scale interactions */
 .social-icon-btn:hover {
   transform: translateY(-4px) scale(1.15);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.7);
+  border-color: #ffffff; /* Brighter chrome bezel on hover */
 }
 
+/* Inner branding icons & graphics */
+.social-icon-btn i,
+.social-icon-btn svg {
+  width: 20px;
+  height: 20px;
+  stroke-width: 2.5; /* Bolder, more graphical stroke matching reference logos */
+  transition: transform 0.3s ease;
+  z-index: 1;
+}
+
+.social-icon-btn img {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  transition: transform 0.3s ease;
+  z-index: 1;
+}
+
+.social-icon-btn:hover i,
+.social-icon-btn:hover svg,
+.social-icon-btn:hover img {
+  transform: scale(1.1);
+}
+
+/* Individual Brand Colors for metallic shine reflections & icon strokes */
 .social-icon-btn.instagram {
-  background: linear-gradient(135deg, #833ab4, #fd1d1d 50%, #fcb045);
-  border-color: rgba(253, 29, 29, 0.6);
+  color: #ff2a74; /* Neon magenta-pink */
 }
 .social-icon-btn.instagram:hover {
-  box-shadow: 0 0 25px rgba(253, 29, 29, 0.8);
-  border-color: #ffffff;
+  box-shadow: 0 0 20px rgba(255, 42, 116, 0.7), inset 0 1px 2px rgba(255, 255, 255, 0.45);
 }
 
 .social-icon-btn.twitter {
-  background: linear-gradient(135deg, #1d9bf0, #0f1419);
-  border-color: rgba(29, 155, 240, 0.6);
+  color: #1da1f2; /* Sky blue */
 }
 .social-icon-btn.twitter:hover {
-  box-shadow: 0 0 25px rgba(29, 155, 240, 0.8);
-  border-color: #ffffff;
+  box-shadow: 0 0 20px rgba(29, 155, 240, 0.7), inset 0 1px 2px rgba(255, 255, 255, 0.45);
 }
 
 .social-icon-btn.facebook {
-  background: linear-gradient(135deg, #1877f2, #0052cc);
-  border-color: rgba(24, 119, 242, 0.6);
+  color: #1877f2; /* Royal blue */
 }
 .social-icon-btn.facebook:hover {
-  box-shadow: 0 0 25px rgba(24, 119, 242, 0.8);
-  border-color: #ffffff;
+  box-shadow: 0 0 20px rgba(24, 119, 242, 0.7), inset 0 1px 2px rgba(255, 255, 255, 0.45);
 }
 
 .social-icon-btn.spotlight {
-  background: linear-gradient(135deg, #ffffff, #fffbeb);
-  border-color: rgba(245, 158, 11, 0.6);
-  padding: 3px;
+  background: #090a0f;
+  padding: 0;
 }
 .social-icon-btn.spotlight:hover {
-  background: #ffffff;
-  box-shadow: 0 0 25px rgba(245, 158, 11, 0.9);
-  border-color: #f59e0b;
+  box-shadow: 0 0 20px rgba(245, 158, 11, 0.7), inset 0 1px 2px rgba(255, 255, 255, 0.45);
 }
 
 .social-icon-btn.imdb {
-  background: linear-gradient(135deg, #f5c518, #e2b100);
-  color: #111111;
-  font-weight: 900;
-  border-color: rgba(245, 197, 24, 0.8);
+  color: #f5c518; /* Gold/Amber */
 }
 .social-icon-btn.imdb:hover {
-  box-shadow: 0 0 25px rgba(245, 197, 24, 0.9);
-  border-color: #ffffff;
+  box-shadow: 0 0 20px rgba(245, 197, 24, 0.7), inset 0 1px 2px rgba(255, 255, 255, 0.45);
 }
 
 /* 3D Spin Out & Spread Headshot Deck on Hover */
