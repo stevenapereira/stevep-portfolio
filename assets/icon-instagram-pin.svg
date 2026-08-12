@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <!-- Chrome metallic bezel ring gradient -->
+    <radialGradient id="ig-ring" cx="35%" cy="28%" r="70%">
+      <stop offset="0%" stop-color="#f0f2f5"/>
+      <stop offset="30%" stop-color="#c8cdd4"/>
+      <stop offset="60%" stop-color="#8a9099"/>
+      <stop offset="80%" stop-color="#5e6670"/>
+      <stop offset="100%" stop-color="#3a3f47"/>
+    </radialGradient>
+    <!-- Drop shadow filter -->
+    <filter id="ig-shadow" x="-15%" y="-15%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="4" stdDeviation="5" flood-color="#000000" flood-opacity="0.65"/>
+    </filter>
+    <!-- Top crescent gloss highlight -->
+    <radialGradient id="ig-gloss" cx="62%" cy="18%" r="55%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.90"/>
+      <stop offset="40%" stop-color="#ffffff" stop-opacity="0.45"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+    <!-- Bottom-left subtle reflection -->
+    <radialGradient id="ig-reflect" cx="38%" cy="82%" r="40%">
+      <stop offset="0%" stop-color="#666e7a" stop-opacity="0.55"/>
+      <stop offset="100%" stop-color="#666e7a" stop-opacity="0"/>
+    </radialGradient>
+    <!-- Instagram brand gradient -->
+    <linearGradient id="ig-brand" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#f09433"/>
+      <stop offset="25%" stop-color="#e6683c"/>
+      <stop offset="50%" stop-color="#dc2743"/>
+      <stop offset="75%" stop-color="#cc2366"/>
+      <stop offset="100%" stop-color="#bc1888"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Outer chrome metallic ring with drop shadow -->
+  <circle cx="50" cy="50" r="49" fill="url(#ig-ring)" filter="url(#ig-shadow)"/>
+  <!-- Black badge face -->
+  <circle cx="50" cy="50" r="42" fill="#080b14"/>
+  <!-- Bottom-left grey reflection band -->
+  <circle cx="50" cy="50" r="42" fill="url(#ig-reflect)"/>
+
+  <!-- Instagram icon (rounded square + ring + dot) -->
+  <g transform="translate(28,28) scale(0.44)">
+    <!-- Outer rounded square -->
+    <rect x="2" y="2" width="96" height="96" rx="26" ry="26" fill="none" stroke="url(#ig-brand)" stroke-width="9"/>
+    <!-- Inner circle (lens) -->
+    <circle cx="50" cy="50" r="24" fill="none" stroke="url(#ig-brand)" stroke-width="8"/>
+    <!-- Dot top-right -->
+    <circle cx="77" cy="23" r="6" fill="url(#ig-brand)"/>
+  </g>
+
+  <!-- Top-right crescent gloss highlight -->
+  <circle cx="50" cy="50" r="42" fill="url(#ig-gloss)"/>
+</svg>

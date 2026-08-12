@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <radialGradient id="fb-ring" cx="35%" cy="28%" r="70%">
+      <stop offset="0%" stop-color="#f0f2f5"/>
+      <stop offset="30%" stop-color="#c8cdd4"/>
+      <stop offset="60%" stop-color="#8a9099"/>
+      <stop offset="80%" stop-color="#5e6670"/>
+      <stop offset="100%" stop-color="#3a3f47"/>
+    </radialGradient>
+    <filter id="fb-shadow" x="-15%" y="-15%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="4" stdDeviation="5" flood-color="#000000" flood-opacity="0.65"/>
+    </filter>
+    <radialGradient id="fb-gloss" cx="62%" cy="18%" r="55%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.90"/>
+      <stop offset="40%" stop-color="#ffffff" stop-opacity="0.45"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="fb-reflect" cx="38%" cy="82%" r="40%">
+      <stop offset="0%" stop-color="#666e7a" stop-opacity="0.55"/>
+      <stop offset="100%" stop-color="#666e7a" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <circle cx="50" cy="50" r="49" fill="url(#fb-ring)" filter="url(#fb-shadow)"/>
+  <circle cx="50" cy="50" r="42" fill="#080b14"/>
+  <circle cx="50" cy="50" r="42" fill="url(#fb-reflect)"/>
+
+  <!-- Facebook "f" logo -->
+  <path d="M 56,27 L 56,20 C 56,17.5 57.8,16.5 60,16.5 L 65,16.5 L 65,8 L 57,8 C 47,8 44,14 44,20 L 44,27 L 37,27 L 37,36 L 44,36 L 44,62 L 53,62 L 53,36 L 62,36 L 63.5,27 Z" fill="#1877f2"/>
+
+  <circle cx="50" cy="50" r="42" fill="url(#fb-gloss)"/>
+</svg>

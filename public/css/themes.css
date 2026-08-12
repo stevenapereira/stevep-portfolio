@@ -209,36 +209,9 @@ body {
 .social-icon-btn:hover img {
   transform: scale(1.1);
 }
-
-/* Individual Brand Colors for metallic shine reflections & icon strokes */
-.social-icon-btn.instagram {
-  color: #ff2a74; /* Neon magenta-pink */
-}
-.social-icon-btn.instagram:hover {
-  box-shadow: 0 0 20px rgba(255, 42, 116, 0.7), inset 0 1px 2px rgba(255, 255, 255, 0.45);
-}
-
-.social-icon-btn.twitter {
-  color: #1da1f2; /* Sky blue */
-}
-.social-icon-btn.twitter:hover {
-  box-shadow: 0 0 20px rgba(29, 155, 240, 0.7), inset 0 1px 2px rgba(255, 255, 255, 0.45);
-}
-
-.social-icon-btn.facebook {
-  color: #1877f2; /* Royal blue */
-}
-.social-icon-btn.facebook:hover {
-  box-shadow: 0 0 20px rgba(24, 119, 242, 0.7), inset 0 1px 2px rgba(255, 255, 255, 0.45);
-}
-
-.social-icon-btn.spotlight {
-  background: #090a0f;
+  background: transparent;
+  border: none;
   padding: 0;
-}
-.social-icon-btn.spotlight:hover {
-  box-shadow: 0 0 20px rgba(245, 158, 11, 0.7), inset 0 1px 2px rgba(255, 255, 255, 0.45);
-}
 
 .social-icon-btn.imdb {
   color: #f5c518; /* Gold/Amber */
