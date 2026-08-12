@@ -338,35 +338,44 @@
                   <i data-lucide="user" class="w-4 h-4 text-amber-400"></i>
                   <span>About SteveP Timeline</span>
                 </button>
-                     <!-- Bottom-Right Representation Box (2 Agencies in Distinct Colours) -->
+              </div>
+
+              <!-- Representation Box — label + both agency cards in one outer border, side by side -->
               <div class="pt-3 border-t border-slate-800/80">
-                <span class="text-[10px] font-mono-code font-bold text-slate-400 uppercase tracking-wider block mb-2">Official Representation:</span>
+                <!-- Single outer bordered card wrapping label + both agencies on same row -->
+                <div class="rounded-xl border border-slate-600/70 bg-slate-900/70 backdrop-blur-sm px-3 py-2.5 flex items-center gap-3 flex-wrap">
 
-                <!-- Tighter agent container card -->
-                <div class="rounded-xl border border-slate-700/60 bg-slate-900/60 backdrop-blur-sm p-2.5 flex flex-wrap gap-2">
+                  <!-- Left label -->
+                  <span class="text-[10px] font-mono-code font-bold text-slate-400 uppercase tracking-wider whitespace-nowrap flex-shrink-0">Represented By:</span>
 
-                  <!-- Agency 1: The Central Line Agency — RED -->
-                  <a href="mailto:agency@thecentralline.co.uk" class="group flex-1 min-w-[140px] px-3 py-2 rounded-lg bg-red-950/60 border border-red-500/60 hover:bg-red-500 hover:border-red-400 text-red-300 hover:text-white text-xs font-black flex items-center gap-2 transition shadow-md">
-                    <i data-lucide="phone" class="w-3.5 h-3.5 text-red-400 group-hover:text-white flex-shrink-0"></i>
-                    <div class="text-left min-w-0">
-                      <span class="block leading-none text-[11px] font-extrabold truncate">The Central Line</span>
-                      <span class="block text-[9px] opacity-75 font-mono-code">Acting &amp; Commercials</span>
-                      <span class="block text-[10px] font-mono-code font-bold text-red-200 group-hover:text-white mt-0.5">020 7434 4771</span>
-                    </div>
-                  </a>
+                  <!-- Agent cards row -->
+                  <div class="flex flex-1 gap-2 flex-wrap">
 
-                  <!-- Agency 2: Face Management — BLUE -->
-                  <a href="https://facemanagement.co.uk" target="_blank" class="group flex-1 min-w-[140px] px-3 py-2 rounded-lg bg-blue-950/60 border border-blue-500/60 hover:bg-blue-500 hover:border-blue-400 text-blue-300 hover:text-white text-xs font-black flex items-center gap-2 transition shadow-md">
-                    <i data-lucide="phone" class="w-3.5 h-3.5 text-blue-400 group-hover:text-white flex-shrink-0"></i>
-                    <div class="text-left min-w-0">
-                      <span class="block leading-none text-[11px] font-extrabold truncate">Face Management</span>
-                      <span class="block text-[9px] opacity-75 font-mono-code">Model &amp; Commercial</span>
-                      <span class="block text-[10px] font-mono-code font-bold text-blue-200 group-hover:text-white mt-0.5">020 7734 5959</span>
-                    </div>
-                  </a>
+                    <!-- Agency 1: The Central Line — RED rectangle -->
+                    <a href="mailto:agency@thecentralline.co.uk" id="heroAgent1Link"
+                      class="group flex-1 flex items-center gap-2.5 px-3.5 py-2 rounded-lg bg-red-950/70 border border-red-500/60 hover:bg-red-600 hover:border-red-400 transition shadow-md min-w-[155px]">
+                      <i data-lucide="phone" class="w-3 h-3 text-red-400 group-hover:text-white flex-shrink-0"></i>
+                      <div class="text-left">
+                        <span id="heroAgent1Name" class="block text-[11px] font-extrabold text-red-200 group-hover:text-white leading-tight">The Central Line</span>
+                        <span id="heroAgent1Type" class="block text-[9px] text-red-300/70 group-hover:text-white/80 font-mono-code">Acting &amp; Commercials</span>
+                        <span id="heroAgent1Phone" class="block text-[10px] font-mono-code font-bold text-red-300 group-hover:text-white">020 7434 4771</span>
+                      </div>
+                    </a>
 
+                    <!-- Agency 2: Face Management — BLUE rectangle -->
+                    <a href="https://facemanagement.co.uk" target="_blank" id="heroAgent2Link"
+                      class="group flex-1 flex items-center gap-2.5 px-3.5 py-2 rounded-lg bg-blue-950/70 border border-blue-500/60 hover:bg-blue-600 hover:border-blue-400 transition shadow-md min-w-[155px]">
+                      <i data-lucide="phone" class="w-3 h-3 text-blue-400 group-hover:text-white flex-shrink-0"></i>
+                      <div class="text-left">
+                        <span id="heroAgent2Name" class="block text-[11px] font-extrabold text-blue-200 group-hover:text-white leading-tight">Face Management</span>
+                        <span id="heroAgent2Type" class="block text-[9px] text-blue-300/70 group-hover:text-white/80 font-mono-code">Model &amp; Commercial</span>
+                        <span id="heroAgent2Phone" class="block text-[10px] font-mono-code font-bold text-blue-300 group-hover:text-white">0113 245 8667</span>
+                      </div>
+                    </a>
+
+                  </div>
                 </div>
-              </div>         </div>
+              </div>
 
             </div>
           </div>
@@ -1087,10 +1096,9 @@
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs">
-              <!-- Top Banner & Agency Text -->
               <div class="glass-card rounded-2xl border border-slate-800 p-5 space-y-4">
                 <h4 class="font-black text-white font-cinzel text-sm text-amber-400 flex items-center gap-2">
-                  <i data-lucide="flag" class="w-4 h-4"></i> Top Header Banner & Agency Pin Text
+                  <i data-lucide="flag" class="w-4 h-4"></i> Top Header Banner &amp; Agency Pin Text
                 </h4>
                 <div class="space-y-1">
                   <label class="font-bold text-slate-300">Spotlight Pin Badge Text:</label>
@@ -1099,6 +1107,55 @@
                 <div class="space-y-1">
                   <label class="font-bold text-slate-300">Agency Representation Text:</label>
                   <input type="text" id="editTopBannerAgent" class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white" value="Represented by The Central Line Agency">
+                </div>
+              </div>
+
+              <!-- Agent Details Admin Card -->
+              <div class="glass-card rounded-2xl border border-red-900/40 p-5 space-y-4">
+                <h4 class="font-black text-white font-cinzel text-sm text-red-400 flex items-center gap-2">
+                  <i data-lucide="users" class="w-4 h-4"></i> Agent 1 — The Central Line (Red)
+                </h4>
+                <div class="grid grid-cols-2 gap-3">
+                  <div class="space-y-1 col-span-2">
+                    <label class="font-bold text-slate-300">Agency Name:</label>
+                    <input type="text" id="editAgent1Name" onchange="updateAgentHero()" class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white" value="The Central Line">
+                  </div>
+                  <div class="space-y-1">
+                    <label class="font-bold text-slate-300">Type / Role:</label>
+                    <input type="text" id="editAgent1Type" onchange="updateAgentHero()" class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white" value="Acting &amp; Commercials">
+                  </div>
+                  <div class="space-y-1">
+                    <label class="font-bold text-slate-300">Phone:</label>
+                    <input type="text" id="editAgent1Phone" onchange="updateAgentHero()" class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white font-mono-code" value="020 7434 4771">
+                  </div>
+                  <div class="space-y-1 col-span-2">
+                    <label class="font-bold text-slate-300">Email / Link:</label>
+                    <input type="text" id="editAgent1Link" onchange="updateAgentHero()" class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white font-mono-code" value="mailto:agency@thecentralline.co.uk">
+                  </div>
+                </div>
+              </div>
+
+              <div class="glass-card rounded-2xl border border-blue-900/40 p-5 space-y-4">
+                <h4 class="font-black text-white font-cinzel text-sm text-blue-400 flex items-center gap-2">
+                  <i data-lucide="users" class="w-4 h-4"></i> Agent 2 — Face Management (Blue)
+                </h4>
+                <div class="grid grid-cols-2 gap-3">
+                  <div class="space-y-1 col-span-2">
+                    <label class="font-bold text-slate-300">Agency Name:</label>
+                    <input type="text" id="editAgent2Name" onchange="updateAgentHero()" class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white" value="Face Management">
+                  </div>
+                  <div class="space-y-1">
+                    <label class="font-bold text-slate-300">Type / Role:</label>
+                    <input type="text" id="editAgent2Type" onchange="updateAgentHero()" class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white" value="Model &amp; Commercial">
+                  </div>
+                  <div class="space-y-1">
+                    <label class="font-bold text-slate-300">Phone:</label>
+                    <input type="text" id="editAgent2Phone" onchange="updateAgentHero()" class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white font-mono-code" value="0113 245 8667">
+                  </div>
+                  <div class="space-y-1 col-span-2">
+                    <label class="font-bold text-slate-300">Website URL:</label>
+                    <input type="text" id="editAgent2Link" onchange="updateAgentHero()" class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white font-mono-code" value="https://facemanagement.co.uk">
+                  </div>
                 </div>
               </div>
 

@@ -2073,3 +2073,28 @@ async function submitSitemapToSearchEngines() {
     if (btn) btn.disabled = false;
   }
 }
+
+// ── Live Agent Hero Updater ──────────────────────────────────────────────────
+// Called onchange from each admin agent field — updates the hero box in real-time
+function updateAgentHero() {
+  const a1Name  = document.getElementById('editAgent1Name');
+  const a1Type  = document.getElementById('editAgent1Type');
+  const a1Phone = document.getElementById('editAgent1Phone');
+  const a1Link  = document.getElementById('editAgent1Link');
+  const a2Name  = document.getElementById('editAgent2Name');
+  const a2Type  = document.getElementById('editAgent2Type');
+  const a2Phone = document.getElementById('editAgent2Phone');
+  const a2Link  = document.getElementById('editAgent2Link');
+
+  if (a1Name  && document.getElementById('heroAgent1Name'))  document.getElementById('heroAgent1Name').textContent  = a1Name.value;
+  if (a1Type  && document.getElementById('heroAgent1Type'))  document.getElementById('heroAgent1Type').textContent  = a1Type.value;
+  if (a1Phone && document.getElementById('heroAgent1Phone')) document.getElementById('heroAgent1Phone').textContent = a1Phone.value;
+  if (a1Link  && document.getElementById('heroAgent1Link'))  document.getElementById('heroAgent1Link').href          = a1Link.value;
+
+  if (a2Name  && document.getElementById('heroAgent2Name'))  document.getElementById('heroAgent2Name').textContent  = a2Name.value;
+  if (a2Type  && document.getElementById('heroAgent2Type'))  document.getElementById('heroAgent2Type').textContent  = a2Type.value;
+  if (a2Phone && document.getElementById('heroAgent2Phone')) document.getElementById('heroAgent2Phone').textContent = a2Phone.value;
+  if (a2Link  && document.getElementById('heroAgent2Link'))  document.getElementById('heroAgent2Link').href          = a2Link.value;
+}
+
+window.updateAgentHero = updateAgentHero;
