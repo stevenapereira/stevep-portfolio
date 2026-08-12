@@ -132,92 +132,67 @@ body {
   object-position: center 8%;
 }
 
-/* Circular Social Media Icon Badges (Metallic Pin Effect matching reference image) */
+/* === METALLIC PIN SVG ICON WRAPPERS (self-contained SVG files) === */
+.social-pin-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.social-pin-btn img {
+  width: 38px;
+  height: 38px;
+  display: block;
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), filter 0.3s ease;
+  filter: drop-shadow(0 3px 6px rgba(0,0,0,0.55));
+}
+
+.social-pin-btn:hover img {
+  transform: translateY(-4px) scale(1.15);
+}
+
+.social-pin-btn.instagram:hover img {
+  filter: drop-shadow(0 0 12px rgba(228,64,95,0.90)) drop-shadow(0 5px 10px rgba(0,0,0,0.5));
+}
+.social-pin-btn.twitter:hover img {
+  filter: drop-shadow(0 0 12px rgba(29,161,242,0.90)) drop-shadow(0 5px 10px rgba(0,0,0,0.5));
+}
+.social-pin-btn.facebook:hover img {
+  filter: drop-shadow(0 0 12px rgba(24,119,242,0.90)) drop-shadow(0 5px 10px rgba(0,0,0,0.5));
+}
+.social-pin-btn.spotlight:hover img {
+  filter: drop-shadow(0 0 12px rgba(245,158,11,0.90)) drop-shadow(0 5px 10px rgba(0,0,0,0.5));
+}
+
+/* Legacy .social-icon-btn fallback (for any remaining uses) */
 .social-icon-btn {
-  width: 44px;
-  height: 44px;
+  width: 38px;
+  height: 38px;
   border-radius: 50%;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: #090a0f; /* Sleek black badge face */
-  border: 2px solid #7c8594; /* Polished metallic bezel ring */
+  background: #090a0f;
+  border: 2px solid #7c8594;
   color: #ffffff;
-  box-shadow: 
-    0 4px 10px rgba(0, 0, 0, 0.65), /* drop shadow under the pin */
-    inset 0 1px 2px rgba(255, 255, 255, 0.45), /* shiny inner edge highlight */
-    inset 0 -2.5px 4px rgba(0, 0, 0, 0.85); /* dark base inner shadow */
+  box-shadow: 0 3px 8px rgba(0,0,0,0.6), inset 0 1px 2px rgba(255,255,255,0.3);
   transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   overflow: hidden;
   position: relative;
 }
-
-/* 3D Glossy Dome Highlight Sheen (Top crescent reflection) */
-.social-icon-btn::before {
-  content: '';
-  position: absolute;
-  top: 1px;
-  left: 8%;
-  width: 84%;
-  height: 42%;
-  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.45) 0%, rgba(255, 255, 255, 0.0) 100%);
-  border-radius: 50% 50% 15% 15% / 80% 80% 20% 20%;
-  pointer-events: none;
-  z-index: 2;
-}
-
-/* Subtle Curvature Light Bounce (Bottom left specular sheen) */
-.social-icon-btn::after {
-  content: '';
-  position: absolute;
-  bottom: 2px;
-  left: 12%;
-  width: 76%;
-  height: 25%;
-  background: linear-gradient(to top, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.0) 100%);
-  border-radius: 10% 10% 50% 50% / 20% 20% 80% 80%;
-  pointer-events: none;
-  z-index: 2;
-}
-
-/* Polished Hover/Press scale interactions */
 .social-icon-btn:hover {
   transform: translateY(-4px) scale(1.15);
-  border-color: #ffffff; /* Brighter chrome bezel on hover */
+  border-color: #ffffff;
 }
-
-/* Inner branding icons & graphics */
-.social-icon-btn i,
-.social-icon-btn svg {
-  width: 20px;
-  height: 20px;
-  stroke-width: 2.5; /* Bolder, more graphical stroke matching reference logos */
-  transition: transform 0.3s ease;
-  z-index: 1;
-}
-
-.social-icon-btn img {
-  width: 20px;
-  height: 20px;
-  object-fit: contain;
-  transition: transform 0.3s ease;
-  z-index: 1;
-}
-
-.social-icon-btn:hover i,
-.social-icon-btn:hover svg,
-.social-icon-btn:hover img {
-  transform: scale(1.1);
-}
-  background: transparent;
-  border: none;
-  padding: 0;
-
-.social-icon-btn.imdb {
-  color: #f5c518; /* Gold/Amber */
-}
+.social-icon-btn.imdb { color: #f5c518; }
 .social-icon-btn.imdb:hover {
-  box-shadow: 0 0 20px rgba(245, 197, 24, 0.7), inset 0 1px 2px rgba(255, 255, 255, 0.45);
+  box-shadow: 0 0 18px rgba(245,197,24,0.75), inset 0 1px 2px rgba(255,255,255,0.3);
 }
 
 /* 3D Spin Out & Spread Headshot Deck on Hover */
