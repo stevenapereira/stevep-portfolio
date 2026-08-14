@@ -975,6 +975,9 @@
             <button onclick="setAdminSubTab('sitetexts')" id="adminSubNav-sitetexts" class="admin-subnav-btn px-4 py-2 rounded-xl bg-slate-900 text-slate-300 hover:text-white">
               <i data-lucide="edit-3" class="w-4 h-4 inline mr-1"></i> Edit Banner, Hero & Page Text
             </button>
+            <button onclick="setAdminSubTab('timelines')" id="adminSubNav-timelines" class="admin-subnav-btn px-4 py-2 rounded-xl bg-slate-900 text-slate-300 hover:text-white">
+              <i data-lucide="clock" class="w-4 h-4 inline mr-1"></i> Timeline & Page Editors
+            </button>
             <button onclick="setAdminSubTab('hacks')" id="adminSubNav-hacks" class="admin-subnav-btn px-4 py-2 rounded-xl bg-slate-900 text-slate-300 hover:text-white">
               <i data-lucide="zap" class="w-4 h-4 inline mr-1"></i> Hacks & Deals Manager
             </button>
@@ -996,90 +999,91 @@
           </div>
 
           <!-- SUB-TAB 1: ANALYTICS -->
-          <div id="adminSection-analytics" class="admin-section space-y-6">
-            <div class="flex flex-wrap items-center justify-between gap-4 border-b border-slate-800 pb-3">
+          <div id="adminSection-analytics" class="admin-section space-y-5">
+
+            <!-- Header & Controls -->
+            <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-3">
               <div>
                 <h3 class="text-sm font-black text-amber-400 uppercase tracking-wider font-mono-code flex items-center gap-2">
-                  <i data-lucide="bar-chart-3" class="w-4 h-4 text-amber-400"></i> Real-Time Insights, Graph Metrics & Engagement Analytics
+                  <i data-lucide="bar-chart-3" class="w-4 h-4 text-amber-400"></i> Advanced Insights & Analytics
                 </h3>
-                <p class="text-xs text-slate-300 mt-0.5">Click any metric card below for detailed page breakdowns, traffic sources, and historical log trails.</p>
+                <p class="text-xs text-slate-400 mt-0.5">Real-time geo, device, source, and click drilldown intelligence.</p>
               </div>
-
-              <!-- Date Range Selector & Export Controls -->
               <div class="flex flex-wrap items-center gap-2">
-                <div class="flex items-center gap-1 bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs font-bold">
-                  <button onclick="setAnalyticsDateRange('today')" id="rangeBtn-today" class="px-2.5 py-1 rounded-lg bg-amber-500 text-slate-950 font-black">Today</button>
-                  <button onclick="setAnalyticsDateRange('7d')" id="rangeBtn-7d" class="px-2.5 py-1 rounded-lg text-slate-300 hover:text-white">7 Days</button>
-                  <button onclick="setAnalyticsDateRange('30d')" id="rangeBtn-30d" class="px-2.5 py-1 rounded-lg text-slate-300 hover:text-white">30 Days</button>
-                  <button onclick="setAnalyticsDateRange('all')" id="rangeBtn-all" class="px-2.5 py-1 rounded-lg text-slate-300 hover:text-white">All Time</button>
-                </div>
-
-                <button onclick="exportAnalyticsData('csv')" class="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center gap-1 shadow">
+                <button onclick="loadAnalyticsDashboard()" class="px-3 py-1.5 rounded-xl bg-amber-500/20 border border-amber-500/40 text-amber-400 hover:bg-amber-500/40 font-bold text-xs flex items-center gap-1.5 shadow transition">
+                  <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Refresh
+                </button>
+                <button onclick="exportActivityLogCSV()" class="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center gap-1.5 shadow transition">
                   <i data-lucide="download" class="w-3.5 h-3.5"></i> Export CSV
                 </button>
-                <button onclick="exportAnalyticsData('json')" class="px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-700 hover:border-amber-400 text-amber-400 font-bold text-xs flex items-center gap-1 shadow">
-                  <i data-lucide="file-text" class="w-3.5 h-3.5"></i> Export JSON
-                </button>
-                <button onclick="resetAnalyticsData()" class="px-3 py-1.5 rounded-xl bg-rose-600/20 border border-rose-500/40 text-rose-400 hover:bg-rose-600 hover:text-white font-bold text-xs flex items-center gap-1 transition shadow">
+                <button onclick="resetAnalyticsData()" class="px-3 py-1.5 rounded-xl bg-rose-600/20 border border-rose-500/40 text-rose-400 hover:bg-rose-600 hover:text-white font-bold text-xs flex items-center gap-1.5 transition shadow">
                   <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> Reset
                 </button>
               </div>
             </div>
 
-            <!-- KPI Metric Cards -->
-            <div class="grid grid-cols-2 sm:grid-cols-5 gap-3 text-center text-xs">
-              <div class="p-4 rounded-xl bg-slate-950/70 border border-slate-800 backdrop-blur-md cursor-pointer hover:border-amber-400 transition" onclick="openClickDetailsModal('All Page Views')">
-                <span class="text-slate-300 block text-[10px] uppercase font-mono-code">Total Page Views</span>
-                <strong id="statViews" class="text-2xl font-black text-white">0</strong>
-                <span class="text-[9px] text-amber-400 block mt-1 underline font-bold">Click for details →</span>
-              </div>
-              <div class="p-4 rounded-xl bg-slate-950/70 border border-slate-800 backdrop-blur-md cursor-pointer hover:border-amber-400 transition" onclick="openClickDetailsModal('Spotlight Profile Clicks')">
-                <span class="text-slate-300 block text-[10px] uppercase font-mono-code">Spotlight Clicks</span>
-                <strong id="statSpotlight" class="text-2xl font-black text-amber-400">0</strong>
-                <span class="text-[9px] text-amber-400 block mt-1 underline font-bold">Click for details →</span>
-              </div>
-              <div class="p-4 rounded-xl bg-slate-950/70 border border-slate-800 backdrop-blur-md cursor-pointer hover:border-amber-400 transition" onclick="openClickDetailsModal('Showreel Plays')">
-                <span class="text-slate-300 block text-[10px] uppercase font-mono-code">Showreel Plays</span>
-                <strong id="statShowreel" class="text-2xl font-black text-indigo-400">0</strong>
-                <span class="text-[9px] text-indigo-400 block mt-1 underline font-bold">Click for details →</span>
-              </div>
-              <div class="p-4 rounded-xl bg-slate-950/70 border border-slate-800 backdrop-blur-md cursor-pointer hover:border-amber-400 transition" onclick="openClickDetailsModal('CV Downloads')">
-                <span class="text-slate-300 block text-[10px] uppercase font-mono-code">CV Downloads</span>
-                <strong id="statCV" class="text-2xl font-black text-emerald-400">0</strong>
-                <span class="text-[9px] text-emerald-400 block mt-1 underline font-bold">Click for details →</span>
-              </div>
-              <div class="p-4 rounded-xl bg-slate-950/70 border border-slate-800 backdrop-blur-md cursor-pointer hover:border-amber-400 transition" onclick="openClickDetailsModal('Booking Enquiries')">
-                <span class="text-slate-300 block text-[10px] uppercase font-mono-code">Booking Enquiries</span>
-                <strong id="statBooking" class="text-2xl font-black text-rose-400">0</strong>
-                <span class="text-[9px] text-rose-400 block mt-1 underline font-bold">Click for details →</span>
+            <!-- Loading Spinner -->
+            <div id="analyticsLoadingSpinner" class="hidden flex items-center justify-center py-6">
+              <div class="flex items-center gap-3 text-amber-400 font-mono-code text-xs">
+                <div class="w-5 h-5 border-2 border-amber-400 border-t-transparent rounded-full animate-spin"></div>
+                Loading analytics...
               </div>
             </div>
 
-            <!-- Interactive Page Clicks Detailed Breakdown Grid -->
-            <div class="glass-card rounded-2xl border border-slate-800 p-5 space-y-4 bg-slate-950/80">
-              <div class="flex items-center justify-between border-b border-slate-800/80 pb-2">
-                <h4 class="text-xs font-black text-white uppercase tracking-wider font-mono-code flex items-center gap-2">
-                  <i data-lucide="mouse-pointer-click" class="w-4 h-4 text-cyan-400"></i> Interactive Page Click Breakdown & Traffic Origins
-                </h4>
-                <span class="text-[10px] text-slate-400 font-mono-code font-bold">Click any page card below to inspect logs</span>
+            <!-- KPI Cards -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3">
+              <div id="kpi-views" class="p-3.5 rounded-2xl bg-slate-950/80 border border-slate-800 text-center hover:border-blue-500/40 transition">
+                <span class="text-2xl font-black text-blue-400">0</span>
+                <span class="text-[10px] text-slate-400 block mt-0.5 font-mono-code uppercase">👁️ Page Views</span>
               </div>
-
-              <div id="pageClicksBreakdownGrid" class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
-                <!-- Rendered dynamically by JS -->
+              <div id="kpi-spotlight" class="p-3.5 rounded-2xl bg-slate-950/80 border border-slate-800 text-center hover:border-amber-500/40 transition">
+                <span class="text-2xl font-black text-amber-400">0</span>
+                <span class="text-[10px] text-slate-400 block mt-0.5 font-mono-code uppercase">⭐ Spotlight</span>
+              </div>
+              <div id="kpi-showreel" class="p-3.5 rounded-2xl bg-slate-950/80 border border-slate-800 text-center hover:border-indigo-500/40 transition">
+                <span class="text-2xl font-black text-indigo-400">0</span>
+                <span class="text-[10px] text-slate-400 block mt-0.5 font-mono-code uppercase">🎬 Showreel</span>
+              </div>
+              <div id="kpi-cv" class="p-3.5 rounded-2xl bg-slate-950/80 border border-slate-800 text-center hover:border-emerald-500/40 transition">
+                <span class="text-2xl font-black text-emerald-400">0</span>
+                <span class="text-[10px] text-slate-400 block mt-0.5 font-mono-code uppercase">📄 CV DLs</span>
+              </div>
+              <div id="kpi-booking" class="p-3.5 rounded-2xl bg-slate-950/80 border border-slate-800 text-center hover:border-rose-500/40 transition">
+                <span class="text-2xl font-black text-rose-400">0</span>
+                <span class="text-[10px] text-slate-400 block mt-0.5 font-mono-code uppercase">📩 Enquiries</span>
+              </div>
+              <div id="kpi-affiliate" class="p-3.5 rounded-2xl bg-slate-950/80 border border-slate-800 text-center hover:border-cyan-500/40 transition">
+                <span class="text-2xl font-black text-cyan-400">0</span>
+                <span class="text-[10px] text-slate-400 block mt-0.5 font-mono-code uppercase">🔗 Affiliate</span>
+              </div>
+              <div id="kpi-events" class="p-3.5 rounded-2xl bg-slate-950/80 border border-slate-800 text-center hover:border-purple-500/40 transition">
+                <span class="text-2xl font-black text-purple-400">0</span>
+                <span class="text-[10px] text-slate-400 block mt-0.5 font-mono-code uppercase">📊 Total Events</span>
               </div>
             </div>
 
-            <!-- Visual Graph Metric Bars Container -->
-            <div class="glass-card rounded-2xl border border-slate-800 p-5 space-y-4 bg-slate-950/80">
-              <h4 class="text-xs font-black text-white uppercase tracking-wider font-mono-code flex items-center gap-2">
-                <i data-lucide="activity" class="w-4 h-4 text-emerald-400"></i> Live Event Distribution & Activity Graph
-              </h4>
-
-              <div id="analyticsGraphBars" class="space-y-3 text-xs">
-                <!-- Rendered dynamically by JS -->
-              </div>
+            <!-- Analytics Tab Nav -->
+            <div class="flex flex-wrap gap-2 p-1 bg-slate-950/60 border border-slate-800 rounded-2xl">
+              <button data-tab="overview" onclick="setAnalyticsTab('overview')" class="analytics-tab-btn px-3 py-2 rounded-xl bg-amber-500/20 text-amber-400 border border-amber-500/40 font-black text-xs whitespace-nowrap">📈 Overview</button>
+              <button data-tab="sources" onclick="setAnalyticsTab('sources')" class="analytics-tab-btn px-3 py-2 rounded-xl bg-slate-900 text-slate-400 hover:text-white font-bold text-xs whitespace-nowrap transition">🔍 Traffic Sources</button>
+              <button data-tab="geo" onclick="setAnalyticsTab('geo')" class="analytics-tab-btn px-3 py-2 rounded-xl bg-slate-900 text-slate-400 hover:text-white font-bold text-xs whitespace-nowrap transition">🌍 Geography</button>
+              <button data-tab="devices" onclick="setAnalyticsTab('devices')" class="analytics-tab-btn px-3 py-2 rounded-xl bg-slate-900 text-slate-400 hover:text-white font-bold text-xs whitespace-nowrap transition">💻 Devices</button>
+              <button data-tab="links" onclick="setAnalyticsTab('links')" class="analytics-tab-btn px-3 py-2 rounded-xl bg-slate-900 text-slate-400 hover:text-white font-bold text-xs whitespace-nowrap transition">🔗 Link Drilldown</button>
+              <button data-tab="log" onclick="setAnalyticsTab('log')" class="analytics-tab-btn px-3 py-2 rounded-xl bg-slate-900 text-slate-400 hover:text-white font-bold text-xs whitespace-nowrap transition">📋 Activity Log</button>
             </div>
+
+            <!-- Tab Panels (rendered by JS) -->
+            <div id="analyticsPanel-overview" class="analytics-panel">
+              <div class="text-center py-10 text-slate-500 text-xs font-mono-code">Loading analytics data...</div>
+            </div>
+            <div id="analyticsPanel-sources" class="analytics-panel hidden"></div>
+            <div id="analyticsPanel-geo" class="analytics-panel hidden"></div>
+            <div id="analyticsPanel-devices" class="analytics-panel hidden"></div>
+            <div id="analyticsPanel-links" class="analytics-panel hidden"></div>
+            <div id="analyticsPanel-log" class="analytics-panel hidden"></div>
+
           </div>
+
 
           <!-- SUB-TAB: EDIT PAGE TEXT, HERO & BANNER CONTENT -->
           <div id="adminSection-sitetexts" class="admin-section hidden space-y-6">
@@ -1209,6 +1213,110 @@
                   <label class="font-bold text-slate-300">Hacks & Deals Section Title:</label>
                   <input type="text" id="editHacksTitle" class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white" value="SteveP Tech Hacks & Money-Saving Deals">
                 </div>
+              </div>
+
+              <!-- Navigation Page Tab Names Editor Card -->
+              <div class="md:col-span-2 glass-card rounded-2xl border border-amber-500/30 p-5 space-y-4">
+                <h4 class="font-black text-white font-cinzel text-sm text-amber-400 flex items-center gap-2">
+                  <i data-lucide="layout" class="w-4 h-4"></i> Customize Main Navigation Tab Names (Page Names)
+                </h4>
+                <p class="text-xs text-slate-300">Easily rename any top navigation bar tab. Changes apply across desktop header and mobile menu.</p>
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+                  <div class="space-y-1">
+                    <label class="font-bold text-slate-300">1. Casting Hub:</label>
+                    <input type="text" id="editTabNameCasting" class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white font-bold" value="Casting Director Hub">
+                  </div>
+                  <div class="space-y-1">
+                    <label class="font-bold text-slate-300">2. About Timeline:</label>
+                    <input type="text" id="editTabNameAbout" class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white font-bold" value="About SteveP Timeline">
+                  </div>
+                  <div class="space-y-1">
+                    <label class="font-bold text-slate-300">3. Headshots:</label>
+                    <input type="text" id="editTabNameHeadshots" class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white font-bold" value="Headshots & Full Body">
+                  </div>
+                  <div class="space-y-1">
+                    <label class="font-bold text-slate-300">4. IT Architect:</label>
+                    <input type="text" id="editTabNameIT" class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white font-bold" value="34-Yr IT Architect">
+                  </div>
+                  <div class="space-y-1">
+                    <label class="font-bold text-slate-300">5. Hacks & Deals:</label>
+                    <input type="text" id="editTabNameHacks" class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white font-bold" value="Hacks & Savings">
+                  </div>
+                  <div class="space-y-1">
+                    <label class="font-bold text-slate-300">6. KMST Sobriety:</label>
+                    <input type="text" id="editTabNameSobriety" class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white font-bold" value="KMST Recovery">
+                  </div>
+                  <div class="space-y-1">
+                    <label class="font-bold text-slate-300">7. Book / Contact:</label>
+                    <input type="text" id="editTabNameBooking" class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white font-bold" value="Book / Contact">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- SUB-TAB: TIMELINES & PAGE CONTENT MANAGER -->
+          <div id="adminSection-timelines" class="admin-section hidden space-y-6">
+            <div class="flex flex-wrap items-center justify-between gap-4 border-b border-slate-800 pb-4">
+              <div>
+                <h3 class="text-sm font-black text-amber-400 uppercase tracking-wider font-mono-code flex items-center gap-2">
+                  <i data-lucide="clock" class="w-4 h-4"></i> About Timeline & IT Career Milestones Manager
+                </h3>
+                <p class="text-xs text-slate-300 mt-0.5">Add, edit, or remove entries on SteveP's About Life Timeline, 34-Year IT Career Milestones, and KMST Sobriety page.</p>
+              </div>
+            </div>
+
+            <!-- 1. About Timeline Manager -->
+            <div class="glass-card rounded-2xl border border-slate-800 p-5 space-y-4">
+              <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                <h4 class="font-black text-white font-cinzel text-sm text-purple-400 flex items-center gap-2">
+                  <i data-lucide="user" class="w-4 h-4"></i> About SteveP Timeline Items
+                </h4>
+                <button onclick="addAboutTimelinePrompt()" class="px-3 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs flex items-center gap-1.5 shadow">
+                  <i data-lucide="plus" class="w-3.5 h-3.5"></i> Add Timeline Milestone
+                </button>
+              </div>
+              <div class="overflow-x-auto">
+                <table class="w-full text-left text-xs border-collapse">
+                  <thead>
+                    <tr class="border-b border-slate-800 text-slate-400 font-mono-code bg-slate-950/60">
+                      <th class="p-2.5">Year / Date</th>
+                      <th class="p-2.5">Tag</th>
+                      <th class="p-2.5">Title & Description</th>
+                      <th class="p-2.5 text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="adminAboutTimelineBody" class="divide-y divide-slate-800/60">
+                    <!-- Rendered by JS -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- 2. IT Career Milestones Manager -->
+            <div class="glass-card rounded-2xl border border-slate-800 p-5 space-y-4">
+              <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                <h4 class="font-black text-white font-cinzel text-sm text-cyan-400 flex items-center gap-2">
+                  <i data-lucide="cpu" class="w-4 h-4"></i> 34-Year IT Career Milestones
+                </h4>
+                <button onclick="addITTimelinePrompt()" class="px-3 py-1.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs flex items-center gap-1.5 shadow">
+                  <i data-lucide="plus" class="w-3.5 h-3.5"></i> Add IT Milestone
+                </button>
+              </div>
+              <div class="overflow-x-auto">
+                <table class="w-full text-left text-xs border-collapse">
+                  <thead>
+                    <tr class="border-b border-slate-800 text-slate-400 font-mono-code bg-slate-950/60">
+                      <th class="p-2.5">Year</th>
+                      <th class="p-2.5">Company / Client</th>
+                      <th class="p-2.5">Title & Details</th>
+                      <th class="p-2.5 text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="adminITTimelineBody" class="divide-y divide-slate-800/60">
+                    <!-- Rendered by JS -->
+                  </tbody>
+                </table>
               </div>
             </div>
           </div>

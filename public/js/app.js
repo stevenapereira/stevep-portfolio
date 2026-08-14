@@ -98,6 +98,7 @@ function renderAll() {
   renderRightSideSpotlightVideos();
   renderHeroCarousel();
   renderITTimeline();
+  renderAdminTimelines();
   renderHacks();
   renderUKHelp();
   renderBlogs();
@@ -355,6 +356,10 @@ function switchTab(tabId) {
     activeNav.classList.add('text-amber-400', 'bg-slate-950/60', 'border', 'border-slate-700/80');
   }
 
+  window._currentTab = tabId;
+  if (tabId !== 'admin') trackEvent('page_click', tabId);
+  if (tabId === 'admin') { /* admin login handled separately */ }
+
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 window.switchTab = switchTab;
@@ -579,19 +584,49 @@ async function editCreditPrompt(id) {
   } catch (e) {}
 }
 
-// --------------------------------------------------------------------------
-// 34-YEAR IT TIMELINE & AI BLUEPRINT GENERATOR
-// --------------------------------------------------------------------------
+function renderAboutTimeline() {
+  const container = document.getElementById('aboutTimelineGrid');
+  if (!container) return;
+
+  const items = appData.aboutTimeline || [];
+  if (items.length === 0) {
+    container.innerHTML = `<div class="p-6 text-center text-slate-400 font-mono-code text-xs">No timeline events found. Add them in the Admin CMS!</div>`;
+    return;
+  }
+
+  container.innerHTML = items.map((item, idx) => `
+    <div class="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
+      <div class="flex items-center justify-center w-10 h-10 rounded-full border border-slate-700 bg-slate-900 text-amber-400 group-hover:scale-110 group-hover:border-amber-400 transition shrink-0 shadow-lg z-10">
+        <i data-lucide="${item.icon || 'star'}" class="w-5 h-5"></i>
+      </div>
+      <div class="w-[calc(100%-3rem)] md:w-[calc(50%-2.5rem)] glass-card p-5 sm:p-6 rounded-2xl border border-slate-800 space-y-2 hover:border-amber-500/50 transition">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <span class="px-3 py-0.5 rounded-full bg-amber-500/20 text-amber-400 text-xs font-black font-mono-code">${item.year || item.date || ''}</span>
+          <span class="text-[11px] font-extrabold text-rose-400 uppercase tracking-wider font-mono-code">${item.tag || item.category || 'MILESTONE'}</span>
+        </div>
+        <h3 class="text-lg font-black text-white font-cinzel">${item.title}</h3>
+        <p class="text-xs text-slate-300 leading-relaxed">${item.desc}</p>
+      </div>
+    </div>
+  `).join('');
+  if (window.lucide) lucide.createIcons();
+}
+
 function renderITTimeline() {
   const container = document.getElementById('itTimelineContainer');
   if (!container) return;
 
   const items = appData.itTimeline || [];
+  if (items.length === 0) {
+    container.innerHTML = `<div class="p-6 text-center text-slate-400 font-mono-code text-xs">No IT career milestones found. Add them in the Admin CMS!</div>`;
+    return;
+  }
+
   container.innerHTML = items.map(item => `
-    <div class="p-5 rounded-2xl bg-slate-950/70 border border-slate-800 space-y-2 backdrop-blur-md">
+    <div class="p-5 rounded-2xl bg-slate-950/70 border border-slate-800 space-y-2 backdrop-blur-md hover:border-cyan-500/40 transition">
       <div class="flex flex-wrap items-center justify-between gap-2">
         <span class="px-3 py-0.5 rounded-full bg-cyan-500/20 text-cyan-400 text-xs font-black font-mono-code">${item.year}</span>
-        <span class="text-xs font-bold text-slate-300">${item.company}</span>
+        <span class="text-xs font-bold text-slate-300">${item.company || ''}</span>
       </div>
       <h4 class="text-white font-bold text-base font-cinzel">${item.title}</h4>
       <p class="text-slate-300 text-xs leading-relaxed">${item.desc}</p>
@@ -977,6 +1012,10 @@ function setAdminSubTab(subTab) {
     activeBtn.classList.remove('bg-slate-900', 'text-slate-300');
     activeBtn.classList.add('bg-amber-500/20', 'text-amber-400', 'border-amber-500/30');
   }
+
+  if (subTab === 'analytics' && typeof loadAnalyticsDashboard === 'function') {
+    loadAnalyticsDashboard();
+  }
 }
 
 function handleAdminLogin(e) {
@@ -1004,155 +1043,561 @@ function updateGlassOpacity(val) {
 }
 window.updateGlassOpacity = updateGlassOpacity;
 
-let currentAnalyticsDateRange = 'all';
 
-function setAnalyticsDateRange(range) {
-  currentAnalyticsDateRange = range;
-  ['today', '7d', '30d', 'all'].forEach(r => {
-    const btn = document.getElementById(`rangeBtn-${r}`);
-    if (btn) {
-      if (r === range) {
-        btn.className = 'px-2.5 py-1 rounded-lg bg-amber-500 text-slate-950 font-black shadow';
-      } else {
-        btn.className = 'px-2.5 py-1 rounded-lg text-slate-300 hover:text-white';
+// ===========================================================================
+// ADVANCED ANALYTICS DASHBOARD
+// ===========================================================================
+
+let _analyticsData = null;
+let _analyticsTab = 'overview';
+let _analyticsFilter = { eventType: '', country: '', device: '', search: '' };
+
+async function loadAnalyticsDashboard() {
+  const loadingEl = document.getElementById('analyticsLoadingSpinner');
+  if (loadingEl) loadingEl.classList.remove('hidden');
+  try {
+    const res = await fetch('/api/analytics');
+    if (res.ok) {
+      const json = await res.json();
+      if (json.success) {
+        _analyticsData = json;
+        renderAnalyticsDashboard();
       }
     }
-  });
-  renderAnalytics();
+  } catch(e) {
+    console.log('Analytics fetch error', e);
+  }
+  if (loadingEl) loadingEl.classList.add('hidden');
 }
-window.setAnalyticsDateRange = setAnalyticsDateRange;
+window.loadAnalyticsDashboard = loadAnalyticsDashboard;
+
+function setAnalyticsTab(tab) {
+  _analyticsTab = tab;
+  document.querySelectorAll('.analytics-tab-btn').forEach(btn => {
+    const isActive = btn.dataset.tab === tab;
+    btn.className = isActive
+      ? 'analytics-tab-btn px-3 py-2 rounded-xl bg-amber-500/20 text-amber-400 border border-amber-500/40 font-black text-xs whitespace-nowrap'
+      : 'analytics-tab-btn px-3 py-2 rounded-xl bg-slate-900 text-slate-400 hover:text-white font-bold text-xs whitespace-nowrap transition';
+    btn.dataset.tab = btn.dataset.tab;
+  });
+  document.querySelectorAll('.analytics-panel').forEach(p => p.classList.add('hidden'));
+  const panel = document.getElementById(`analyticsPanel-${tab}`);
+  if (panel) panel.classList.remove('hidden');
+  renderAnalyticsPanel(tab);
+}
+window.setAnalyticsTab = setAnalyticsTab;
+
+function countryFlag(code) {
+  if (!code || code === 'XX') return '🌍';
+  return code.toUpperCase().replace(/./g, c => String.fromCodePoint(c.charCodeAt(0) + 127397));
+}
+
+function sourceIcon(source) {
+  const icons = {
+    'Google': '🔍', 'Bing': '🔎', 'DuckDuckGo': '🦆', 'Yahoo': '📬', 'Yandex': '🌐',
+    'Facebook': '📘', 'Instagram': '📸', 'X (Twitter)': '🐦', 'LinkedIn': '💼',
+    'Spotlight UK': '⭐', 'IMDb': '🎬', 'Direct': '🔗', 'Other Referral': '↗️',
+    'Self (stevepereira)': '🏠'
+  };
+  return icons[source] || '🌐';
+}
+
+function deviceIcon(device) {
+  const icons = { 'Desktop': '🖥️', 'Mobile': '📱', 'Tablet': '📋', 'Bot': '🤖' };
+  return icons[device] || '💻';
+}
 
 function renderAnalytics() {
-  const analytics = appData.analytics || {};
-  if (document.getElementById('statViews')) document.getElementById('statViews').textContent = (analytics.pageViews || 0).toLocaleString();
-  if (document.getElementById('statSpotlight')) document.getElementById('statSpotlight').textContent = (analytics.spotlightClicks || 0).toLocaleString();
-  if (document.getElementById('statShowreel')) document.getElementById('statShowreel').textContent = (analytics.showreelPlays || 0).toLocaleString();
-  if (document.getElementById('statCV')) document.getElementById('statCV').textContent = (analytics.cvDownloads || 0).toLocaleString();
-  if (document.getElementById('statBooking')) document.getElementById('statBooking').textContent = (analytics.bookingEnquiries || 0).toLocaleString();
-
-  // Interactive Page Clicks Breakdown Grid
-  const pageGrid = document.getElementById('pageClicksBreakdownGrid');
-  if (pageGrid) {
-    const pages = [
-      { id: 'casting', name: 'Casting Director Hub', icon: 'clapperboard', color: 'text-amber-400', border: 'hover:border-amber-400' },
-      { id: 'about', name: 'About SteveP Timeline', icon: 'user', color: 'text-purple-400', border: 'hover:border-purple-400' },
-      { id: 'headshots', name: 'Headshots & Full Body', icon: 'camera', color: 'text-indigo-400', border: 'hover:border-indigo-400' },
-      { id: 'itexpert', name: '34-Yr IT Architect', icon: 'cpu', color: 'text-cyan-400', border: 'hover:border-cyan-400' },
-      { id: 'hacks', name: 'Hacks & Savings', icon: 'tag', color: 'text-emerald-400', border: 'hover:border-emerald-400' },
-      { id: 'sobriety', name: 'KMST Recovery', icon: 'heart', color: 'text-rose-400', border: 'hover:border-rose-400' },
-      { id: 'booking', name: 'Booking / Contact', icon: 'send', color: 'text-sky-400', border: 'hover:border-sky-400' }
-    ];
-
-    const statsMap = analytics.pageClickStats || {};
-
-    pageGrid.innerHTML = pages.map(p => {
-      const count = statsMap[p.name] || statsMap[p.id] || Math.floor((analytics.pageViews || 12) * 0.14);
-      return `
-        <div onclick="openClickDetailsModal('${p.name}')" class="p-3.5 rounded-xl bg-slate-950/90 border border-slate-800 ${p.border} cursor-pointer transition space-y-1.5 shadow">
-          <div class="flex items-center justify-between">
-            <i data-lucide="${p.icon}" class="w-4 h-4 ${p.color}"></i>
-            <span class="text-[10px] font-mono-code font-bold text-slate-400">Click for logs</span>
-          </div>
-          <h5 class="text-white font-bold text-xs truncate">${p.name}</h5>
-          <div class="flex items-baseline justify-between pt-1">
-            <span class="text-[10px] text-slate-400 font-mono-code">Total Visits:</span>
-            <strong class="text-base font-black ${p.color}">${count.toLocaleString()}</strong>
-          </div>
-        </div>
-      `;
-    }).join('');
-  }
-
-  // Render Visual Graph Activity Bars
-  const graphContainer = document.getElementById('analyticsGraphBars');
-  if (graphContainer) {
-    const events = [
-      { label: 'Page Views', count: analytics.pageViews || 0, color: 'from-blue-500 to-cyan-400' },
-      { label: 'Spotlight Profile Clicks', count: analytics.spotlightClicks || 0, color: 'from-amber-500 to-yellow-400' },
-      { label: 'Showreel Video Plays', count: analytics.showreelPlays || 0, color: 'from-indigo-500 to-purple-400' },
-      { label: 'Acting CV Downloads', count: analytics.cvDownloads || 0, color: 'from-emerald-500 to-teal-400' },
-      { label: 'Booking & Casting Enquiries', count: analytics.bookingEnquiries || 0, color: 'from-rose-500 to-pink-400' }
-    ];
-
-    const maxCount = Math.max(...events.map(e => e.count), 1);
-
-    graphContainer.innerHTML = events.map(e => {
-      const pct = Math.round((e.count / maxCount) * 100);
-      return `
-        <div class="space-y-1">
-          <div class="flex justify-between items-center text-[11px] font-mono-code">
-            <span class="text-slate-200 font-bold">${e.label}</span>
-            <span class="text-slate-400">${e.count.toLocaleString()} (${pct}%)</span>
-          </div>
-          <div class="w-full h-3 rounded-full bg-slate-900 border border-slate-800 overflow-hidden">
-            <div class="h-full bg-gradient-to-r ${e.color} transition-all duration-500 rounded-full" style="width: ${pct}%"></div>
-          </div>
-        </div>
-      `;
-    }).join('');
-  }
-  if (window.lucide) lucide.createIcons();
+  loadAnalyticsDashboard();
 }
 
-function openClickDetailsModal(metricName) {
-  const analytics = appData.analytics || {};
-  const events = (analytics.recentEvents || []).filter(e => !metricName || e.label === metricName || metricName === 'All Page Views');
+function renderAnalyticsDashboard() {
+  if (!_analyticsData) return;
+  const s = _analyticsData.summary || {};
 
-  const modalHtml = `
-    <div id="analyticsModal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
-      <div class="w-full max-w-2xl glass-card rounded-3xl border border-amber-500/40 p-6 space-y-4 shadow-2xl">
-        <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-          <div>
-            <span class="px-2.5 py-0.5 rounded bg-amber-500/20 text-amber-400 text-[10px] font-mono-code font-bold uppercase">Analytics Deep-Dive</span>
-            <h3 class="text-lg font-black text-white font-cinzel mt-0.5">${metricName} — Event Logs & Traffic Sources</h3>
-          </div>
-          <button onclick="document.getElementById('analyticsModal').remove()" class="p-2 rounded-xl bg-slate-900 text-slate-400 hover:text-white">✕</button>
-        </div>
+  // KPI cards
+  const kpis = [
+    { id: 'kpi-views', val: s.pageViews || 0, label: 'Page Views', color: 'text-blue-400', icon: '👁️' },
+    { id: 'kpi-spotlight', val: s.spotlightClicks || 0, label: 'Spotlight Clicks', color: 'text-amber-400', icon: '⭐' },
+    { id: 'kpi-showreel', val: s.showreelPlays || 0, label: 'Showreel Plays', color: 'text-indigo-400', icon: '🎬' },
+    { id: 'kpi-cv', val: s.cvDownloads || 0, label: 'CV Downloads', color: 'text-emerald-400', icon: '📄' },
+    { id: 'kpi-booking', val: s.bookingEnquiries || 0, label: 'Enquiries', color: 'text-rose-400', icon: '📩' },
+    { id: 'kpi-affiliate', val: s.affiliateClicks || 0, label: 'Affiliate Clicks', color: 'text-cyan-400', icon: '🔗' },
+    { id: 'kpi-events', val: s.totalEvents || 0, label: 'Total Events', color: 'text-purple-400', icon: '📊' },
+  ];
 
-        <div class="grid grid-cols-3 gap-3 text-xs text-center font-mono-code">
-          <div class="p-3 rounded-xl bg-slate-950 border border-slate-800">
-            <span class="text-[10px] text-slate-400 block uppercase">Top Referrer Source</span>
-            <strong class="text-emerald-400 font-bold">Spotlight UK / Direct</strong>
-          </div>
-          <div class="p-3 rounded-xl bg-slate-950 border border-slate-800">
-            <span class="text-[10px] text-slate-400 block uppercase">Device Type</span>
-            <strong class="text-cyan-400 font-bold">68% Desktop / 32% Mobile</strong>
-          </div>
-          <div class="p-3 rounded-xl bg-slate-950 border border-slate-800">
-            <span class="text-[10px] text-slate-400 block uppercase">Total Logged Events</span>
-            <strong class="text-amber-400 font-bold">${events.length || 24} Events</strong>
-          </div>
-        </div>
+  kpis.forEach(k => {
+    const el = document.getElementById(k.id);
+    if (el) el.innerHTML = `<span class="text-2xl font-black ${k.color}">${(k.val).toLocaleString()}</span><span class="text-[10px] text-slate-400 block mt-0.5 font-mono-code uppercase">${k.icon} ${k.label}</span>`;
+  });
 
-        <div class="space-y-2">
-          <h4 class="text-xs font-bold text-slate-200">Recent Timestamped Activity Logs:</h4>
-          <div class="max-h-60 overflow-y-auto space-y-1.5 font-mono-code text-xs scrollbar-thin">
-            ${(events.length > 0 ? events : [
-              { timestamp: new Date().toISOString(), type: 'page_click', label: metricName, source: 'Spotlight UK Referral' },
-              { timestamp: new Date(Date.now() - 3600000).toISOString(), type: 'page_click', label: metricName, source: 'Direct Bookmark' },
-              { timestamp: new Date(Date.now() - 7200000).toISOString(), type: 'page_click', label: metricName, source: 'Google Search' }
-            ]).map(ev => `
-              <div class="p-2.5 rounded-lg bg-slate-950/90 border border-slate-800 flex items-center justify-between text-[11px]">
-                <div class="flex items-center gap-2">
-                  <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
-                  <span class="text-white font-bold">${ev.label || metricName}</span>
-                  <span class="text-slate-400 text-[10px]">(${ev.source || 'Spotlight UK'})</span>
-                </div>
-                <span class="text-slate-400 text-[10px]">${new Date(ev.timestamp).toLocaleString()}</span>
-              </div>
-            `).join('')}
-          </div>
-        </div>
+  // Render active panel
+  renderAnalyticsPanel(_analyticsTab);
+}
 
-        <div class="flex justify-end pt-2 border-t border-slate-800">
-          <button onclick="document.getElementById('analyticsModal').remove()" class="px-5 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs">Close Insights</button>
-        </div>
+function renderBar(label, count, total, colorClass = 'bg-amber-500', icon = '') {
+  const pct = total > 0 ? Math.round((count / total) * 100) : 0;
+  return `
+    <div class="space-y-1">
+      <div class="flex items-center justify-between text-xs">
+        <span class="text-slate-200 font-bold flex items-center gap-1.5">${icon} ${label}</span>
+        <span class="text-slate-400 font-mono-code">${count.toLocaleString()} <span class="text-slate-500">(${pct}%)</span></span>
+      </div>
+      <div class="w-full h-2.5 rounded-full bg-slate-900 border border-slate-800 overflow-hidden">
+        <div class="h-full ${colorClass} rounded-full transition-all duration-700" style="width:${pct}%"></div>
       </div>
     </div>
   `;
-  document.body.insertAdjacentHTML('beforeend', modalHtml);
 }
+
+function renderAnalyticsPanel(tab) {
+  if (!_analyticsData) return;
+  const d = _analyticsData;
+
+  if (tab === 'overview') {
+    const panel = document.getElementById('analyticsPanel-overview');
+    if (!panel) return;
+
+    // Timeline chart
+    const timeline = d.timeline || [];
+    const maxTL = Math.max(...timeline.map(t => t.count), 1);
+    const timelineHtml = timeline.length === 0 ? '<p class="text-slate-500 text-xs text-center py-4">No timeline data yet. Events will appear here as visitors arrive.</p>' :
+      `<div class="flex items-end gap-1 h-24 pt-2">
+        ${timeline.slice(-30).map(t => {
+          const h = Math.max(4, Math.round((t.count / maxTL) * 96));
+          const dateStr = new Date(t.date).toLocaleDateString('en-GB', { month: 'short', day: 'numeric' });
+          return `<div class="flex-1 flex flex-col items-center gap-1 group relative">
+            <div class="w-full bg-amber-500/80 hover:bg-amber-400 rounded-t transition cursor-pointer" style="height:${h}px" title="${dateStr}: ${t.count} events"></div>
+            <span class="text-[8px] text-slate-500 rotate-45 origin-top-left hidden group-hover:block absolute bottom-0 left-0">${dateStr}</span>
+          </div>`;
+        }).join('')}
+      </div>
+      <div class="flex justify-between text-[10px] text-slate-500 font-mono-code mt-1">
+        <span>${timeline.length > 0 ? new Date(timeline[Math.max(0, timeline.length-30)].date).toLocaleDateString('en-GB', { month: 'short', day: 'numeric' }) : ''}</span>
+        <span>${timeline.length > 0 ? new Date(timeline[timeline.length-1].date).toLocaleDateString('en-GB', { month: 'short', day: 'numeric' }) : ''}</span>
+      </div>`;
+
+    // Pages breakdown
+    const pages = d.pages || [];
+    const totalPV = pages.reduce((s, p) => s + p.count, 0) || 1;
+    const pageColors = ['bg-amber-500', 'bg-blue-500', 'bg-indigo-500', 'bg-emerald-500', 'bg-rose-500', 'bg-cyan-500', 'bg-purple-500'];
+    const pagesHtml = pages.length === 0 ? '<p class="text-slate-500 text-xs text-center py-4">No page data yet.</p>' :
+      pages.slice(0, 8).map((p, i) => renderBar(p.name, p.count, totalPV, pageColors[i % pageColors.length])).join('');
+
+    panel.innerHTML = `
+      <div class="space-y-6">
+        <div class="glass-card rounded-2xl border border-slate-800 p-4 bg-slate-950/60 space-y-3">
+          <h4 class="text-xs font-black text-white uppercase tracking-wider flex items-center gap-2">
+            <span>📈</span> Activity Timeline (Last 30 Days)
+          </h4>
+          ${timelineHtml}
+        </div>
+        <div class="glass-card rounded-2xl border border-slate-800 p-4 bg-slate-950/60 space-y-3">
+          <h4 class="text-xs font-black text-white uppercase tracking-wider flex items-center gap-2">
+            <span>📄</span> Top Pages / Sections Visited
+          </h4>
+          <div class="space-y-3">${pagesHtml}</div>
+        </div>
+      </div>`;
+  }
+
+  if (tab === 'sources') {
+    const panel = document.getElementById('analyticsPanel-sources');
+    if (!panel) return;
+    const sources = d.sources || [];
+    const total = sources.reduce((s, x) => s + x.count, 0) || 1;
+    const srcColors = { search: 'bg-blue-500', social: 'bg-rose-500', referral: 'bg-emerald-500', direct: 'bg-amber-500', internal: 'bg-purple-500' };
+    const srcMediums = {};
+    (d.recentEvents || []).forEach(ev => { const src = ev.source || 'Direct'; srcMediums[src] = ev.medium || 'direct'; });
+
+    panel.innerHTML = `
+      <div class="space-y-6">
+        <div class="glass-card rounded-2xl border border-slate-800 p-4 bg-slate-950/60 space-y-3">
+          <h4 class="text-xs font-black text-white uppercase tracking-wider">🔍 Traffic Sources</h4>
+          <div class="space-y-3">
+            ${sources.length === 0 ? '<p class="text-slate-500 text-xs text-center py-4">No source data yet. Send your link around!</p>' :
+              sources.map(s => {
+                const med = srcMediums[s.name] || 'direct';
+                return renderBar(s.name, s.count, total, srcColors[med] || 'bg-slate-500', sourceIcon(s.name));
+              }).join('')}
+          </div>
+        </div>
+        <div class="glass-card rounded-2xl border border-slate-800 p-4 bg-slate-950/60 space-y-3">
+          <h4 class="text-xs font-black text-white uppercase tracking-wider">📊 Traffic Medium Breakdown</h4>
+          <div class="grid grid-cols-3 gap-3 text-center text-xs">
+            ${['search', 'social', 'direct', 'referral', 'internal'].map(med => {
+              const cnt = (d.recentEvents || []).filter(ev => (ev.medium || 'direct') === med).length;
+              const colors = { search: 'text-blue-400', social: 'text-rose-400', direct: 'text-amber-400', referral: 'text-emerald-400', internal: 'text-purple-400' };
+              return `<div class="p-3 rounded-xl bg-slate-950/80 border border-slate-800 space-y-1">
+                <strong class="text-lg font-black ${colors[med] || 'text-white'}">${cnt}</strong>
+                <span class="text-slate-400 block uppercase font-mono-code text-[9px]">${med}</span>
+              </div>`;
+            }).join('')}
+          </div>
+        </div>
+        <div class="glass-card rounded-2xl border border-slate-800 p-4 bg-slate-950/60 space-y-3">
+          <h4 class="text-xs font-black text-white uppercase tracking-wider">🔗 Affiliate Link Performance</h4>
+          <div class="space-y-2">
+            ${Object.entries(d.hacksStats || {}).length === 0 ? '<p class="text-slate-500 text-xs text-center py-4">No affiliate clicks tracked yet.</p>' :
+              Object.entries(d.hacksStats || {}).sort((a,b) => b[1] - a[1]).map(([name, cnt]) =>
+                renderBar(name, cnt, Math.max(...Object.values(d.hacksStats || {}), 1), 'bg-emerald-500', '💰')
+              ).join('')}
+          </div>
+        </div>
+      </div>`;
+  }
+
+  if (tab === 'geo') {
+    const panel = document.getElementById('analyticsPanel-geo');
+    if (!panel) return;
+    const countries = d.countries || [];
+    const cities = d.cities || [];
+    const total = countries.reduce((s, c) => s + c.count, 0) || 1;
+    const cityTotal = cities.reduce((s, c) => s + c.count, 0) || 1;
+
+    panel.innerHTML = `
+      <div class="space-y-6">
+        <div class="glass-card rounded-2xl border border-slate-800 p-4 bg-slate-950/60 space-y-3">
+          <h4 class="text-xs font-black text-white uppercase tracking-wider">🌍 Visitors by Country</h4>
+          ${countries.length === 0 ? '<p class="text-slate-500 text-xs text-center py-4">No geo data yet. Events appear here as visitors arrive from the internet.</p>' :
+            `<div class="space-y-2.5">
+              ${countries.slice(0, 15).map((c, i) => {
+                const colors = ['bg-amber-500', 'bg-blue-500', 'bg-emerald-500', 'bg-rose-500', 'bg-cyan-500', 'bg-purple-500', 'bg-indigo-500'];
+                return renderBar(`${countryFlag(c.code)} ${c.name}`, c.count, total, colors[i % colors.length]);
+              }).join('')}
+            </div>`}
+        </div>
+        <div class="glass-card rounded-2xl border border-slate-800 p-4 bg-slate-950/60 space-y-3">
+          <h4 class="text-xs font-black text-white uppercase tracking-wider">🏙️ Top Cities</h4>
+          ${cities.length === 0 ? '<p class="text-slate-500 text-xs text-center py-4">No city data yet.</p>' :
+            `<div class="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs">
+              ${cities.slice(0, 9).map((c, i) => `
+                <div class="p-3 rounded-xl bg-slate-950/80 border border-slate-800 space-y-0.5">
+                  <strong class="text-white font-bold text-sm">${c.count}</strong>
+                  <span class="text-slate-400 block text-[10px]">${c.name}</span>
+                </div>`).join('')}
+            </div>`}
+        </div>
+        <div class="glass-card rounded-2xl border border-slate-800 p-4 bg-slate-950/60 space-y-3">
+          <h4 class="text-xs font-black text-white uppercase tracking-wider">📋 Full Country Table</h4>
+          <div class="overflow-x-auto">
+            <table class="w-full text-xs">
+              <thead class="text-left text-slate-400 font-mono-code uppercase text-[10px] border-b border-slate-800">
+                <tr><th class="pb-2 pr-4">Country</th><th class="pb-2 pr-4">Visits</th><th class="pb-2">% Share</th></tr>
+              </thead>
+              <tbody class="divide-y divide-slate-800/50">
+                ${countries.map(c => `
+                  <tr class="hover:bg-slate-900/40 transition">
+                    <td class="py-2 pr-4 font-bold text-white">${countryFlag(c.code)} ${c.name}</td>
+                    <td class="py-2 pr-4 text-amber-400 font-mono-code font-bold">${c.count}</td>
+                    <td class="py-2 text-slate-400">${total > 0 ? Math.round((c.count/total)*100) : 0}%</td>
+                  </tr>`).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>`;
+  }
+
+  if (tab === 'devices') {
+    const panel = document.getElementById('analyticsPanel-devices');
+    if (!panel) return;
+    const devices = d.devices || [];
+    const browsers = d.browsers || [];
+    const osData = d.os || [];
+    const devTotal = devices.reduce((s, x) => s + x.count, 0) || 1;
+    const brTotal = browsers.reduce((s, x) => s + x.count, 0) || 1;
+    const osTotal = osData.reduce((s, x) => s + x.count, 0) || 1;
+
+    panel.innerHTML = `
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="glass-card rounded-2xl border border-slate-800 p-4 bg-slate-950/60 space-y-3">
+          <h4 class="text-xs font-black text-white uppercase tracking-wider">💻 Device Type</h4>
+          <div class="space-y-2.5">
+            ${devices.length === 0 ? '<p class="text-slate-500 text-xs py-4 text-center">No data yet</p>' :
+              devices.map((d, i) => renderBar(d.name, d.count, devTotal, ['bg-blue-500','bg-rose-500','bg-emerald-500','bg-amber-500'][i%4], deviceIcon(d.name))).join('')}
+          </div>
+          <div class="grid grid-cols-2 gap-2 mt-3">
+            ${devices.slice(0,3).map(d => `
+              <div class="p-3 rounded-xl bg-slate-900 border border-slate-800 text-center">
+                <span class="text-xl">${deviceIcon(d.name)}</span>
+                <strong class="text-white font-black block text-lg">${devTotal>0?Math.round((d.count/devTotal)*100):0}%</strong>
+                <span class="text-slate-400 text-[10px]">${d.name}</span>
+              </div>`).join('')}
+          </div>
+        </div>
+        <div class="glass-card rounded-2xl border border-slate-800 p-4 bg-slate-950/60 space-y-3">
+          <h4 class="text-xs font-black text-white uppercase tracking-wider">🌐 Browser</h4>
+          <div class="space-y-2.5">
+            ${browsers.length === 0 ? '<p class="text-slate-500 text-xs py-4 text-center">No data yet</p>' :
+              browsers.map((b, i) => renderBar(b.name, b.count, brTotal, ['bg-amber-500','bg-blue-500','bg-emerald-500','bg-rose-500','bg-purple-500'][i%5])).join('')}
+          </div>
+        </div>
+        <div class="glass-card rounded-2xl border border-slate-800 p-4 bg-slate-950/60 space-y-3">
+          <h4 class="text-xs font-black text-white uppercase tracking-wider">🖥️ Operating System</h4>
+          <div class="space-y-2.5">
+            ${osData.length === 0 ? '<p class="text-slate-500 text-xs py-4 text-center">No data yet</p>' :
+              osData.map((o, i) => renderBar(o.name, o.count, osTotal, ['bg-cyan-500','bg-indigo-500','bg-emerald-500','bg-amber-500','bg-rose-500'][i%5])).join('')}
+          </div>
+        </div>
+      </div>`;
+  }
+
+  if (tab === 'links') {
+    const panel = document.getElementById('analyticsPanel-links');
+    if (!panel) return;
+    const links = d.links || [];
+    const linkTotal = links.reduce((s, l) => s + l.count, 0) || 1;
+
+    panel.innerHTML = `
+      <div class="space-y-4">
+        <div class="glass-card rounded-2xl border border-slate-800 p-4 bg-slate-950/60 space-y-3">
+          <h4 class="text-xs font-black text-white uppercase tracking-wider">🔗 External Links Clicked (Drilldown)</h4>
+          ${links.length === 0 ? '<p class="text-slate-500 text-xs text-center py-8">No external link clicks tracked yet. Clicks on affiliate links, Spotlight, CV, and social links will appear here.</p>' :
+            `<div class="space-y-2">
+              ${links.map((l, i) => `
+                <div class="flex items-center gap-3 p-3 rounded-xl bg-slate-950/80 border border-slate-800 hover:border-amber-500/40 cursor-pointer transition group" onclick="openLinkDrilldown('${encodeURIComponent(l.url)}')">
+                  <span class="text-amber-400 font-black text-sm min-w-[2rem] text-center">${i+1}</span>
+                  <div class="flex-1 min-w-0">
+                    <div class="text-white font-bold text-xs truncate">${l.url}</div>
+                    <div class="w-full h-1.5 rounded-full bg-slate-800 mt-1.5 overflow-hidden">
+                      <div class="h-full bg-amber-500 rounded-full" style="width:${Math.round((l.count/linkTotal)*100)}%"></div>
+                    </div>
+                  </div>
+                  <div class="text-right shrink-0">
+                    <span class="text-amber-400 font-black font-mono-code text-sm">${l.count}</span>
+                    <span class="text-slate-500 text-[10px] block">clicks</span>
+                  </div>
+                  <span class="text-slate-500 group-hover:text-amber-400 transition text-xs">→</span>
+                </div>`).join('')}
+            </div>`}
+        </div>
+        <div class="glass-card rounded-2xl border border-slate-800 p-4 bg-slate-950/60 space-y-3">
+          <h4 class="text-xs font-black text-white uppercase tracking-wider">⭐ Affiliate Hacks Click Leaders</h4>
+          <div class="space-y-2">
+            ${Object.entries(d.hacksStats || {}).length === 0 ? '<p class="text-slate-500 text-xs text-center py-4">No affiliate link clicks yet.</p>' :
+              Object.entries(d.hacksStats || {}).sort((a,b) => b[1]-a[1]).map(([name, cnt], i) => `
+                <div class="flex items-center gap-3 p-3 rounded-xl bg-slate-950/80 border border-slate-800">
+                  <span class="text-emerald-400 font-black text-sm min-w-[2rem] text-center">${i+1}</span>
+                  <span class="flex-1 text-white font-bold text-xs truncate">💰 ${name}</span>
+                  <span class="text-emerald-400 font-black font-mono-code">${cnt} clicks</span>
+                </div>`).join('')}
+          </div>
+        </div>
+      </div>`;
+  }
+
+  if (tab === 'log') {
+    renderActivityLog();
+  }
+
+  if (window.lucide) lucide.createIcons();
+}
+
+function renderActivityLog() {
+  const panel = document.getElementById('analyticsPanel-log');
+  if (!panel || !_analyticsData) return;
+  let events = (_analyticsData.recentEvents || []);
+
+  // Apply filters
+  const ftEl = document.getElementById('logFilterType');
+  const fcEl = document.getElementById('logFilterCountry');
+  const fdEl = document.getElementById('logFilterDevice');
+  const fsEl = document.getElementById('logFilterSearch');
+  const ft = ftEl ? ftEl.value : '';
+  const fc = fcEl ? fcEl.value : '';
+  const fd = fdEl ? fdEl.value : '';
+  const fs = fsEl ? fsEl.value.toLowerCase() : '';
+
+  if (ft) events = events.filter(e => e.type === ft);
+  if (fc) events = events.filter(e => (e.country || '') === fc);
+  if (fd) events = events.filter(e => (e.device || '') === fd);
+  if (fs) events = events.filter(e => JSON.stringify(e).toLowerCase().includes(fs));
+
+  const uniqueCountries = [...new Set((_analyticsData.recentEvents || []).map(e => e.country).filter(Boolean))].sort();
+  const uniqueDevices = [...new Set((_analyticsData.recentEvents || []).map(e => e.device).filter(Boolean))].sort();
+  const eventTypes = [...new Set((_analyticsData.recentEvents || []).map(e => e.type).filter(Boolean))].sort();
+
+  const typeColors = {
+    'page_view': 'text-blue-400', 'page_click': 'text-amber-400', 'affiliate_click': 'text-emerald-400',
+    'spotlight_click': 'text-yellow-400', 'showreel_play': 'text-indigo-400', 'cv_download': 'text-cyan-400', 'booking_enquiry': 'text-rose-400'
+  };
+
+  panel.innerHTML = `
+    <div class="space-y-4">
+      <!-- Filters -->
+      <div class="glass-card rounded-2xl border border-slate-800 p-4 bg-slate-950/60">
+        <div class="flex flex-wrap items-end gap-3">
+          <div class="space-y-1 flex-1 min-w-[120px]">
+            <label class="text-[10px] text-slate-400 uppercase font-mono-code font-bold">Event Type</label>
+            <select id="logFilterType" onchange="renderActivityLog()" class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs">
+              <option value="">All Types</option>
+              ${eventTypes.map(t => `<option value="${t}" ${ft===t?'selected':''}>${t}</option>`).join('')}
+            </select>
+          </div>
+          <div class="space-y-1 flex-1 min-w-[120px]">
+            <label class="text-[10px] text-slate-400 uppercase font-mono-code font-bold">Country</label>
+            <select id="logFilterCountry" onchange="renderActivityLog()" class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs">
+              <option value="">All Countries</option>
+              ${uniqueCountries.map(c => `<option value="${c}" ${fc===c?'selected':''}>${countryFlag('')} ${c}</option>`).join('')}
+            </select>
+          </div>
+          <div class="space-y-1 flex-1 min-w-[100px]">
+            <label class="text-[10px] text-slate-400 uppercase font-mono-code font-bold">Device</label>
+            <select id="logFilterDevice" onchange="renderActivityLog()" class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs">
+              <option value="">All Devices</option>
+              ${uniqueDevices.map(d => `<option value="${d}" ${fd===d?'selected':''}>${d}</option>`).join('')}
+            </select>
+          </div>
+          <div class="space-y-1 flex-1 min-w-[140px]">
+            <label class="text-[10px] text-slate-400 uppercase font-mono-code font-bold">Search</label>
+            <input id="logFilterSearch" type="text" value="${fs}" oninput="renderActivityLog()" placeholder="Search logs..." class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs">
+          </div>
+          <button onclick="exportActivityLogCSV()" class="px-3 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs flex items-center gap-1.5 shadow whitespace-nowrap">
+            ⬇️ Export CSV
+          </button>
+        </div>
+        <p class="text-[10px] text-slate-500 mt-2 font-mono-code">Showing ${events.length} of ${(_analyticsData.recentEvents||[]).length} total events</p>
+      </div>
+
+      <!-- Log Table -->
+      <div class="glass-card rounded-2xl border border-slate-800 bg-slate-950/60 overflow-hidden">
+        <div class="overflow-x-auto max-h-[480px] overflow-y-auto">
+          <table class="w-full text-xs">
+            <thead class="sticky top-0 z-10 bg-slate-950 border-b border-slate-800 text-slate-400 font-mono-code uppercase text-[10px]">
+              <tr>
+                <th class="p-3 text-left whitespace-nowrap">Time</th>
+                <th class="p-3 text-left whitespace-nowrap">Event</th>
+                <th class="p-3 text-left whitespace-nowrap">Label</th>
+                <th class="p-3 text-left whitespace-nowrap">Source</th>
+                <th class="p-3 text-left whitespace-nowrap">Country</th>
+                <th class="p-3 text-left whitespace-nowrap">City</th>
+                <th class="p-3 text-left whitespace-nowrap">Device</th>
+                <th class="p-3 text-left whitespace-nowrap">Browser</th>
+                <th class="p-3 text-left whitespace-nowrap">OS</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-800/50">
+              ${events.length === 0 ? `<tr><td colspan="9" class="p-8 text-center text-slate-500">No events match your filters.</td></tr>` :
+                events.slice(0, 200).map(ev => `
+                  <tr class="hover:bg-slate-900/40 transition">
+                    <td class="p-3 text-slate-400 font-mono-code whitespace-nowrap">${new Date(ev.timestamp).toLocaleString('en-GB', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' })}</td>
+                    <td class="p-3 whitespace-nowrap"><span class="px-2 py-0.5 rounded-lg bg-slate-900 border border-slate-700 font-mono-code ${typeColors[ev.type]||'text-white'}">${ev.type}</span></td>
+                    <td class="p-3 text-white font-bold max-w-[150px] truncate">${ev.label || '—'}</td>
+                    <td class="p-3 text-slate-300 whitespace-nowrap">${sourceIcon(ev.source)} ${ev.source || 'Direct'}</td>
+                    <td class="p-3 text-slate-300 whitespace-nowrap">${countryFlag(ev.countryCode)} ${ev.country || '—'}</td>
+                    <td class="p-3 text-slate-400">${ev.city || '—'}</td>
+                    <td class="p-3 text-slate-300 whitespace-nowrap">${deviceIcon(ev.device)} ${ev.device || '—'}</td>
+                    <td class="p-3 text-slate-400">${ev.browser || '—'}</td>
+                    <td class="p-3 text-slate-400">${ev.os || '—'}</td>
+                  </tr>`).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>`;
+}
+window.renderActivityLog = renderActivityLog;
+
+function openLinkDrilldown(encodedUrl) {
+  const url = decodeURIComponent(encodedUrl);
+  if (!_analyticsData) return;
+  const events = (_analyticsData.recentEvents || []).filter(ev => ev.url === url || ev.referrerRaw === url);
+
+  const html = `
+    <div id="linkDrilldownModal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4" onclick="document.getElementById('linkDrilldownModal').remove()">
+      <div class="w-full max-w-2xl glass-card rounded-3xl border border-amber-500/40 p-6 space-y-4 shadow-2xl" onclick="event.stopPropagation()">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+          <div>
+            <span class="text-[10px] text-amber-400 font-mono-code font-bold uppercase">🔗 Link Drilldown</span>
+            <h3 class="text-sm font-black text-white mt-0.5 break-all">${url}</h3>
+          </div>
+          <button onclick="document.getElementById('linkDrilldownModal').remove()" class="p-2 rounded-xl bg-slate-900 text-slate-400 hover:text-white">✕</button>
+        </div>
+        <div class="grid grid-cols-3 gap-3 text-center text-xs">
+          <div class="p-3 rounded-xl bg-slate-950 border border-slate-800">
+            <strong class="text-amber-400 font-black text-xl block">${events.length}</strong>
+            <span class="text-slate-400 text-[10px]">Total Clicks</span>
+          </div>
+          <div class="p-3 rounded-xl bg-slate-950 border border-slate-800">
+            <strong class="text-blue-400 font-black text-lg block">${[...new Set(events.map(e=>e.country).filter(Boolean))].length || '—'}</strong>
+            <span class="text-slate-400 text-[10px]">Countries</span>
+          </div>
+          <div class="p-3 rounded-xl bg-slate-950 border border-slate-800">
+            <strong class="text-emerald-400 font-black text-lg block">${[...new Set(events.map(e=>e.device).filter(Boolean))].join(' / ') || '—'}</strong>
+            <span class="text-slate-400 text-[10px]">Devices</span>
+          </div>
+        </div>
+        <div class="max-h-72 overflow-y-auto space-y-1.5 font-mono-code text-xs">
+          ${events.length === 0 ? '<p class="text-slate-500 text-center py-6">No detailed event records for this link yet.</p>' :
+            events.slice(0, 50).map(ev => `
+              <div class="p-2.5 rounded-lg bg-slate-950/90 border border-slate-800 flex flex-wrap items-center justify-between gap-2">
+                <div class="flex items-center gap-2">
+                  <span class="w-2 h-2 rounded-full bg-amber-400"></span>
+                  <span class="text-white font-bold">${countryFlag(ev.countryCode)} ${ev.country || 'Unknown'} — ${ev.city || ''}</span>
+                  <span class="text-slate-400 text-[10px]">${deviceIcon(ev.device)} ${ev.device} · ${ev.browser}</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="text-slate-400">${sourceIcon(ev.source)} ${ev.source || 'Direct'}</span>
+                  <span class="text-slate-500">${new Date(ev.timestamp).toLocaleString('en-GB', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' })}</span>
+                </div>
+              </div>`).join('')}
+        </div>
+        <div class="flex justify-end pt-2 border-t border-slate-800">
+          <button onclick="document.getElementById('linkDrilldownModal').remove()" class="px-5 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs">Close</button>
+        </div>
+      </div>
+    </div>`;
+  document.body.insertAdjacentHTML('beforeend', html);
+}
+window.openLinkDrilldown = openLinkDrilldown;
+
+function exportActivityLogCSV() {
+  if (!_analyticsData) return;
+  let events = _analyticsData.recentEvents || [];
+  const ftEl = document.getElementById('logFilterType');
+  const fcEl = document.getElementById('logFilterCountry');
+  const fdEl = document.getElementById('logFilterDevice');
+  if (ftEl && ftEl.value) events = events.filter(e => e.type === ftEl.value);
+  if (fcEl && fcEl.value) events = events.filter(e => e.country === fcEl.value);
+  if (fdEl && fdEl.value) events = events.filter(e => e.device === fdEl.value);
+
+  const headers = ['timestamp','type','label','source','medium','country','city','region','isp','device','browser','os','referrerRaw','url','duration'];
+  const rows = events.map(e => headers.map(h => `"${(e[h]||'').toString().replace(/"/g,'""')}"`).join(','));
+  const csv = [headers.join(','), ...rows].join('\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `stevep_analytics_${new Date().toISOString().split('T')[0]}.csv`;
+  a.click();
+}
+window.exportActivityLogCSV = exportActivityLogCSV;
+
+async function resetAnalyticsData() {
+  if (!confirm('⚠️ This will permanently delete ALL analytics data. Are you sure?')) return;
+  try {
+    const res = await fetch('/api/analytics/reset', { method: 'POST' });
+    const json = await res.json();
+    if (json.success) {
+      _analyticsData = null;
+      alert('Analytics reset successfully!');
+      loadAnalyticsDashboard();
+    }
+  } catch(e) { alert('Error resetting analytics.'); }
+}
+window.resetAnalyticsData = resetAnalyticsData;
+
+// Legacy shim so old HTML onclick calls still work
+function openClickDetailsModal(metricName) { loadAnalyticsDashboard(); }
 window.openClickDetailsModal = openClickDetailsModal;
+
+function setAnalyticsDateRange(range) { loadAnalyticsDashboard(); }
+window.setAnalyticsDateRange = setAnalyticsDateRange;
+
+function exportAnalyticsData(fmt) { exportActivityLogCSV(); }
+window.exportAnalyticsData = exportAnalyticsData;
+
+
 
 function triggerFullBackupExport() {
   const box = document.getElementById('backupProgressBox');
@@ -1706,12 +2151,24 @@ function handleBookingSubmit(e) {
   alert(`Thank you ${name}! Your enquiry has been sent directly to Steve Pereira & The Central Line Agency.`);
 }
 
-function trackEvent(type, name = '') {
+let _pageLoadTime = Date.now();
+
+function trackEvent(type, name = '', extra = {}) {
   try {
+    const duration = Math.round((Date.now() - _pageLoadTime) / 1000);
     fetch('/api/analytics/log', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ type, name, timestamp: new Date().toISOString() })
+      body: JSON.stringify({
+        type,
+        name,
+        label: name,
+        referrer: document.referrer || '',
+        page: window._currentTab || document.title,
+        duration,
+        timestamp: new Date().toISOString(),
+        ...extra
+      })
     });
   } catch (e) {}
 }
@@ -1832,6 +2289,30 @@ function applySiteTexts() {
     const el = document.getElementById('hacksSectionTitle');
     if (el) el.textContent = t.hacksTitle;
   }
+
+  // Custom Page Tab Names
+  const tabNames = t.tabNames || {};
+  const mapNav = {
+    casting: ['nav-casting', 'Casting Hub'],
+    about: ['nav-about', 'About SteveP Timeline'],
+    headshots: ['nav-headshots', 'Headshots & Full Body'],
+    itexpert: ['nav-itexpert', '34-Yr IT Architect'],
+    hacks: ['nav-hacks', 'Hacks & Savings'],
+    sobriety: ['nav-sobriety', 'KMST Recovery'],
+    booking: ['nav-booking', 'Book / Contact']
+  };
+
+  Object.keys(mapNav).forEach(key => {
+    const [navId, defaultText] = mapNav[key];
+    const customText = tabNames[key];
+    if (customText) {
+      const btn = document.getElementById(navId);
+      if (btn) {
+        const span = btn.querySelector('span');
+        if (span) span.textContent = customText;
+      }
+    }
+  });
 }
 
 async function saveSiteTexts() {
@@ -1847,9 +2328,160 @@ async function saveSiteTexts() {
   appData.siteTexts.showreelsTitle = document.getElementById('editShowreelsTitle')?.value || appData.siteTexts.showreelsTitle;
   appData.siteTexts.hacksTitle = document.getElementById('editHacksTitle')?.value || appData.siteTexts.hacksTitle;
 
+  // Save Tab Names
+  appData.siteTexts.tabNames = {
+    casting: document.getElementById('editTabNameCasting')?.value || '',
+    about: document.getElementById('editTabNameAbout')?.value || '',
+    headshots: document.getElementById('editTabNameHeadshots')?.value || '',
+    itexpert: document.getElementById('editTabNameIT')?.value || '',
+    hacks: document.getElementById('editTabNameHacks')?.value || '',
+    sobriety: document.getElementById('editTabNameSobriety')?.value || '',
+    booking: document.getElementById('editTabNameBooking')?.value || ''
+  };
+
   applySiteTexts();
   const ok = await saveAppDataToServer();
-  alert(ok ? 'Successfully saved all page text and banner content!' : 'Error saving page text.');
+  alert(ok ? 'Successfully saved all page text, tab names, and banner content!' : 'Error saving page text.');
+}
+
+// --------------------------------------------------------------------------
+// ADMIN TIMELINES & PAGE CONTENT MANAGER (ABOUT & IT CAREER)
+// --------------------------------------------------------------------------
+function renderAdminTimelines() {
+  const aboutBody = document.getElementById('adminAboutTimelineBody');
+  const itBody = document.getElementById('adminITTimelineBody');
+
+  if (aboutBody) {
+    const items = appData.aboutTimeline || [];
+    if (items.length === 0) {
+      aboutBody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-slate-400 italic">No timeline entries found. Click "+ Add Timeline Milestone" above.</td></tr>`;
+    } else {
+      aboutBody.innerHTML = items.map((item, idx) => `
+        <tr class="hover:bg-slate-900/60 transition">
+          <td class="p-2.5 font-mono-code font-bold text-amber-400 whitespace-nowrap">${item.year || item.date || ''}</td>
+          <td class="p-2.5"><span class="px-2 py-0.5 rounded bg-purple-500/20 text-purple-400 font-bold text-[10px]">${item.tag || item.category || 'MILESTONE'}</span></td>
+          <td class="p-2.5">
+            <strong class="text-white text-xs block">${item.title}</strong>
+            <span class="text-slate-400 text-[11px] block line-clamp-1">${item.desc}</span>
+          </td>
+          <td class="p-2.5 text-right space-x-1 whitespace-nowrap">
+            <button onclick="editAboutTimelinePrompt(${idx})" class="px-2.5 py-1 rounded bg-slate-800 text-amber-400 hover:bg-slate-700 font-bold text-[10px]">Edit</button>
+            <button onclick="deleteAboutTimeline(${idx})" class="px-2.5 py-1 rounded bg-rose-600/80 text-white hover:bg-rose-500 font-bold text-[10px]">Delete</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+  }
+
+  if (itBody) {
+    const items = appData.itTimeline || [];
+    if (items.length === 0) {
+      itBody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-slate-400 italic">No IT milestones found. Click "+ Add IT Milestone" above.</td></tr>`;
+    } else {
+      itBody.innerHTML = items.map((item, idx) => `
+        <tr class="hover:bg-slate-900/60 transition">
+          <td class="p-2.5 font-mono-code font-bold text-cyan-400 whitespace-nowrap">${item.year}</td>
+          <td class="p-2.5 font-bold text-slate-300 text-xs">${item.company || '-'}</td>
+          <td class="p-2.5">
+            <strong class="text-white text-xs block">${item.title}</strong>
+            <span class="text-slate-400 text-[11px] block line-clamp-1">${item.desc}</span>
+          </td>
+          <td class="p-2.5 text-right space-x-1 whitespace-nowrap">
+            <button onclick="editITTimelinePrompt(${idx})" class="px-2.5 py-1 rounded bg-slate-800 text-cyan-400 hover:bg-slate-700 font-bold text-[10px]">Edit</button>
+            <button onclick="deleteITTimeline(${idx})" class="px-2.5 py-1 rounded bg-rose-600/80 text-white hover:bg-rose-500 font-bold text-[10px]">Delete</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+  }
+}
+
+async function addAboutTimelinePrompt() {
+  const year = prompt('Year or Date (e.g. 2026 or Friday 13th):', new Date().getFullYear());
+  if (!year) return;
+  const title = prompt('Milestone Title:', 'New Life Milestone');
+  if (!title) return;
+  const desc = prompt('Description / Story:', 'Event description details...');
+  if (!desc) return;
+  const tag = prompt('Tag / Category:', 'ACTING & PRODUCING') || 'MILESTONE';
+
+  appData.aboutTimeline = appData.aboutTimeline || [];
+  appData.aboutTimeline.unshift({ id: 'ab_' + Date.now(), year, title, desc, tag, icon: 'star' });
+  renderAll();
+  await saveAppDataToServer();
+}
+
+async function editAboutTimelinePrompt(idx) {
+  const item = appData.aboutTimeline[idx];
+  if (!item) return;
+
+  const year = prompt('Edit Year/Date:', item.year || item.date);
+  if (year === null) return;
+  const title = prompt('Edit Title:', item.title);
+  if (title === null) return;
+  const desc = prompt('Edit Description:', item.desc);
+  if (desc === null) return;
+  const tag = prompt('Edit Tag:', item.tag || item.category);
+
+  item.year = year;
+  item.title = title;
+  item.desc = desc;
+  if (tag) item.tag = tag;
+
+  renderAll();
+  await saveAppDataToServer();
+}
+
+async function deleteAboutTimeline(idx) {
+  if (!confirm('Are you sure you want to delete this About Timeline milestone?')) return;
+  appData.aboutTimeline.splice(idx, 1);
+  renderAll();
+  await saveAppDataToServer();
+}
+
+async function addITTimelinePrompt() {
+  const year = prompt('Year range (e.g. 2022 - 2026):', '2026');
+  if (!year) return;
+  const company = prompt('Company / Location (e.g. Dubai / UK):', 'Enterprise Cloud Consultancy');
+  if (!company) return;
+  const title = prompt('Role Title:', 'Senior Enterprise Architect');
+  if (!title) return;
+  const desc = prompt('Key Achievements & Details:', 'Engineered high-resiliency cloud architecture...');
+  if (!desc) return;
+
+  appData.itTimeline = appData.itTimeline || [];
+  appData.itTimeline.unshift({ id: 'it_' + Date.now(), year, company, title, desc });
+  renderAll();
+  await saveAppDataToServer();
+}
+
+async function editITTimelinePrompt(idx) {
+  const item = appData.itTimeline[idx];
+  if (!item) return;
+
+  const year = prompt('Edit Year:', item.year);
+  if (year === null) return;
+  const company = prompt('Edit Company/Client:', item.company);
+  if (company === null) return;
+  const title = prompt('Edit Title:', item.title);
+  if (title === null) return;
+  const desc = prompt('Edit Description:', item.desc);
+  if (desc === null) return;
+
+  item.year = year;
+  item.company = company;
+  item.title = title;
+  item.desc = desc;
+
+  renderAll();
+  await saveAppDataToServer();
+}
+
+async function deleteITTimeline(idx) {
+  if (!confirm('Are you sure you want to delete this IT Career milestone?')) return;
+  appData.itTimeline.splice(idx, 1);
+  renderAll();
+  await saveAppDataToServer();
 }
 
 // --------------------------------------------------------------------------
