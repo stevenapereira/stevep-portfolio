@@ -532,35 +532,65 @@ function readDB() {
   }
 }
 
-function syncIndexHtmlSEO(seo) {
-  if (!seo || typeof seo !== 'object') return;
+function syncIndexHtmlContent(data) {
+  if (!data || typeof data !== 'object') return;
   try {
     const indexPath = path.join(__dirname, 'index.html');
     if (!fs.existsSync(indexPath)) return;
     let html = fs.readFileSync(indexPath, 'utf8');
 
-    if (seo.title) {
-      const cleanTitle = seo.title.replace(/</g, '&lt;').replace(/>/g, '&gt;');
-      html = html.replace(/<title id="seoMetaTitle">.*?<\/title>/is, `<title id="seoMetaTitle">${cleanTitle}</title>`);
-      html = html.replace(/<meta property="og:title" content=".*?">/is, `<meta property="og:title" content="${cleanTitle}">`);
-      html = html.replace(/<meta name="twitter:title" content=".*?">/is, `<meta name="twitter:title" content="${cleanTitle}">`);
+    // 1. Sync SEO
+    const seo = data.seo;
+    if (seo && typeof seo === 'object') {
+      if (seo.title) {
+        const cleanTitle = seo.title.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        html = html.replace(/<title id="seoMetaTitle">.*?<\/title>/is, `<title id="seoMetaTitle">${cleanTitle}</title>`);
+        html = html.replace(/<meta property="og:title" content=".*?">/is, `<meta property="og:title" content="${cleanTitle}">`);
+        html = html.replace(/<meta name="twitter:title" content=".*?">/is, `<meta name="twitter:title" content="${cleanTitle}">`);
+      }
+      if (seo.description) {
+        const cleanDesc = seo.description.replace(/"/g, '&quot;');
+        html = html.replace(/<meta id="seoMetaDesc" name="description" content=".*?">/is, `<meta id="seoMetaDesc" name="description" content="${cleanDesc}">`);
+        html = html.replace(/<meta property="og:description" content=".*?">/is, `<meta property="og:description" content="${cleanDesc}">`);
+        html = html.replace(/<meta name="twitter:description" content=".*?">/is, `<meta name="twitter:description" content="${cleanDesc}">`);
+      }
+      if (seo.keywords) {
+        const cleanKw = seo.keywords.replace(/"/g, '&quot;');
+        html = html.replace(/<meta id="seoMetaKeywords" name="keywords" content=".*?">/is, `<meta id="seoMetaKeywords" name="keywords" content="${cleanKw}">`);
+      }
     }
 
-    if (seo.description) {
-      const cleanDesc = seo.description.replace(/"/g, '&quot;');
-      html = html.replace(/<meta id="seoMetaDesc" name="description" content=".*?">/is, `<meta id="seoMetaDesc" name="description" content="${cleanDesc}">`);
-      html = html.replace(/<meta property="og:description" content=".*?">/is, `<meta property="og:description" content="${cleanDesc}">`);
-      html = html.replace(/<meta name="twitter:description" content=".*?">/is, `<meta name="twitter:description" content="${cleanDesc}">`);
+    // 2. Sync 12 Physical Measurements
+    const s = data.stats;
+    if (s && typeof s === 'object') {
+      if (s.playingAge) html = html.replace(/<strong id="statDisplayPlayingAge"[^>]*>.*?<\/strong>/is, `<strong id="statDisplayPlayingAge" class="text-white text-[11px] sm:text-xs font-black truncate block">${s.playingAge}</strong>`);
+      if (s.height) html = html.replace(/<strong id="statDisplayHeight"[^>]*>.*?<\/strong>/is, `<strong id="statDisplayHeight" class="text-white text-[11px] sm:text-xs font-black truncate block">${s.height}</strong>`);
+      if (s.build) html = html.replace(/<strong id="statDisplayBuild"[^>]*>.*?<\/strong>/is, `<strong id="statDisplayBuild" class="text-white text-[11px] sm:text-xs font-black truncate block">${s.build}</strong>`);
+      if (s.hair || s.eyes) html = html.replace(/<strong id="statDisplayHairEyes"[^>]*>.*?<\/strong>/is, `<strong id="statDisplayHairEyes" class="text-white text-[11px] sm:text-xs font-black truncate block">${s.hair || 'Bald'} / ${s.eyes || 'Brown'}</strong>`);
+      if (s.nationalities) html = html.replace(/<strong id="statDisplayNationalities"[^>]*>.*?<\/strong>/is, `<strong id="statDisplayNationalities" class="text-amber-300 text-[11px] sm:text-xs font-black truncate block">${s.nationalities}</strong>`);
+      if (s.chest) html = html.replace(/<strong id="statDisplayChest"[^>]*>.*?<\/strong>/is, `<strong id="statDisplayChest" class="text-white text-[11px] sm:text-xs font-black truncate block">${s.chest}</strong>`);
+      if (s.waist) html = html.replace(/<strong id="statDisplayWaist"[^>]*>.*?<\/strong>/is, `<strong id="statDisplayWaist" class="text-white text-[11px] sm:text-xs font-black truncate block">${s.waist}</strong>`);
+      if (s.hips) html = html.replace(/<strong id="statDisplayHips"[^>]*>.*?<\/strong>/is, `<strong id="statDisplayHips" class="text-white text-[11px] sm:text-xs font-black truncate block">${s.hips}</strong>`);
+      if (s.insideLeg) html = html.replace(/<strong id="statDisplayInsideLeg"[^>]*>.*?<\/strong>/is, `<strong id="statDisplayInsideLeg" class="text-white text-[11px] sm:text-xs font-black truncate block">${s.insideLeg}</strong>`);
+      if (s.weight) html = html.replace(/<strong id="statDisplayWeight"[^>]*>.*?<\/strong>/is, `<strong id="statDisplayWeight" class="text-white text-[11px] sm:text-xs font-black truncate block">${s.weight}</strong>`);
+      if (s.collar || s.shoeSize) html = html.replace(/<strong id="statDisplayCollarShoe"[^>]*>.*?<\/strong>/is, `<strong id="statDisplayCollarShoe" class="text-white text-[11px] sm:text-xs font-black truncate block">${s.collar || '15.5"'} / ${s.shoeSize || '7.5 UK'}</strong>`);
     }
 
-    if (seo.keywords) {
-      const cleanKw = seo.keywords.replace(/"/g, '&quot;');
-      html = html.replace(/<meta id="seoMetaKeywords" name="keywords" content=".*?">/is, `<meta id="seoMetaKeywords" name="keywords" content="${cleanKw}">`);
+    // 3. Sync Site Texts (Actor Name, Badges, Summary)
+    const t = data.siteTexts;
+    if (t && typeof t === 'object') {
+      if (t.actorName) html = html.replace(/<h1 id="heroActorName"[^>]*>.*?<\/h1>/is, `<h1 id="heroActorName" class="font-cinzel text-2xl sm:text-3xl lg:text-4xl font-black tracking-wider text-white uppercase">${t.actorName}</h1>`);
+      if (t.actorSummary) {
+        html = html.replace(/<p id="heroActorSummary"[^>]*>.*?<\/p>/is, `<p id="heroActorSummary" class="text-xs sm:text-sm text-slate-300 font-medium leading-relaxed">${t.actorSummary}</p>`);
+      }
+      if (t.heroBadge1) html = html.replace(/<span id="heroBadge1Text"[^>]*>.*?<\/span>/is, `<span id="heroBadge1Text">${t.heroBadge1}</span>`);
+      if (t.heroBadge2) html = html.replace(/<span id="heroBadge2"[^>]*>.*?<\/span>/is, `<span id="heroBadge2" class="px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-md bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-bold text-[9px] sm:text-[10px] uppercase font-mono-code">${t.heroBadge2}</span>`);
+      if (t.heroBadge3) html = html.replace(/<span id="heroBadge3"[^>]*>.*?<\/span>/is, `<span id="heroBadge3" class="px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-md bg-indigo-500/10 border border-indigo-500/30 text-indigo-400 font-bold text-[9px] sm:text-[10px] uppercase font-mono-code">${t.heroBadge3}</span>`);
     }
 
     fs.writeFileSync(indexPath, html, 'utf8');
   } catch (e) {
-    console.error('Error syncing SEO to index.html:', e);
+    console.error('Error syncing content to index.html:', e);
   }
 }
 
@@ -569,9 +599,7 @@ function writeDB(data) {
     const dir = path.dirname(DB_PATH);
     if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
     fs.writeFileSync(DB_PATH, JSON.stringify(data, null, 2), 'utf8');
-    if (data && data.seo) {
-      syncIndexHtmlSEO(data.seo);
-    }
+    syncIndexHtmlContent(data);
     return true;
   } catch (e) {
     return false;
