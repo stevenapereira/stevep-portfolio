@@ -563,17 +563,17 @@ function syncIndexHtmlContent(data) {
     // 2. Sync 12 Physical Measurements
     const s = data.stats;
     if (s && typeof s === 'object') {
-      if (s.playingAge) html = html.replace(/<strong id="statDisplayPlayingAge"[^>]*>.*?<\/strong>/is, `<strong id="statDisplayPlayingAge" class="text-white text-xs sm:text-sm font-black truncate block">${s.playingAge}</strong>`);
-      if (s.height) html = html.replace(/<strong id="statDisplayHeight"[^>]*>.*?<\/strong>/is, `<strong id="statDisplayHeight" class="text-white text-xs sm:text-sm font-black truncate block">${s.height}</strong>`);
-      if (s.build) html = html.replace(/<strong id="statDisplayBuild"[^>]*>.*?<\/strong>/is, `<strong id="statDisplayBuild" class="text-white text-xs sm:text-sm font-black truncate block">${s.build}</strong>`);
-      if (s.hair || s.eyes) html = html.replace(/<strong id="statDisplayHairEyes"[^>]*>.*?<\/strong>/is, `<strong id="statDisplayHairEyes" class="text-white text-xs sm:text-sm font-black truncate block">${s.hair || 'Bald'} / ${s.eyes || 'Brown'}</strong>`);
-      if (s.nationalities) html = html.replace(/<strong id="statDisplayNationalities"[^>]*>.*?<\/strong>/is, `<strong id="statDisplayNationalities" class="text-amber-300 text-xs sm:text-sm font-black truncate block">${s.nationalities}</strong>`);
-      if (s.chest) html = html.replace(/<strong id="statDisplayChest"[^>]*>.*?<\/strong>/is, `<strong id="statDisplayChest" class="text-white text-xs sm:text-sm font-black truncate block">${s.chest}</strong>`);
-      if (s.waist) html = html.replace(/<strong id="statDisplayWaist"[^>]*>.*?<\/strong>/is, `<strong id="statDisplayWaist" class="text-white text-xs sm:text-sm font-black truncate block">${s.waist}</strong>`);
-      if (s.hips) html = html.replace(/<strong id="statDisplayHips"[^>]*>.*?<\/strong>/is, `<strong id="statDisplayHips" class="text-white text-xs sm:text-sm font-black truncate block">${s.hips}</strong>`);
-      if (s.insideLeg) html = html.replace(/<strong id="statDisplayInsideLeg"[^>]*>.*?<\/strong>/is, `<strong id="statDisplayInsideLeg" class="text-white text-xs sm:text-sm font-black truncate block">${s.insideLeg}</strong>`);
-      if (s.weight) html = html.replace(/<strong id="statDisplayWeight"[^>]*>.*?<\/strong>/is, `<strong id="statDisplayWeight" class="text-white text-xs sm:text-sm font-black truncate block">${s.weight}</strong>`);
-      if (s.collar || s.shoeSize) html = html.replace(/<strong id="statDisplayCollarShoe"[^>]*>.*?<\/strong>/is, `<strong id="statDisplayCollarShoe" class="text-white text-xs sm:text-sm font-black truncate block">${s.collar || '15.5"'} / ${s.shoeSize || '7.5 UK'}</strong>`);
+      if (s.playingAge) html = html.replace(/<strong id="statDisplayPlayingAge"[^>]*>.*?<\/strong>/is, `<strong id="statDisplayPlayingAge" class="text-white text-sm font-extrabold truncate block">${s.playingAge}</strong>`);
+      if (s.height) html = html.replace(/<strong id="statDisplayHeight"[^>]*>.*?<\/strong>/is, `<strong id="statDisplayHeight" class="text-white text-sm font-extrabold truncate block">${s.height}</strong>`);
+      if (s.build) html = html.replace(/<strong id="statDisplayBuild"[^>]*>.*?<\/strong>/is, `<strong id="statDisplayBuild" class="text-white text-sm font-extrabold truncate block">${s.build}</strong>`);
+      if (s.hair || s.eyes) html = html.replace(/<strong id="statDisplayHairEyes"[^>]*>.*?<\/strong>/is, `<strong id="statDisplayHairEyes" class="text-white text-sm font-extrabold truncate block">${s.hair || 'Bald'} / ${s.eyes || 'Brown'}</strong>`);
+      if (s.nationalities) html = html.replace(/<strong id="statDisplayNationalities"[^>]*>.*?<\/strong>/is, `<strong id="statDisplayNationalities" class="text-amber-300 text-sm font-extrabold truncate block">${s.nationalities}</strong>`);
+      if (s.chest) html = html.replace(/<strong id="statDisplayChest"[^>]*>.*?<\/strong>/is, `<strong id="statDisplayChest" class="text-white text-sm font-extrabold truncate block">${s.chest}</strong>`);
+      if (s.waist) html = html.replace(/<strong id="statDisplayWaist"[^>]*>.*?<\/strong>/is, `<strong id="statDisplayWaist" class="text-white text-sm font-extrabold truncate block">${s.waist}</strong>`);
+      if (s.hips) html = html.replace(/<strong id="statDisplayHips"[^>]*>.*?<\/strong>/is, `<strong id="statDisplayHips" class="text-white text-sm font-extrabold truncate block">${s.hips}</strong>`);
+      if (s.insideLeg) html = html.replace(/<strong id="statDisplayInsideLeg"[^>]*>.*?<\/strong>/is, `<strong id="statDisplayInsideLeg" class="text-white text-sm font-extrabold truncate block">${s.insideLeg}</strong>`);
+      if (s.weight) html = html.replace(/<strong id="statDisplayWeight"[^>]*>.*?<\/strong>/is, `<strong id="statDisplayWeight" class="text-white text-sm font-extrabold truncate block">${s.weight}</strong>`);
+      if (s.collar || s.shoeSize) html = html.replace(/<strong id="statDisplayCollarShoe"[^>]*>.*?<\/strong>/is, `<strong id="statDisplayCollarShoe" class="text-white text-sm font-extrabold truncate block">${s.collar || '15.5"'} / ${s.shoeSize || '7.5 UK'}</strong>`);
     }
 
     // 3. Sync Site Texts (Actor Name, Badges, Summary, IT Page)
