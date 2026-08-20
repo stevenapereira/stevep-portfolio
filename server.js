@@ -581,7 +581,7 @@ function syncIndexHtmlContent(data) {
     if (t && typeof t === 'object') {
       if (t.actorName) html = html.replace(/<h1 id="heroActorName"[^>]*>.*?<\/h1>/is, `<h1 id="heroActorName" class="font-cinzel text-2xl sm:text-3xl lg:text-4xl font-black tracking-wider text-white uppercase">${t.actorName}</h1>`);
       if (t.actorSummary) {
-        html = html.replace(/<p id="heroActorSummary"[^>]*>.*?<\/p>/is, `<p id="heroActorSummary" class="text-xs sm:text-sm text-slate-300 font-medium leading-relaxed">${t.actorSummary}</p>`);
+        html = html.replace(/<p id="heroActorSummary"[^>]*>.*?<\/p>/is, `<p id="heroActorSummary" class="text-sm sm:text-base text-slate-300 font-medium leading-relaxed">${t.actorSummary}</p>`);
       }
       if (t.heroBadge1) html = html.replace(/<span id="heroBadge1Text"[^>]*>.*?<\/span>/is, `<span id="heroBadge1Text">${t.heroBadge1}</span>`);
       if (t.heroBadge2) html = html.replace(/<span id="heroBadge2"[^>]*>.*?<\/span>/is, `<span id="heroBadge2" class="px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-md bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-bold text-[9px] sm:text-[10px] uppercase font-mono-code">${t.heroBadge2}</span>`);
