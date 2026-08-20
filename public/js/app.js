@@ -1727,9 +1727,39 @@ async function saveAllAboutPageData() {
   alert(ok ? '✅ All About SteveP Timeline content saved permanently to database!' : 'Error saving about page data.');
 }
 
-async function saveAllITData() {
+function saveITHeaderData() {
+  const getVal = (id, fallback) => document.getElementById(id)?.value?.trim() || fallback || '';
+  appData.siteTexts = appData.siteTexts || {};
+  appData.siteTexts.itBadge = getVal('editITPageBadge', appData.siteTexts.itBadge);
+  appData.siteTexts.itHeading = getVal('editITPageHeading', appData.siteTexts.itHeading);
+  appData.siteTexts.itSummary = getVal('editITPageSummary', appData.siteTexts.itSummary);
+  appData.siteTexts.itYearsBadge = getVal('editITPageYearsBadge', appData.siteTexts.itYearsBadge);
+}
+
+async function saveITHeaderSection() {
+  saveITHeaderData();
+  applySiteTexts();
   const ok = await saveAppDataToServer();
-  alert(ok ? '✅ All 34-Year IT Career Milestones saved permanently to database!' : 'Error saving IT data.');
+  alert(ok ? '✅ IT Page Header & Narrative saved to database!' : 'Error saving IT header.');
+}
+
+async function saveAllITData() {
+  saveITHeaderData();
+  applySiteTexts();
+  const ok = await saveAppDataToServer();
+  alert(ok ? '✅ All 34-Year IT Career Milestones & Page Narrative saved permanently to database!' : 'Error saving IT data.');
+}
+
+function populateITAdminInputs() {
+  const t = appData.siteTexts || {};
+  const setVal = (id, val) => {
+    const el = document.getElementById(id);
+    if (el && val !== undefined && val !== null) el.value = val;
+  };
+  setVal('editITPageBadge', t.itBadge || 'ENTERPRISE IT & CLOUD SOLUTIONS');
+  setVal('editITPageHeading', t.itHeading || '34 Years in IT (Age 17 to 51)');
+  setVal('editITPageSummary', t.itSummary || 'Steve Pereira began his career in tech at age 17 in 1992. Now 51 in 2026, he brings over 34 years of battle-tested enterprise architecture expertise, including 5 years living and working in Dubai (UAE) engineering systems for News Group International & Mediawatch Dubai.');
+  setVal('editITPageYearsBadge', t.itYearsBadge || '34+');
 }
 
 async function saveAllSpotlightData() {
@@ -2661,6 +2691,10 @@ function setAdminSubTab(subTab) {
   if (actualTab === 'hero' || actualTab === 'spotlight' || actualTab === 'about') {
     if (typeof populateHeroAdminInputs === 'function') populateHeroAdminInputs();
   }
+  if (actualTab === 'it') {
+    if (typeof populateITAdminInputs === 'function') populateITAdminInputs();
+    if (typeof renderAdminTimelines === 'function') renderAdminTimelines();
+  }
   if (actualTab === 'seo') {
     if (typeof updateSEODisplay === 'function') updateSEODisplay();
   }
@@ -2674,6 +2708,7 @@ function handleAdminLogin(e) {
     document.getElementById('adminLockScreen')?.classList.add('hidden');
     document.getElementById('adminDashboard')?.classList.remove('hidden');
     populateHeroAdminInputs();
+    populateITAdminInputs();
     updateSEODisplay();
     setAdminSubTab('spotlight');
     renderAdminMediaGrid();
@@ -4620,6 +4655,22 @@ function applySiteTexts() {
   if (t.hacksTitle) {
     const el = document.getElementById('hacksSectionTitle');
     if (el) el.textContent = t.hacksTitle;
+  }
+  if (t.itBadge) {
+    const el = document.getElementById('itPageBadge');
+    if (el) el.textContent = t.itBadge;
+  }
+  if (t.itHeading) {
+    const el = document.getElementById('itPageHeading');
+    if (el) el.textContent = t.itHeading;
+  }
+  if (t.itSummary) {
+    const el = document.getElementById('itPageSummary');
+    if (el) el.textContent = t.itSummary;
+  }
+  if (t.itYearsBadge) {
+    const el = document.getElementById('itPageYearsBadge');
+    if (el) el.textContent = t.itYearsBadge;
   }
 
   // Custom Page Tab Names with strict Double-Line Enforcement

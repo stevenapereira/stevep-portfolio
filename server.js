@@ -576,7 +576,7 @@ function syncIndexHtmlContent(data) {
       if (s.collar || s.shoeSize) html = html.replace(/<strong id="statDisplayCollarShoe"[^>]*>.*?<\/strong>/is, `<strong id="statDisplayCollarShoe" class="text-white text-[11px] sm:text-xs font-black truncate block">${s.collar || '15.5"'} / ${s.shoeSize || '7.5 UK'}</strong>`);
     }
 
-    // 3. Sync Site Texts (Actor Name, Badges, Summary)
+    // 3. Sync Site Texts (Actor Name, Badges, Summary, IT Page)
     const t = data.siteTexts;
     if (t && typeof t === 'object') {
       if (t.actorName) html = html.replace(/<h1 id="heroActorName"[^>]*>.*?<\/h1>/is, `<h1 id="heroActorName" class="font-cinzel text-2xl sm:text-3xl lg:text-4xl font-black tracking-wider text-white uppercase">${t.actorName}</h1>`);
@@ -586,6 +586,10 @@ function syncIndexHtmlContent(data) {
       if (t.heroBadge1) html = html.replace(/<span id="heroBadge1Text"[^>]*>.*?<\/span>/is, `<span id="heroBadge1Text">${t.heroBadge1}</span>`);
       if (t.heroBadge2) html = html.replace(/<span id="heroBadge2"[^>]*>.*?<\/span>/is, `<span id="heroBadge2" class="px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-md bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-bold text-[9px] sm:text-[10px] uppercase font-mono-code">${t.heroBadge2}</span>`);
       if (t.heroBadge3) html = html.replace(/<span id="heroBadge3"[^>]*>.*?<\/span>/is, `<span id="heroBadge3" class="px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-md bg-indigo-500/10 border border-indigo-500/30 text-indigo-400 font-bold text-[9px] sm:text-[10px] uppercase font-mono-code">${t.heroBadge3}</span>`);
+      if (t.itBadge) html = html.replace(/<span id="itPageBadge"[^>]*>.*?<\/span>/is, `<span id="itPageBadge" class="px-3 py-1 rounded-full bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 text-xs font-extrabold font-mono-code">${t.itBadge}</span>`);
+      if (t.itHeading) html = html.replace(/<h2 id="itPageHeading"[^>]*>.*?<\/h2>/is, `<h2 id="itPageHeading" class="text-3xl sm:text-4xl font-black text-white font-cinzel">${t.itHeading}</h2>`);
+      if (t.itSummary) html = html.replace(/<p id="itPageSummary"[^>]*>.*?<\/p>/is, `<p id="itPageSummary" class="text-sm text-slate-200 max-w-3xl leading-relaxed">${t.itSummary}</p>`);
+      if (t.itYearsBadge) html = html.replace(/<span id="itPageYearsBadge"[^>]*>.*?<\/span>/is, `<span id="itPageYearsBadge" class="text-3xl font-black text-cyan-400 block">${t.itYearsBadge}</span>`);
     }
 
     fs.writeFileSync(indexPath, html, 'utf8');
