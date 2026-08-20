@@ -4962,52 +4962,58 @@ function renderAdminMediaGrid() {
     let typeBadge = isVideo ? "bg-purple-500 text-white font-black" : "bg-amber-500 text-slate-950 font-black";
 
     return `
-      <div draggable="true" ondragstart="handleMediaDragStart(event, '${m.id}')" ondragover="handleMediaDragOver(event)" ondrop="handleMediaDrop(event, '${m.id}')" class="relative group rounded-xl overflow-hidden glass-card border ${isChecked ? 'border-amber-400 ring-2 ring-amber-400/50' : 'border-slate-800'} aspect-square flex flex-col justify-between cursor-move shadow-md bg-slate-950">
+      <div draggable="true" ondragstart="handleMediaDragStart(event, '${m.id}')" ondragover="handleMediaDragOver(event)" ondrop="handleMediaDrop(event, '${m.id}')" class="relative group rounded-2xl overflow-hidden glass-card border ${isChecked ? 'border-amber-400 ring-2 ring-amber-400/50' : 'border-slate-800'} flex flex-col justify-between cursor-move shadow-lg bg-slate-950 transition hover:border-slate-700">
         
-        ${isVideo ? `
-          <video src="${m.url}" poster="${m.poster || 'assets/thumb_stevep_showreel.jpg'}" class="w-full h-full object-cover absolute inset-0" preload="metadata"></video>
-          <div class="absolute inset-0 bg-slate-950/40 flex items-center justify-center group-hover:bg-purple-600/30 transition">
-            <div class="w-9 h-9 rounded-full bg-purple-600 text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition cursor-pointer" onclick="openVideoModal('${m.url}', '${(m.title || 'Video').replace(/'/g, "\\'")}')">
-              <i data-lucide="play" class="w-4 h-4 fill-current ml-0.5"></i>
+        <!-- Photo/Video Preview Box (Dedicated Visible Container) -->
+        <div class="relative w-full h-48 sm:h-56 bg-slate-900 overflow-hidden flex items-center justify-center">
+          ${isVideo ? `
+            <video src="${m.url}" poster="${m.poster || 'assets/thumb_stevep_showreel.jpg'}" class="w-full h-full object-cover" preload="metadata"></video>
+            <div class="absolute inset-0 bg-slate-950/30 flex items-center justify-center group-hover:bg-purple-600/20 transition cursor-pointer" onclick="openVideoModal('${m.url}', '${(m.title || 'Video').replace(/'/g, "\\'")}')">
+              <div class="w-10 h-10 rounded-full bg-purple-600/90 hover:bg-purple-500 text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition">
+                <i data-lucide="play" class="w-5 h-5 fill-current ml-0.5"></i>
+              </div>
             </div>
+          ` : `
+            <img src="${m.url}" class="w-full h-full object-cover object-top cursor-pointer transition duration-300 group-hover:scale-105" onclick="openEditMediaModal('${m.id}')" alt="${escapeHtml(m.title || 'Steve Pereira')}" title="Click to view & edit full details">
+          `}
+
+          <!-- Floating Top Badges -->
+          <div class="absolute top-2 left-2 z-10">
+            <input type="checkbox" ${isChecked ? 'checked' : ''} onchange="toggleMediaSelect('${m.id}')" class="w-4 h-4 rounded text-amber-500 cursor-pointer shadow">
           </div>
-        ` : `
-          <img src="${m.url}" class="w-full h-full object-cover object-top absolute inset-0 cursor-pointer" onclick="openEditMediaModal('${m.id}')" title="Click to view & edit details">
-        `}
-        
-        <!-- Top Controls Overlay -->
-        <div class="relative z-10 p-1.5 flex items-center justify-between bg-gradient-to-b from-slate-950/95 via-slate-950/80 to-transparent">
-          <input type="checkbox" ${isChecked ? 'checked' : ''} onchange="toggleMediaSelect('${m.id}')" class="w-3.5 h-3.5 rounded text-amber-500 cursor-pointer">
-          <div class="flex items-center gap-1">
-            <button onclick="openEditMediaModal('${m.id}')" class="p-1 rounded bg-slate-900/90 border border-slate-700 hover:border-amber-400 text-slate-300 hover:text-amber-400 transition" title="Edit Full Details">
+
+          <div class="absolute top-2 right-2 z-10 flex items-center gap-1">
+            <button onclick="openEditMediaModal('${m.id}')" class="p-1.5 rounded-lg bg-slate-950/80 hover:bg-amber-500 text-slate-300 hover:text-slate-950 border border-slate-700/80 transition shadow backdrop-blur-sm" title="Edit Details">
               <i data-lucide="edit-2" class="w-3 h-3"></i>
             </button>
-            <span class="px-1 py-0.5 rounded ${typeBadge} text-[8px] truncate">${isVideo ? '🎥 VID' : '📸'}</span>
+            <span class="px-1.5 py-0.5 rounded-md ${typeBadge} text-[9px] font-mono-code font-bold uppercase shadow backdrop-blur-sm">
+              ${isVideo ? '🎥 REEL' : (m.tag === 'Headshot' ? '🎭 HEADSHOT' : (m.tag === 'Full Body' ? '🧍 BODY' : '📸 STILL'))}
+            </span>
           </div>
         </div>
 
-        <!-- Bottom Actions & Quick Reorder Controls Overlay -->
-        <div class="relative z-10 p-1.5 bg-gradient-to-t from-slate-950 via-slate-950/95 to-transparent space-y-1 text-left">
-          
+        <!-- Dedicated Control Box Below Photo -->
+        <div class="p-2.5 bg-slate-900/95 border-t border-slate-800/80 space-y-1.5 text-left">
           <!-- Editable Title Input -->
           <div>
-            <input type="text" value="${escapeHtml(m.title || '')}" onchange="updateMediaTitle('${m.id}', this.value)" class="w-full px-1.5 py-0.5 rounded bg-slate-950/90 border border-slate-700/80 hover:border-amber-400 focus:border-amber-400 text-[10px] font-bold text-amber-200 placeholder:text-slate-500 truncate" placeholder="Steve in...">
+            <label class="text-[9px] font-bold text-slate-400 block mb-0.5 uppercase tracking-wider font-mono-code">Title:</label>
+            <input type="text" value="${escapeHtml(m.title || '')}" onchange="updateMediaTitle('${m.id}', this.value)" class="w-full px-2 py-1 rounded-lg bg-slate-950 border border-slate-700 hover:border-amber-400 focus:border-amber-400 text-xs font-bold text-amber-300 placeholder:text-slate-500 truncate" placeholder="Steve in...">
           </div>
 
           <!-- Category Selector & Up/Down -->
-          <div class="flex items-center gap-1">
-            <select onchange="reassignMediaRole('${m.id}', this.value)" class="w-full px-1 py-0.5 rounded bg-slate-950 border border-slate-700 text-[9px] font-bold text-amber-400">
+          <div class="flex items-center gap-1.5">
+            <select onchange="reassignMediaRole('${m.id}', this.value)" class="w-full px-2 py-1 rounded-lg bg-slate-950 border border-slate-700 text-[10px] font-bold text-amber-400">
               <option value="Headshot" ${m.tag === 'Headshot' ? 'selected' : ''}>🎭 Headshot</option>
               <option value="Full Body" ${m.tag === 'Full Body' ? 'selected' : ''}>🧍 Full Body</option>
               <option value="Filming Still" ${m.tag === 'Filming Still' ? 'selected' : ''}>📸 35mm Still</option>
               <option value="Signature B&W" ${m.tag === 'Signature B&W' ? 'selected' : ''}>🖼️ Ambient BG</option>
               <option value="Showreel Video" ${m.tag === 'Showreel Video' ? 'selected' : ''}>🎥 Reel Video</option>
             </select>
-            <button onclick="moveMediaUp('${m.id}')" class="px-1.5 py-0.5 rounded bg-slate-900 border border-slate-700 hover:border-amber-400 text-amber-400 text-[9px] font-black" title="Move Up">⬆️</button>
-            <button onclick="moveMediaDown('${m.id}')" class="px-1.5 py-0.5 rounded bg-slate-900 border border-slate-700 hover:border-amber-400 text-amber-400 text-[9px] font-black" title="Move Down">⬇️</button>
+            <button onclick="moveMediaUp('${m.id}')" class="px-2 py-1 rounded-lg bg-slate-950 border border-slate-700 hover:border-amber-400 text-amber-400 text-xs font-black transition shadow" title="Move Up">⬆️</button>
+            <button onclick="moveMediaDown('${m.id}')" class="px-2 py-1 rounded-lg bg-slate-950 border border-slate-700 hover:border-amber-400 text-amber-400 text-xs font-black transition shadow" title="Move Down">⬇️</button>
           </div>
-
         </div>
+
       </div>
     `;
   }).join('');
