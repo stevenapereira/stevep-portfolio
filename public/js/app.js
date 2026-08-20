@@ -751,11 +751,13 @@ function updateBioActiveButtons(activeType) {
 async function applySelectedBioToSite(type) {
   let text = '';
   if (type === 'ai') {
-    text = document.getElementById('aiGeneratedBioText')?.value || AI_BIO_VARIATIONS[currentAiBioIndex];
+    const aiTextarea = document.getElementById('aiGeneratedBioText');
+    text = (aiTextarea && aiTextarea.value.trim()) ? aiTextarea.value.trim() : AI_BIO_VARIATIONS[currentAiBioIndex];
   } else if (type === 'spotlight') {
-    text = document.getElementById('spotlightSelfWrittenDescText')?.value || SPOTLIGHT_DESC_VARIATIONS[currentSpotlightDescIndex];
+    const spotTextarea = document.getElementById('spotlightSelfWrittenDescText');
+    text = (spotTextarea && spotTextarea.value.trim()) ? spotTextarea.value.trim() : SPOTLIGHT_DESC_VARIATIONS[currentSpotlightDescIndex];
   } else {
-    text = document.getElementById('editHeroBio')?.value || '';
+    text = document.getElementById('editHeroBio')?.value?.trim() || '';
   }
 
   appData.siteTexts = appData.siteTexts || {};
@@ -1844,10 +1846,17 @@ function populateHeroAdminInputs() {
 
   setVal('editHeroActorNameInput', t.actorName || 'STEVE PEREIRA');
   setVal('editHeroActorSummaryInput', t.actorSummary || 'Versatile UK Screen Actor • Playing Age 35–50 • Featured in Snickers (with Saka & Modrić), Ted Lasso (Apple TV+), The Witcher (Netflix) & BBC Doctors.');
+  setVal('editHeroTitle', t.heroTitle || 'Steve Pereira: Actor & Screen Producer');
+  setVal('editHeroSubtitle', t.heroSubtitle || 'Screen Actor, Executive Producer & Cybersecurity Founder');
+  setVal('editHeroBio', t.heroBio || '');
   setVal('editHeroBadge1Input', t.heroBadge1 || 'SPOTLIGHT PIN: 9339-8945-6183');
   setVal('editHeroBadge2Input', t.heroBadge2 || 'EQUITY MEMBER');
   setVal('editHeroBadge3Input', t.heroBadge3 || 'LONDON / UK BASED');
 
+  setVal('editTopBannerPin', t.topBannerPin || 'Spotlight Pin: 9339-8945-6183');
+  setVal('editTopBannerAgent', t.topBannerAgent || 'Represented by The Central Line Agency');
+
+  // Populate Stats
   setVal('editStatPlayingAge', s.playingAge || '35 – 50 Yrs');
   setVal('editStatHeight', s.height || '5\'6.5" (169cm)');
   setVal('editStatBuild', s.build || 'Athletic / Toned');
@@ -1863,8 +1872,19 @@ function populateHeroAdminInputs() {
   setVal('editStatShoeSize', s.shoeSize || '7.5 UK / 41 EU');
   setVal('editStatAccents', s.accents || 'RP, London, Cockney, Stage Combat (BADC Pass), Tactical Firearms');
 
+  // If a custom active summary exists in siteTexts, reflect it in the active summary card textarea
+  const activeSource = t.activeBioSource || 'ai';
+  if (t.actorSummary) {
+    if (activeSource === 'ai') {
+      const aiEl = document.getElementById('aiGeneratedBioText');
+      if (aiEl) aiEl.value = t.actorSummary;
+    } else if (activeSource === 'spotlight') {
+      const spotEl = document.getElementById('spotlightSelfWrittenDescText');
+      if (spotEl) spotEl.value = t.actorSummary;
+    }
+  }
+
   // Sync active bio buttons state on load
-  const activeSource = t.activeBioSource || (t.actorSummary && t.actorSummary.includes('Snickers') ? 'ai' : 'ai');
   updateBioActiveButtons(activeSource);
 }
 
@@ -2586,6 +2606,12 @@ function setAdminSubTab(subTab) {
   if (actualTab === 'backup' && typeof renderBackupDashboard === 'function') {
     renderBackupDashboard();
   }
+  if (actualTab === 'hero' || actualTab === 'spotlight' || actualTab === 'about') {
+    if (typeof populateHeroAdminInputs === 'function') populateHeroAdminInputs();
+  }
+  if (actualTab === 'seo') {
+    if (typeof updateSEODisplay === 'function') updateSEODisplay();
+  }
   if (window.lucide) lucide.createIcons();
 }
 
@@ -2595,6 +2621,8 @@ function handleAdminLogin(e) {
   if (pin === '1234' || pin === 'admin' || pin === '9339') {
     document.getElementById('adminLockScreen')?.classList.add('hidden');
     document.getElementById('adminDashboard')?.classList.remove('hidden');
+    populateHeroAdminInputs();
+    updateSEODisplay();
     setAdminSubTab('spotlight');
     renderAdminMediaGrid();
   } else {
