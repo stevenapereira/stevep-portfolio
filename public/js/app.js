@@ -708,6 +708,46 @@ function updateSpotlightDescDisplay() {
   if (counter) counter.textContent = `Variation ${currentSpotlightDescIndex + 1} of ${SPOTLIGHT_DESC_VARIATIONS.length}`;
 }
 
+function updateBioActiveButtons(activeType) {
+  const btnAi = document.getElementById('btnUseAiBio');
+  const btnSpotlight = document.getElementById('btnUseSpotlightBio');
+
+  if (activeType === 'ai') {
+    if (btnAi) {
+      btnAi.className = 'px-4 py-1.5 rounded-xl font-black text-xs flex items-center gap-1.5 shadow transition active:scale-95 bg-amber-500 hover:bg-amber-400 text-slate-950 ring-2 ring-amber-400/60 shadow-amber-500/20';
+      btnAi.innerHTML = '<i data-lucide="check" class="w-3.5 h-3.5"></i> <span>Live Active</span>';
+    }
+    if (btnSpotlight) {
+      btnSpotlight.className = 'px-4 py-1.5 rounded-xl font-bold text-xs flex items-center gap-1.5 shadow transition active:scale-95 bg-slate-800 hover:bg-slate-700 text-slate-400 border border-slate-700';
+      btnSpotlight.innerHTML = '<span>Use for Live Site</span>';
+    }
+  } else if (activeType === 'spotlight') {
+    if (btnSpotlight) {
+      btnSpotlight.className = 'px-4 py-1.5 rounded-xl font-black text-xs flex items-center gap-1.5 shadow transition active:scale-95 bg-blue-600 hover:bg-blue-500 text-white ring-2 ring-blue-400/60 shadow-blue-500/20';
+      btnSpotlight.innerHTML = '<i data-lucide="check" class="w-3.5 h-3.5"></i> <span>Live Active</span>';
+    }
+    if (btnAi) {
+      btnAi.className = 'px-4 py-1.5 rounded-xl font-bold text-xs flex items-center gap-1.5 shadow transition active:scale-95 bg-slate-800 hover:bg-slate-700 text-slate-400 border border-slate-700';
+      btnAi.innerHTML = '<span>Use for Live Site</span>';
+    }
+  } else {
+    if (btnAi) {
+      btnAi.className = 'px-4 py-1.5 rounded-xl font-bold text-xs flex items-center gap-1.5 shadow transition active:scale-95 bg-slate-800 hover:bg-slate-700 text-slate-400 border border-slate-700';
+      btnAi.innerHTML = '<span>Use for Live Site</span>';
+    }
+    if (btnSpotlight) {
+      btnSpotlight.className = 'px-4 py-1.5 rounded-xl font-bold text-xs flex items-center gap-1.5 shadow transition active:scale-95 bg-slate-800 hover:bg-slate-700 text-slate-400 border border-slate-700';
+      btnSpotlight.innerHTML = '<span>Use for Live Site</span>';
+    }
+  }
+
+  // Also sync the radio group if present
+  const radio = document.querySelector(`input[name="siteBioSourceChoice"][value="${activeType}"]`);
+  if (radio) radio.checked = true;
+
+  if (window.lucide) lucide.createIcons();
+}
+
 async function applySelectedBioToSite(type) {
   let text = '';
   if (type === 'ai') {
@@ -721,16 +761,21 @@ async function applySelectedBioToSite(type) {
   appData.siteTexts = appData.siteTexts || {};
   appData.siteTexts.heroBio = text;
   appData.siteTexts.actorSummary = text;
+  appData.siteTexts.activeBioSource = type;
 
+  // Auto-populate into Casting Hub Page Section
   const heroSummaryInput = document.getElementById('editHeroActorSummaryInput');
   if (heroSummaryInput) heroSummaryInput.value = text;
   const heroBioInput = document.getElementById('editHeroBio');
   if (heroBioInput) heroBioInput.value = text;
 
+  // Update button visual states (highlighted & ticked for active, dim & no tick for other)
+  updateBioActiveButtons(type);
+
   updateLiveHeroCard();
   applySiteTexts();
   const ok = await saveAppDataToServer();
-  alert(ok ? '✅ Selected Bio successfully applied to live site and saved permanently!' : 'Error saving selected bio.');
+  alert(ok ? '✅ Selected summary applied to live site and automatically saved into the Casting Hub section!' : 'Error saving selected bio.');
 }
 
 function switchActiveSiteBioSource(choice) {
@@ -1604,6 +1649,9 @@ function updateLiveHeroCard() {
 // MASTER PAGE SAVES & INDIVIDUAL SECTION SAVES
 // --------------------------------------------------------------------------
 async function saveAllHomePageData() {
+  const confirmSave = confirm('⚠️ Warning: You are about to overwrite the live Home & Casting Hub page content on the website with these changes.\n\nDo you want to proceed and save to the live database?');
+  if (!confirmSave) return;
+
   saveHeroIdentityData();
   saveHeroSummaryData();
   saveHeroStatsData();
@@ -1670,6 +1718,9 @@ function saveHeroSummaryData() {
 }
 
 async function saveHeroSummarySection() {
+  const confirmSave = confirm('⚠️ Warning: You are about to overwrite the live Hero Featured Credits Summary on the website.\n\nDo you want to proceed and save to the live database?');
+  if (!confirmSave) return;
+
   saveHeroSummaryData();
   applySiteTexts();
   const ok = await saveAppDataToServer();
@@ -1811,6 +1862,10 @@ function populateHeroAdminInputs() {
   setVal('editStatCollar', s.collar || '15.5" (39.4cm)');
   setVal('editStatShoeSize', s.shoeSize || '7.5 UK / 41 EU');
   setVal('editStatAccents', s.accents || 'RP, London, Cockney, Stage Combat (BADC Pass), Tactical Firearms');
+
+  // Sync active bio buttons state on load
+  const activeSource = t.activeBioSource || (t.actorSummary && t.actorSummary.includes('Snickers') ? 'ai' : 'ai');
+  updateBioActiveButtons(activeSource);
 }
 
 // --------------------------------------------------------------------------
