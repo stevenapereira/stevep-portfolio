@@ -1082,12 +1082,830 @@ function openBriefCastingSheetModal() {
 }
 
 function downloadFullCastingSheet() {
-  openBriefCastingSheetModal();
+  openFullCastingSheetModal();
 }
 
 function closeCastingSheetModal() {
   const modal = document.getElementById('castingSheetModal');
   if (modal) modal.classList.add('hidden');
+}
+
+function openFullCastingSheetModal() {
+  const modal = document.getElementById('fullCastingSheetModal');
+  if (!modal) return;
+
+  // 1. Populate Photo Selectors
+  const headshotSelect = document.getElementById('fullHeadshotSelect');
+  const fullBodySelect = document.getElementById('fullFullBodySelect');
+
+  const headshots = [
+    { title: 'Signature Tattoo Background', url: 'assets/steve_signature_tattoo_bg.jpg' },
+    { title: 'The Meeting Brown Suit (4K Still)', url: 'steve-brown-suit.jpeg' },
+    { title: 'Spotlight Primary Headshot', url: 'A02_7880 copy.jpg' },
+    { title: 'B&W Cinematic Portrait', url: 'public/assets/steve_still_0217.jpg' },
+    ...(appData.headshots || []).map(h => ({ title: h.title || 'Headshot', url: h.url }))
+  ];
+
+  const fullBodies = [
+    { title: 'Full Standing Slate (Light Blue Shirt)', url: 'IMG_2626.jpeg' },
+    { title: 'Location 35mm Slate (The Central Line)', url: 'assets/steve_still_0047.jpg' },
+    { title: 'Action & Stunt Performance Slate', url: 'assets/steve_still_0175.jpg' },
+    ...(appData.fullBodySlates || []).map(f => ({ title: f.title || 'Full Body', url: f.url })),
+    ...(appData.stills || []).map(s => ({ title: s.title || 'Production Still', url: s.url }))
+  ];
+
+  if (headshotSelect) {
+    headshotSelect.innerHTML = headshots.map(h => `<option value="${h.url}">${h.title}</option>`).join('');
+  }
+  if (fullBodySelect) {
+    fullBodySelect.innerHTML = fullBodies.map(f => `<option value="${f.url}">${f.title}</option>`).join('');
+  }
+
+  // 2. Populate 12 Stats
+  const s = appData.stats || {};
+  const setEl = (id, val) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = val;
+  };
+  setEl('fullStatNationalities', s.nationalities || 'British / Indian');
+  setEl('fullStatPlayingAge', s.playingAge || '35 – 50 Years');
+  setEl('fullStatHeight', s.height || "5'6.5\" (169cm)");
+  setEl('fullStatBuild', s.build || 'Athletic / Toned');
+  setEl('fullStatWeight', s.weight || '68 kg (9st 13)');
+  setEl('fullStatChest', s.chest || '38" (96.5cm)');
+  setEl('fullStatWaist', s.waist || '32" (76.2cm)');
+  setEl('fullStatHips', s.hips || '34" (86.4cm)');
+  setEl('fullStatInsideLeg', s.insideLeg || '28" (71cm)');
+  setEl('fullStatCollar', s.collar || '15.5" (39.4cm)');
+  setEl('fullStatShoeSize', s.shoeSize || '7.5 UK / 41 EU');
+  setEl('fullStatHairEyes', `${s.hair || 'Bald'} / ${s.eyes || 'Brown'}`);
+
+  // 3. Populate Credits Preview
+  const creditsList = document.getElementById('fullCreditsPreviewList');
+  const countBadge = document.getElementById('fullCreditsCountBadge');
+  const credits = (appData.credits && appData.credits.length > 0) ? appData.credits : [
+    { title: 'Snickers (with Saka & Modrić)', role: 'Lead Head Double', category: 'Commercial', production: 'Jim Stump / T&Pm Creative', year: '2024' },
+    { title: 'Safestyle Windows', role: 'Banner Assistant', category: 'Commercial', production: 'Chris Cottam / CHIEF', year: '2023' },
+    { title: 'Heartache Avenue', role: 'Charlie', category: 'Film', production: 'Kirti Joshi', year: '2024' },
+    { title: 'Ted Lasso', role: 'Senior Journalist', category: 'Television', production: 'Jason Sudeikis / Apple TV+', year: '2022' },
+    { title: 'The Witcher', role: 'Lowborn', category: 'Television', production: 'Netflix', year: '2022' },
+    { title: 'Doctors', role: 'Court Public / Inmate', category: 'Television', production: 'BBC Drama', year: '2021' },
+    { title: 'Midsomer Murders', role: 'Featured', category: 'Television', production: 'ITV Studios', year: '2021' },
+    { title: 'Hollyoaks & Emmerdale', role: 'Featured', category: 'Television', production: 'Channel 4 / ITV', year: '2020' }
+  ];
+  if (countBadge) countBadge.textContent = `${credits.length} Verified Credits`;
+  if (creditsList) {
+    creditsList.innerHTML = credits.map(c => `
+      <tr class="hover:bg-slate-900/60 transition">
+        <td class="p-2.5 font-bold text-white">${c.title || ''}</td>
+        <td class="p-2.5 text-amber-400 font-medium">${c.role || ''}</td>
+        <td class="p-2.5"><span class="px-1.5 py-0.5 rounded bg-slate-800 text-[10px] text-slate-300">${c.category || ''}</span></td>
+        <td class="p-2.5 text-slate-400">${c.production || ''}</td>
+        <td class="p-2.5 font-mono-code font-bold text-slate-400">${c.year || ''}</td>
+      </tr>
+    `).join('');
+  }
+
+  // 4. Populate Training Preview
+  const trainingList = document.getElementById('fullTrainingPreviewList');
+  const training = (appData.training && appData.training.length > 0) ? appData.training : [
+    { course: 'ECSPC Screen Combat Foundation Certificate', institution: 'ECSPC', badge: 'PASS / CERTIFIED', details: 'Rapier & Dagger, Unarmed Combat, Smallsword / Stage Safety & Fight Choreography' },
+    { course: 'Screen Acting & Audition Technique', institution: 'London Studios', badge: 'PROFESSIONAL', details: 'Camera Awareness, Scene Study, Character Arc Development & Subtext Delivery' },
+    { course: 'Firearms & Tactical Handling for Film', institution: 'Armoury Specialists', badge: 'TACTICAL', details: 'Sidearms, Tactical Room Clearance, Law Enforcement Stance, Safety Protocol' },
+    { course: 'Voice, Dialect & Accent Immersion', institution: 'UK Vocal', badge: 'VOICE & DIALECT', details: 'RP (Received Pronunciation), Heightened British, Urban London & Dialect Placement' },
+    { course: 'Online with Sophie Holland & Faye Timby', institution: 'Sophie Holland Casting', badge: 'CASTING WORKSHOP', details: 'Casting Workshop with Director Q&A & Scene Analysis' }
+  ];
+  if (trainingList) {
+    trainingList.innerHTML = training.map(t => {
+      const badgeInfo = resolveTrainingBadge(t);
+      return `
+        <div class="p-2 rounded-xl bg-slate-900/90 border border-slate-800 text-xs">
+          <div class="flex items-center justify-between mb-0.5">
+            <span class="px-1.5 py-0.5 rounded ${badgeInfo.colorClass} text-[8.5px] font-black uppercase">${badgeInfo.label}</span>
+            <span class="text-[9.5px] text-slate-400 font-mono-code">${t.institution || ''}</span>
+          </div>
+          <strong class="text-white block text-xs">${t.course || t.title || ''}</strong>
+          <span class="text-[10.5px] text-slate-400 block">${t.details || ''}</span>
+        </div>
+      `;
+    }).join('');
+  }
+
+  // 5. Populate Showreels & Media Links Preview
+  const showreelsList = document.getElementById('fullShowreelsPreviewList');
+  const videos = [
+    { title: '1. The Meeting (4K Drama Showreel)', url: `${window.location.origin}/assets/The_Meeting_Up_to_4K.mov`, tag: 'Lead Drama Reel' },
+    { title: '2. Steve Pereira Multi-Role Showreel', url: `${window.location.origin}/assets/SteveP-Showreel.mp4`, tag: 'Full Showreel' },
+    { title: '3. ECSPC Combat & Action Reel', url: `${window.location.origin}/assets/Combat_Certificate_Training.mp4`, tag: 'Stage Combat Reel' },
+    { title: '4. Official Spotlight Directory Profile', url: 'https://app.spotlight.com/9339-8945-6183', tag: 'Spotlight Profile' },
+    { title: '5. Steve Pereira Portfolio Website', url: 'https://stevepereira.pro', tag: 'Official Website' }
+  ];
+  if (showreelsList) {
+    showreelsList.innerHTML = videos.map(v => `
+      <a href="${v.url}" target="_blank" class="p-2 rounded-xl bg-slate-900/90 border border-slate-800 hover:border-cyan-400 text-xs flex items-center justify-between group transition">
+        <div>
+          <span class="px-1.5 py-0.5 rounded bg-cyan-500/20 text-cyan-300 text-[8.5px] font-mono-code font-bold uppercase">${v.tag}</span>
+          <strong class="text-white group-hover:text-cyan-300 block text-xs mt-0.5">${v.title}</strong>
+        </div>
+        <i data-lucide="external-link" class="w-3.5 h-3.5 text-slate-400 group-hover:text-cyan-300 shrink-0"></i>
+      </a>
+    `).join('');
+  }
+
+  updateFullCastingPhotos();
+
+  modal.classList.remove('hidden');
+  if (window.lucide) lucide.createIcons();
+}
+
+function closeFullCastingSheetModal() {
+  const modal = document.getElementById('fullCastingSheetModal');
+  if (modal) modal.classList.add('hidden');
+}
+
+function updateFullCastingPhotos() {
+  const headshotSelect = document.getElementById('fullHeadshotSelect');
+  const fullBodySelect = document.getElementById('fullFullBodySelect');
+  const headshotImg = document.getElementById('fullHeadshotImg');
+  const fullBodyImg = document.getElementById('fullFullBodyImg');
+
+  if (headshotSelect && headshotImg && headshotSelect.value) {
+    headshotImg.src = headshotSelect.value;
+  }
+  if (fullBodySelect && fullBodyImg && fullBodySelect.value) {
+    fullBodyImg.src = fullBodySelect.value;
+  }
+}
+
+function exportFullCastingSheetPDF() {
+  const s = appData.stats || {};
+  const t = appData.siteTexts || {};
+  const headshotUrl = document.getElementById('fullHeadshotSelect')?.value || 'assets/steve_signature_tattoo_bg.jpg';
+  const fullBodyUrl = document.getElementById('fullFullBodySelect')?.value || 'IMG_2626.jpeg';
+
+  const credits = (appData.credits && appData.credits.length > 0) ? appData.credits : [
+    { title: 'Snickers (with Saka & Modrić)', role: 'Lead Head Double', category: 'Commercial', production: 'Jim Stump / T&Pm Creative Agency', year: '2024' },
+    { title: 'Safestyle Windows', role: 'Banner Assistant', category: 'Commercial', production: 'Chris Cottam / CHIEF', year: '2023' },
+    { title: 'Heartache Avenue', role: 'Charlie', category: 'Film', production: 'Kirti Joshi', year: '2024' },
+    { title: 'Ted Lasso', role: 'Senior Journalist', category: 'Television', production: 'Jason Sudeikis / Apple TV+', year: '2022' },
+    { title: 'The Witcher', role: 'Lowborn', category: 'Television', production: 'Netflix', year: '2022' },
+    { title: 'Doctors', role: 'Court Public / Inmate', category: 'Television', production: 'BBC Drama', year: '2021' },
+    { title: 'Midsomer Murders', role: 'Featured', category: 'Television', production: 'ITV Studios', year: '2021' },
+    { title: 'Hollyoaks & Emmerdale', role: 'Featured', category: 'Television', production: 'Channel 4 / ITV', year: '2020' }
+  ];
+
+  const training = (appData.training && appData.training.length > 0) ? appData.training : [
+    { course: 'ECSPC Screen Combat Foundation Certificate', institution: 'ECSPC', badge: 'PASS / CERTIFIED', details: 'Rapier & Dagger, Unarmed Combat, Smallsword / Stage Safety & Fight Choreography' },
+    { course: 'Screen Acting & Audition Technique', institution: 'London Studios', badge: 'PROFESSIONAL', details: 'Camera Awareness, Scene Study, Character Arc Development & Subtext Delivery' },
+    { course: 'Firearms & Tactical Handling for Film', institution: 'Armoury Specialists', badge: 'TACTICAL', details: 'Sidearms, Tactical Room Clearance, Law Enforcement Stance, Safety Protocol' },
+    { course: 'Voice, Dialect & Accent Immersion', institution: 'UK Vocal', badge: 'VOICE & DIALECT', details: 'RP (Received Pronunciation), Heightened British, Urban London & Dialect Placement' },
+    { course: 'Online with Sophie Holland & Faye Timby', institution: 'Sophie Holland Casting', badge: 'CASTING WORKSHOP', details: 'Casting Workshop with Director Q&A & Scene Analysis' }
+  ];
+
+  const printWindow = window.open('', '_blank', 'width=950,height=1100');
+  if (!printWindow) {
+    alert('Please allow popups to generate and print the Full PDF casting dossier.');
+    return;
+  }
+
+  const origin = window.location.origin;
+
+  const html = `
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <title>Steve Pereira — Full Casting Sheet & Artist Dossier</title>
+      <link rel="preconnect" href="https://fonts.googleapis.com">
+      <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+      <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Montserrat:wght@400;500;600;700;800&family=Space+Mono:wght@700&display=swap" rel="stylesheet">
+      <style>
+        @page {
+          size: A4 portrait;
+          margin: 8mm 10mm;
+        }
+        * {
+          box-sizing: border-box;
+          margin: 0;
+          padding: 0;
+        }
+        body {
+          font-family: 'Montserrat', sans-serif;
+          background: #ffffff;
+          color: #0f172a;
+          line-height: 1.3;
+          padding: 8px;
+          -webkit-print-color-adjust: exact;
+          print-color-adjust: exact;
+        }
+        .container {
+          max-width: 820px;
+          margin: 0 auto;
+        }
+        .header {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          border-bottom: 2.5px solid #0f172a;
+          padding-bottom: 10px;
+          margin-bottom: 10px;
+        }
+        .title-group h1 {
+          font-family: 'Cinzel', serif;
+          font-size: 24px;
+          font-weight: 900;
+          letter-spacing: 1px;
+          color: #0f172a;
+        }
+        .title-group p {
+          font-size: 10.5px;
+          color: #334155;
+          font-weight: 600;
+          margin-top: 2px;
+        }
+        .badge-box {
+          text-align: right;
+          font-family: 'Space Mono', monospace;
+          font-size: 9.5px;
+          color: #065f46;
+          font-weight: 700;
+          background: #ecfdf5;
+          border: 1.5px solid #a7f3d0;
+          padding: 5px 9px;
+          border-radius: 6px;
+        }
+        .photos-row {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 12px;
+          margin-bottom: 10px;
+        }
+        .photo-card {
+          border: 1px solid #cbd5e1;
+          border-radius: 6px;
+          overflow: hidden;
+          background: #f8fafc;
+          text-align: center;
+        }
+        .photo-card img {
+          width: 100%;
+          height: 250px;
+          object-fit: cover;
+          object-position: top;
+          display: block;
+        }
+        .photo-caption {
+          font-size: 9px;
+          font-weight: 700;
+          color: #334155;
+          background: #f1f5f9;
+          padding: 3px;
+          text-transform: uppercase;
+          font-family: 'Space Mono', monospace;
+        }
+        .bio-box {
+          background: #f8fafc;
+          border-left: 3px solid #059669;
+          padding: 6px 10px;
+          margin-bottom: 10px;
+          font-size: 10px;
+          color: #334155;
+          line-height: 1.35;
+        }
+        .section-title {
+          font-family: 'Cinzel', serif;
+          font-size: 11px;
+          font-weight: 800;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+          color: #0f172a;
+          border-bottom: 1.5px solid #cbd5e1;
+          padding-bottom: 2px;
+          margin-top: 8px;
+          margin-bottom: 6px;
+        }
+        .stats-grid {
+          display: grid;
+          grid-template-columns: repeat(6, 1fr);
+          gap: 5px;
+          margin-bottom: 10px;
+        }
+        .stat-cell {
+          background: #f8fafc;
+          border: 1px solid #e2e8f0;
+          border-radius: 5px;
+          padding: 4px 5px;
+          text-align: center;
+        }
+        .stat-label {
+          font-size: 7.5px;
+          font-weight: 700;
+          color: #64748b;
+          text-transform: uppercase;
+          display: block;
+        }
+        .stat-value {
+          font-size: 10px;
+          font-weight: 800;
+          color: #0f172a;
+          margin-top: 1px;
+          display: block;
+        }
+        .credits-table {
+          width: 100%;
+          border-collapse: collapse;
+          font-size: 9.5px;
+          margin-bottom: 10px;
+        }
+        .credits-table th {
+          background: #0f172a;
+          color: #ffffff;
+          padding: 4px 6px;
+          text-align: left;
+          font-family: 'Space Mono', monospace;
+          font-size: 8.5px;
+          text-transform: uppercase;
+        }
+        .credits-table td {
+          padding: 4px 6px;
+          border-bottom: 1px solid #e2e8f0;
+          color: #1e293b;
+        }
+        .credits-table tr:nth-child(even) td {
+          background: #f8fafc;
+        }
+        .credit-tag {
+          font-size: 8px;
+          font-weight: 700;
+          padding: 1px 4px;
+          border-radius: 3px;
+          background: #e2e8f0;
+          color: #334155;
+          text-transform: uppercase;
+        }
+        .two-col-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 10px;
+          margin-bottom: 10px;
+        }
+        .info-card {
+          background: #f8fafc;
+          border: 1px solid #e2e8f0;
+          border-radius: 6px;
+          padding: 6px 8px;
+          font-size: 9.5px;
+        }
+        .info-card strong {
+          color: #0f172a;
+          display: block;
+          margin-bottom: 2px;
+          font-size: 9px;
+          text-transform: uppercase;
+          font-family: 'Space Mono', monospace;
+        }
+        .training-item {
+          border-bottom: 1px dashed #cbd5e1;
+          padding-bottom: 3px;
+          margin-bottom: 3px;
+        }
+        .training-item:last-child {
+          border-bottom: none;
+          margin-bottom: 0;
+          padding-bottom: 0;
+        }
+        .training-badge {
+          display: inline-block;
+          font-size: 7.5px;
+          font-weight: 800;
+          padding: 1px 4px;
+          border-radius: 3px;
+          background: #dcfce7;
+          color: #166534;
+          text-transform: uppercase;
+          margin-bottom: 1px;
+        }
+        .links-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 6px;
+          margin-bottom: 10px;
+        }
+        .link-chip {
+          background: #f0fdf4;
+          border: 1px solid #bbf7d0;
+          border-radius: 5px;
+          padding: 4px 7px;
+          font-size: 9px;
+          color: #065f46;
+          text-decoration: none;
+          display: block;
+        }
+        .link-chip strong {
+          display: block;
+          color: #047857;
+          font-size: 9px;
+        }
+        .link-url {
+          font-size: 8px;
+          color: #0f766e;
+          font-family: 'Space Mono', monospace;
+          word-break: break-all;
+        }
+        .agents-row {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 8px;
+          margin-bottom: 10px;
+        }
+        .agent-card {
+          border: 1px solid #cbd5e1;
+          border-radius: 6px;
+          padding: 6px 8px;
+          background: #f8fafc;
+          font-size: 9.5px;
+        }
+        .agent-card strong {
+          font-size: 10px;
+          display: block;
+          color: #0f172a;
+        }
+        .agent-type {
+          font-size: 8px;
+          color: #64748b;
+          text-transform: uppercase;
+          font-weight: 700;
+        }
+        .agent-contact {
+          font-family: 'Space Mono', monospace;
+          font-size: 8.5px;
+          color: #334155;
+          margin-top: 1px;
+          display: block;
+        }
+        .footer {
+          border-top: 1.5px solid #0f172a;
+          padding-top: 6px;
+          margin-top: 8px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          font-size: 8.5px;
+          color: #475569;
+          font-family: 'Space Mono', monospace;
+        }
+        .footer a {
+          color: #059669;
+          font-weight: 700;
+          text-decoration: none;
+        }
+        @media print {
+          .page-break {
+            page-break-before: always;
+          }
+        }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        
+        <!-- Top Header -->
+        <div class="header">
+          <div class="title-group">
+            <h1>STEVE PEREIRA</h1>
+            <p>Versatile British-Indian Screen Actor • Equity Full Member • London / UK Based</p>
+          </div>
+          <div class="badge-box">
+            <div>SPOTLIGHT PIN: 9339-8945-6183</div>
+            <div>ARTIST REF: M283723 • EQUITY MEMBER</div>
+          </div>
+        </div>
+
+        <!-- 2 High-Res Selected Photos -->
+        <div class="photos-row">
+          <div class="photo-card">
+            <img src="${headshotUrl}" alt="Steve Pereira Primary Headshot">
+            <div class="photo-caption">1. Primary Spotlight Headshot</div>
+          </div>
+          <div class="photo-card">
+            <img src="${fullBodyUrl}" alt="Steve Pereira Full Body Slate">
+            <div class="photo-caption">2. Full Body Standing Slate</div>
+          </div>
+        </div>
+
+        <!-- Professional Summary / Bio -->
+        <div class="bio-box">
+          <strong>Summary & Bio:</strong> ${t.actorSummary || 'Versatile British-Indian screen actor with an athletic build and commanding screen presence. Featured in global commercial campaigns including Snickers with Bukayo Saka & Luka Modrić, Apple TV+\'s Ted Lasso, Netflix\'s The Witcher, and BBC Doctors. Certified in ESPCA Stage Combat and Tactical Firearms, Steve pairs rigorous dramatic training across the UK with 34 years of enterprise IT background.'}
+        </div>
+
+        <!-- Physical Measurements & Vitals (12 Specs) -->
+        <div class="section-title">Physical Measurements & Hero Vitals (12 Specs)</div>
+        <div class="stats-grid">
+          <div class="stat-cell"><span class="stat-label">Nationalities</span><span class="stat-value">${s.nationalities || 'British / Indian'}</span></div>
+          <div class="stat-cell"><span class="stat-label">Playing Age</span><span class="stat-value">${s.playingAge || '35 – 50 Yrs'}</span></div>
+          <div class="stat-cell"><span class="stat-label">Height</span><span class="stat-value">${s.height || "5'6.5\" (169cm)"}</span></div>
+          <div class="stat-cell"><span class="stat-label">Build</span><span class="stat-value">${s.build || 'Athletic / Toned'}</span></div>
+          <div class="stat-cell"><span class="stat-label">Weight</span><span class="stat-value">${s.weight || '68 kg (9st 13)'}</span></div>
+          <div class="stat-cell"><span class="stat-label">Chest</span><span class="stat-value">${s.chest || '38" (96.5cm)'}</span></div>
+          <div class="stat-cell"><span class="stat-label">Waist</span><span class="stat-value">${s.waist || '32" (76.2cm)'}</span></div>
+          <div class="stat-cell"><span class="stat-label">Hips</span><span class="stat-value">${s.hips || '34" (86.4cm)'}</span></div>
+          <div class="stat-cell"><span class="stat-label">Inside Leg</span><span class="stat-value">${s.insideLeg || '28" (71cm)'}</span></div>
+          <div class="stat-cell"><span class="stat-label">Collar</span><span class="stat-value">${s.collar || '15.5" (39.4cm)'}</span></div>
+          <div class="stat-cell"><span class="stat-label">Shoe Size</span><span class="stat-value">${s.shoeSize || '7.5 UK / 41 EU'}</span></div>
+          <div class="stat-cell"><span class="stat-label">Hair & Eyes</span><span class="stat-value">${s.hair || 'Bald'} / ${s.eyes || 'Brown'}</span></div>
+        </div>
+
+        <!-- Featured Spotlight Credits Table -->
+        <div class="section-title">Spotlight Credits & Film / Television / Commercial Works</div>
+        <table class="credits-table">
+          <thead>
+            <tr>
+              <th>Title</th>
+              <th>Role</th>
+              <th>Category</th>
+              <th>Production / Director</th>
+              <th>Year</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${credits.map(c => `
+              <tr>
+                <td><strong>${c.title || ''}</strong></td>
+                <td>${c.role || ''}</td>
+                <td><span class="credit-tag">${c.category || ''}</span></td>
+                <td>${c.production || ''}</td>
+                <td><strong>${c.year || ''}</strong></td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+
+        <!-- Training, Accreditations & Special Skills -->
+        <div class="section-title">Training, Stage Combat & Special Skills</div>
+        <div class="two-col-grid">
+          <div class="info-card">
+            <strong>Certified Training & Workshops</strong>
+            ${training.map(tr => `
+              <div class="training-item">
+                <span class="training-badge">${tr.badge || 'CERTIFIED'}</span>
+                <div><strong>${tr.course || tr.title || ''}</strong> (${tr.institution || 'Accredited'})</div>
+                <div style="font-size: 8.5px; color: #475569;">${tr.details || ''}</div>
+              </div>
+            `).join('')}
+          </div>
+          <div class="info-card">
+            <strong>Accents, Dialects & Special Skills</strong>
+            <div style="margin-bottom: 6px;">
+              <span style="font-weight: 700; color: #0f172a;">Accents & Dialects:</span>
+              <div style="color: #334155; margin-top: 1px;">RP (Received Pronunciation), Contemporary London, Cockney, South African, General American, Indian.</div>
+            </div>
+            <div style="margin-bottom: 6px;">
+              <span style="font-weight: 700; color: #0f172a;">Combat & Firearm Certifications:</span>
+              <div style="color: #334155; margin-top: 1px;">ECSPC Screen Combat Foundation (Pass), Tactical Firearms Handling & Movement for Film, Safety Protocol.</div>
+            </div>
+            <div>
+              <span style="font-weight: 700; color: #0f172a;">Additional Skills:</span>
+              <div style="color: #334155; margin-top: 1px;">Precision Driving, Enterprise IT & Cloud Solutions Architect (34 Yrs), Voiceover.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Video Showreels & Media Links (Active Clickable Hyperlinks) -->
+        <div class="section-title">Video Showreels & Media Links (Clickable Hyperlinks)</div>
+        <div class="links-grid">
+          <a href="${origin}/assets/The_Meeting_Up_to_4K.mov" target="_blank" class="link-chip">
+            <strong>▶ 1. The Meeting (4K Drama Showreel)</strong>
+            <span class="link-url">${origin}/assets/The_Meeting_Up_to_4K.mov</span>
+          </a>
+          <a href="${origin}/assets/SteveP-Showreel.mp4" target="_blank" class="link-chip">
+            <strong>▶ 2. Steve Pereira Multi-Role Showreel</strong>
+            <span class="link-url">${origin}/assets/SteveP-Showreel.mp4</span>
+          </a>
+          <a href="${origin}/assets/Combat_Certificate_Training.mp4" target="_blank" class="link-chip">
+            <strong>▶ 3. ECSPC Combat & Action Reel</strong>
+            <span class="link-url">${origin}/assets/Combat_Certificate_Training.mp4</span>
+          </a>
+          <a href="https://app.spotlight.com/9339-8945-6183" target="_blank" class="link-chip">
+            <strong>★ 4. Official Spotlight Directory Profile</strong>
+            <span class="link-url">https://app.spotlight.com/9339-8945-6183</span>
+          </a>
+        </div>
+
+        <!-- Official Agency Representation -->
+        <div class="section-title">Official Agency Representation</div>
+        <div class="agents-row">
+          <div class="agent-card">
+            <span class="agent-type">Acting & Commercials Agency</span>
+            <strong>The Central Line Agency</strong>
+            <span class="agent-contact">020 7434 4771 • agency@thecentralline.co.uk</span>
+          </div>
+          <div class="agent-card">
+            <span class="agent-type">Model & Commercial Agency</span>
+            <strong>Face Management</strong>
+            <span class="agent-contact">0113 245 8667 • facemanagement.co.uk</span>
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+          <span>Official Portfolio: <a href="https://stevepereira.pro">https://stevepereira.pro</a></span>
+          <span>Spotlight Directory Link: <a href="https://app.spotlight.com/9339-8945-6183">app.spotlight.com/9339-8945-6183</a></span>
+        </div>
+
+      </div>
+
+      <script>
+        window.onload = function() {
+          setTimeout(() => {
+            window.print();
+          }, 300);
+        };
+      <\/script>
+    </body>
+    </html>
+  `;
+
+  printWindow.document.open();
+  printWindow.document.write(html);
+  printWindow.document.close();
+}
+
+function exportFullCastingSheetExcel() {
+  const s = appData.stats || {};
+  const t = appData.siteTexts || {};
+  const headshotUrl = document.getElementById('fullHeadshotSelect')?.value || 'assets/steve_signature_tattoo_bg.jpg';
+  const fullBodyUrl = document.getElementById('fullFullBodySelect')?.value || 'IMG_2626.jpeg';
+
+  const credits = (appData.credits && appData.credits.length > 0) ? appData.credits : [
+    { title: 'Snickers (with Saka & Modrić)', role: 'Lead Head Double', category: 'Commercial', production: 'Jim Stump / T&Pm Creative Agency', year: '2024' },
+    { title: 'Safestyle Windows', role: 'Banner Assistant', category: 'Commercial', production: 'Chris Cottam / CHIEF', year: '2023' },
+    { title: 'Heartache Avenue', role: 'Charlie', category: 'Film', production: 'Kirti Joshi', year: '2024' },
+    { title: 'Ted Lasso', role: 'Senior Journalist', category: 'Television', production: 'Jason Sudeikis / Apple TV+', year: '2022' },
+    { title: 'The Witcher', role: 'Lowborn', category: 'Television', production: 'Netflix', year: '2022' },
+    { title: 'Doctors', role: 'Court Public / Inmate', category: 'Television', production: 'BBC Drama', year: '2021' },
+    { title: 'Midsomer Murders', role: 'Featured', category: 'Television', production: 'ITV Studios', year: '2021' },
+    { title: 'Hollyoaks & Emmerdale', role: 'Featured', category: 'Television', production: 'Channel 4 / ITV', year: '2020' }
+  ];
+
+  const training = (appData.training && appData.training.length > 0) ? appData.training : [
+    { course: 'ECSPC Screen Combat Foundation Certificate', institution: 'ECSPC', badge: 'PASS / CERTIFIED', details: 'Rapier & Dagger, Unarmed, Smallsword' },
+    { course: 'Screen Acting & Audition Technique', institution: 'London Studios', badge: 'PROFESSIONAL', details: 'Camera Awareness, Scene Study, Character Arc' },
+    { course: 'Firearms & Tactical Handling for Film', institution: 'Armoury Specialists', badge: 'TACTICAL', details: 'Sidearms, Tactical Room Clearance, Safety' },
+    { course: 'Voice, Dialect & Accent Immersion', institution: 'UK Vocal', badge: 'VOICE & DIALECT', details: 'RP, Heightened British, Urban London' },
+    { course: 'Online with Sophie Holland & Faye Timby', institution: 'Sophie Holland Casting', badge: 'CASTING WORKSHOP', details: 'Casting Workshop with Director Q&A' }
+  ];
+
+  const origin = window.location.origin;
+
+  const rows = [
+    ['STEVE PEREIRA — OFFICIAL FULL CASTING SHEET & DOSSIER'],
+    ['Generated from Portfolio', new Date().toLocaleDateString('en-GB')],
+    [],
+    ['PROFILE SPECIFICATIONS', 'VALUE'],
+    ['Actor Name', 'Steve Pereira'],
+    ['Spotlight PIN', '9339-8945-6183'],
+    ['Spotlight Artist Ref', 'M283723'],
+    ['Equity Membership', 'Full Member'],
+    ['Nationalities', s.nationalities || 'British / Indian'],
+    ['Playing Age', s.playingAge || '35 – 50 Years'],
+    ['Professional Bio', t.actorSummary || 'Versatile British-Indian screen actor with athletic build and commanding presence.'],
+    [],
+    ['HERO PHYSICAL STATS (12 VITALS)', 'VALUE'],
+    ['Height', s.height || '5\'6.5" (169cm)'],
+    ['Build', s.build || 'Athletic / Toned'],
+    ['Weight', s.weight || '68 kg (9st 13lb)'],
+    ['Chest', s.chest || '38" (96.5cm)'],
+    ['Waist', s.waist || '32" (76.2cm)'],
+    ['Hips', s.hips || '34" (86.4cm)'],
+    ['Inside Leg', s.insideLeg || '28" (71cm)'],
+    ['Collar Size', s.collar || '15.5" (39.4cm)'],
+    ['Shoe Size', s.shoeSize || '7.5 UK / 41 EU'],
+    ['Hair Color', s.hair || 'Bald'],
+    ['Eye Color', s.eyes || 'Brown'],
+    ['Hair & Eyes Summary', `${s.hair || 'Bald'} / ${s.eyes || 'Brown'}`],
+    [],
+    ['SPOTLIGHT CREDITS & PROFESSIONAL WORKS', 'ROLE', 'CATEGORY', 'PRODUCTION / DIRECTOR', 'YEAR'],
+    ...credits.map(c => [c.title || '', c.role || '', c.category || '', c.production || '', c.year || '']),
+    [],
+    ['ACCREDITED TRAINING & COMBAT CERTIFICATIONS', 'INSTITUTION', 'BADGE', 'DETAILS'],
+    ...training.map(tr => [tr.course || tr.title || '', tr.institution || '', tr.badge || '', tr.details || '']),
+    [],
+    ['ACCENTS, DIALECTS & SPECIAL SKILLS', 'DETAILS'],
+    ['Accents & Dialects', 'RP (Received Pronunciation), Contemporary London, Cockney, South African, General American, Indian'],
+    ['Stage Combat Certification', 'ECSPC / BADC Screen Combat Foundation (Pass) - Rapier & Dagger, Unarmed, Smallsword'],
+    ['Tactical Handling', 'Firearms & Tactical Movement for Film, Safety Protocol, Room Clearance'],
+    ['Special Skills', 'Precision Driving, Enterprise IT & Cybersecurity Solutions Architect (34 Yrs), Voiceover'],
+    [],
+    ['VIDEO SHOWREELS & MEDIA LINKS', 'ACTIVE URL'],
+    ['1. The Meeting (4K Drama Showreel)', `${origin}/assets/The_Meeting_Up_to_4K.mov`],
+    ['2. Steve Pereira Showreel (Multi-Role)', `${origin}/assets/SteveP-Showreel.mp4`],
+    ['3. ECSPC Combat & Action Reel', `${origin}/assets/Combat_Certificate_Training.mp4`],
+    ['4. Spotlight Verified Directory Profile', 'https://app.spotlight.com/9339-8945-6183'],
+    ['5. Official Portfolio Website', 'https://stevepereira.pro'],
+    ['6. Included Primary Headshot', `${origin}/${headshotUrl}`],
+    ['7. Included Full Body Slate', `${origin}/${fullBodyUrl}`],
+    [],
+    ['OFFICIAL AGENCY REPRESENTATION', 'CONTACT DETAILS'],
+    ['Acting & Commercials Agent', 'The Central Line Agency | Tel: 020 7434 4771 | Email: agency@thecentralline.co.uk'],
+    ['Model & Commercial Agent', 'Face Management | Tel: 0113 245 8667 | Web: https://facemanagement.co.uk']
+  ];
+
+  const csvContent = '\uFEFF' + rows.map(r => r.map(cell => `"${String(cell || '').replace(/"/g, '""')}"`).join(',')).join('\n');
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.setAttribute('download', 'Steve_Pereira_Full_Casting_Dossier.csv');
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+}
+
+function copyFullCastingSheetText() {
+  const s = appData.stats || {};
+  const t = appData.siteTexts || {};
+  const headshotUrl = document.getElementById('fullHeadshotSelect')?.value || 'assets/steve_signature_tattoo_bg.jpg';
+  const fullBodyUrl = document.getElementById('fullFullBodySelect')?.value || 'IMG_2626.jpeg';
+  const origin = window.location.origin;
+
+  const credits = (appData.credits && appData.credits.length > 0) ? appData.credits : [
+    { title: 'Snickers (with Saka & Modrić)', role: 'Lead Head Double', category: 'Commercial', production: 'Jim Stump / T&Pm Creative Agency', year: '2024' },
+    { title: 'Safestyle Windows', role: 'Banner Assistant', category: 'Commercial', production: 'Chris Cottam / CHIEF', year: '2023' },
+    { title: 'Heartache Avenue', role: 'Charlie', category: 'Film', production: 'Kirti Joshi', year: '2024' },
+    { title: 'Ted Lasso', role: 'Senior Journalist', category: 'Television', production: 'Jason Sudeikis / Apple TV+', year: '2022' },
+    { title: 'The Witcher', role: 'Lowborn', category: 'Television', production: 'Netflix', year: '2022' },
+    { title: 'Doctors', role: 'Court Public / Inmate', category: 'Television', production: 'BBC Drama', year: '2021' }
+  ];
+
+  const training = (appData.training && appData.training.length > 0) ? appData.training : [
+    { course: 'ECSPC Screen Combat Foundation Certificate', institution: 'ECSPC', badge: 'PASS / CERTIFIED' },
+    { course: 'Screen Acting & Audition Technique', institution: 'London Studios', badge: 'PROFESSIONAL' },
+    { course: 'Firearms & Tactical Handling for Film', institution: 'Armoury Specialists', badge: 'TACTICAL' },
+    { course: 'Voice, Dialect & Accent Immersion', institution: 'UK Vocal', badge: 'VOICE & DIALECT' }
+  ];
+
+  const creditsText = credits.map(c => `• ${c.title} — Role: ${c.role} (${c.category}, ${c.year}) | ${c.production}`).join('\n');
+  const trainingText = training.map(tr => `• ${tr.course} (${tr.institution}) — [${tr.badge || 'CERTIFIED'}]`).join('\n');
+
+  const text = `
+STEVE PEREIRA — FULL CASTING SHEET & ARTIST DOSSIER
+===================================================
+Spotlight PIN: 9339-8945-6183 (Artist Ref: M283723)
+Equity: Full Member | Nationalities: ${s.nationalities || 'British / Indian'}
+Spotlight Link: https://app.spotlight.com/9339-8945-6183
+Official Portfolio: https://stevepereira.pro
+
+SUMMARY & BIO:
+${t.actorSummary || 'Versatile British-Indian screen actor with an athletic build and commanding screen presence. Featured in global commercial campaigns including Snickers with Bukayo Saka & Luka Modrić, Apple TV+\'s Ted Lasso, Netflix\'s The Witcher, and BBC Doctors. Certified in ESPCA Stage Combat and Tactical Firearms, Steve pairs rigorous dramatic training across the UK with 34 years of enterprise IT background.'}
+
+PHYSICAL MEASUREMENTS & HERO VITALS (12 SPECS):
+- Nationalities: ${s.nationalities || 'British / Indian'}
+- Playing Age: ${s.playingAge || '35 – 50 Years'}
+- Height: ${s.height || "5'6.5\" (169cm)"}
+- Build: ${s.build || 'Athletic / Toned'}
+- Weight: ${s.weight || '68 kg (9st 13lb)'}
+- Chest: ${s.chest || '38" (96.5cm)'}
+- Waist: ${s.waist || '32" (76.2cm)'}
+- Hips: ${s.hips || '34" (86.4cm)'}
+- Inside Leg: ${s.insideLeg || '28" (71cm)'}
+- Collar: ${s.collar || '15.5" (39.4cm)'}
+- Shoe Size: ${s.shoeSize || '7.5 UK / 41 EU'}
+- Hair & Eyes: ${s.hair || 'Bald'} / ${s.eyes || 'Brown'}
+
+FEATURED SPOTLIGHT CREDITS:
+${creditsText}
+
+TRAINING & CERTIFICATIONS:
+${trainingText}
+
+ACCENTS & SPECIAL SKILLS:
+- Accents: RP (Received Pronunciation), Contemporary London, Cockney, South African, General American, Indian
+- Combat / Stunts: ECSPC Screen Combat Foundation (Pass), Tactical Firearms Handling & Movement, Precision Driving
+- Additional: Enterprise IT & Cloud Solutions Architect (34 Yrs), Voiceover
+
+VIDEO SHOWREELS & MEDIA LINKS:
+- 1. The Meeting (4K Drama Showreel): ${origin}/assets/The_Meeting_Up_to_4K.mov
+- 2. Steve Pereira Showreel (Multi-Role): ${origin}/assets/SteveP-Showreel.mp4
+- 3. ECSPC Combat & Action Reel: ${origin}/assets/Combat_Certificate_Training.mp4
+- 4. Spotlight Verified Profile: https://app.spotlight.com/9339-8945-6183
+- 5. Primary Headshot: ${origin}/${headshotUrl}
+- 6. Full Body Slate: ${origin}/${fullBodyUrl}
+
+OFFICIAL AGENCY REPRESENTATION:
+- Acting & Commercials: The Central Line Agency (020 7434 4771 | agency@thecentralline.co.uk)
+- Model & Commercial: Face Management (0113 245 8667 | facemanagement.co.uk)
+  `.trim();
+
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(() => {
+      alert('✅ Full Casting Sheet & Dossier copied to clipboard for instant email submission!');
+    }).catch(() => {
+      prompt('Copy full casting dossier text below:', text);
+    });
+  } else {
+    prompt('Copy full casting dossier text below:', text);
+  }
 }
 
 function updateBriefCastingPhotos() {

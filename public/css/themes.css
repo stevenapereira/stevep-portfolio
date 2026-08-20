@@ -697,7 +697,70 @@ p, h1, h2, h3, h4, span, td, th {
   transition: left 0.85s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+/* ==========================================================================
+   FULL CASTING SHEET BUTTON — LUXURY EMERALD / TEAL HERO STYLING & SHIMMER HOVER
+   ========================================================================== */
+.full-casting-btn {
+  position: relative;
+  display: block;
+  width: 100%;
+  border-radius: 14px;
+  padding: 1.5px;
+  background: linear-gradient(135deg, #10b981 0%, #06b6d4 35%, #059669 70%, #6ee7b7 100%);
+  background-size: 250% 250%;
+  animation: gradientShift 6s ease infinite;
+  box-shadow: 0 4px 20px -2px rgba(16, 185, 129, 0.25), 0 0 12px rgba(5, 150, 105, 0.15);
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden;
+  text-decoration: none;
+  cursor: pointer;
+}
 
+.full-casting-btn:hover {
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 12px 32px -4px rgba(16, 185, 129, 0.5), 0 0 28px rgba(6, 182, 212, 0.4);
+}
+
+.full-casting-btn:active {
+  transform: translateY(0.5px) scale(0.985);
+}
+
+.full-casting-btn-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 12.5px;
+  background: linear-gradient(180deg, rgba(15, 23, 42, 0.96) 0%, rgba(8, 12, 22, 0.98) 100%);
+  padding: 11px 15px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  overflow: hidden;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.full-casting-btn:hover .full-casting-btn-inner {
+  background: linear-gradient(180deg, rgba(16, 38, 48, 0.92) 0%, rgba(8, 22, 28, 0.96) 100%);
+}
+
+.full-casting-btn-shine {
+  position: absolute;
+  top: 0;
+  left: -120%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), rgba(110, 231, 183, 0.3), transparent);
+  transform: skewX(-25deg);
+  transition: none;
+  pointer-events: none;
+}
+
+.full-casting-btn:hover .full-casting-btn-shine {
+  left: 200%;
+  transition: left 0.85s cubic-bezier(0.16, 1, 0.3, 1);
+}
 
 /* Enterprise Backup — Password Hide/Reveal Toggle */
 .backup-pw-hidden {

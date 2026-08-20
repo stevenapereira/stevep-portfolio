@@ -252,8 +252,9 @@
                 <!-- Rendered dynamically by JS -->
               </div>
 
-              <!-- Bespoke Luxury Brief Casting Sheet Button Under Headshot -->
-              <div class="mt-3.5 w-full">
+              <!-- Bespoke Luxury Casting Sheet Buttons Under Headshot (Brief & Full Options) -->
+              <div class="mt-3.5 space-y-2.5 w-full">
+                <!-- 1. Brief Casting Sheet Button -->
                 <button onclick="openBriefCastingSheetModal()" class="brief-casting-btn group" title="Produce Steve's Brief Casting Sheet with 1 Headshot, 1 Full Body & Stats">
                   <div class="brief-casting-btn-inner">
                     <!-- Left: Distinct Icon & Typography -->
@@ -283,6 +284,39 @@
 
                     <!-- Shimmer Light Sweep on Hover -->
                     <div class="brief-casting-btn-shine"></div>
+                  </div>
+                </button>
+
+                <!-- 2. Full Casting Sheet Button (Complete Dossier with Showreels, Training, Credits) -->
+                <button onclick="openFullCastingSheetModal()" class="full-casting-btn group" title="Produce Steve's Full Casting Sheet with Credits, Training, Showreel Links & Full Info">
+                  <div class="full-casting-btn-inner">
+                    <!-- Left: Distinct Icon & Typography -->
+                    <div class="flex items-center gap-2.5 min-w-0">
+                      <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-400 to-teal-600 text-slate-950 flex items-center justify-center font-black shadow-md shadow-emerald-500/30 group-hover:rotate-6 group-hover:scale-110 transition-transform duration-300 shrink-0">
+                        <i data-lucide="file-badge-2" class="w-4 h-4"></i>
+                      </div>
+                      <div class="text-left min-w-0">
+                        <span class="block text-[11px] sm:text-xs font-black text-emerald-200 group-hover:text-white font-cinzel tracking-wider uppercase truncate transition-colors">
+                          Produce Full Casting Sheet
+                        </span>
+                        <span class="block text-[9px] sm:text-[9.5px] text-slate-400 font-mono-code font-bold tracking-tight group-hover:text-emerald-300/90 transition-colors truncate">
+                          Full Bio + Credits + Training + Showreels
+                        </span>
+                      </div>
+                    </div>
+
+                    <!-- Right: Format Tag Pill & Animated Action Arrow -->
+                    <div class="flex items-center gap-1.5 shrink-0">
+                      <span class="px-2 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-[9px] font-mono-code font-black uppercase tracking-wider group-hover:bg-emerald-500 group-hover:text-slate-950 transition-all duration-300 shadow-sm">
+                        PDF / Excel
+                      </span>
+                      <div class="w-6 h-6 rounded-full bg-slate-800/80 group-hover:bg-emerald-400 text-slate-400 group-hover:text-slate-950 flex items-center justify-center transition-all duration-300 group-hover:translate-x-0.5 shadow-sm">
+                        <i data-lucide="arrow-right" class="w-3.5 h-3.5 stroke-[2.5]"></i>
+                      </div>
+                    </div>
+
+                    <!-- Shimmer Light Sweep on Hover -->
+                    <div class="full-casting-btn-shine"></div>
                   </div>
                 </button>
               </div>
@@ -2995,6 +3029,273 @@
           <span>Verify Live on Spotlight Directory (PIN: 9339-8945-6183) ↗</span>
         </a>
         <button onclick="closeCastingSheetModal()" class="px-5 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white font-bold hover:bg-slate-800 transition">
+          Close
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- FULL CASTING SHEET & DOSSIER MODAL / COMPLETE ARTIST PACK -->
+  <div id="fullCastingSheetModal" class="hidden fixed inset-0 z-50 bg-slate-950/95 backdrop-blur-xl flex items-center justify-center p-3 sm:p-6 overflow-y-auto" onclick="closeFullCastingSheetModal()">
+    <div class="relative w-full max-w-5xl glass-card rounded-3xl p-5 sm:p-8 border-2 border-emerald-500/40 space-y-6 max-h-[94vh] overflow-y-auto shadow-2xl" onclick="event.stopPropagation()">
+      
+      <!-- Top Modal Header -->
+      <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+        <div class="flex items-center gap-3">
+          <div class="w-11 h-11 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400">
+            <i data-lucide="file-badge-2" class="w-6 h-6"></i>
+          </div>
+          <div>
+            <h3 class="text-lg sm:text-xl font-black text-white font-cinzel tracking-wide flex items-center gap-2">
+              <span>Produce Full Casting Sheet & Dossier</span>
+              <span class="px-2 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 text-[10px] font-mono-code font-bold uppercase">Complete Pack</span>
+            </h3>
+            <p class="text-xs text-emerald-400 font-mono-code">2 Photos + 12 Stats + Full Credits + Training + Showreel Links + Agency Contacts</p>
+          </div>
+        </div>
+        <button onclick="closeFullCastingSheetModal()" class="p-2 rounded-full bg-slate-900 text-slate-400 hover:text-white border border-slate-800 transition">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Format Selection & Export Actions (The 3 Options) -->
+      <div class="p-4 sm:p-5 rounded-2xl bg-slate-900/90 border border-emerald-500/40 space-y-3">
+        <div class="flex items-center justify-between">
+          <h4 class="text-xs font-black text-white uppercase tracking-wider font-mono-code flex items-center gap-2">
+            <i data-lucide="download" class="w-4 h-4 text-emerald-400"></i>
+            <span>Select Your Preferred Export Format:</span>
+          </h4>
+          <span class="text-[10px] text-slate-400 font-mono-code font-bold">1-Click Instant Full Pack Generation</span>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
+          <!-- Option 1: PDF Full Dossier / Multi-Page Print -->
+          <button onclick="exportFullCastingSheetPDF()" class="group p-3.5 rounded-xl bg-slate-950 border border-slate-700 hover:border-emerald-400 hover:bg-emerald-500/10 transition text-left space-y-1.5 shadow">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-black text-white group-hover:text-emerald-300 flex items-center gap-1.5 font-cinzel">
+                <i data-lucide="file-text" class="w-4 h-4 text-emerald-400"></i> PDF Full Dossier
+              </span>
+              <span class="px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 text-[9px] font-bold">A4 Print / PDF</span>
+            </div>
+            <p class="text-[11px] text-slate-400 leading-snug">Generate a complete multi-section PDF dossier with high-res photos, 12 stats, credits, certified training, and active showreel links.</p>
+            <div class="pt-1 text-right">
+              <span class="text-[10px] font-bold text-emerald-400 group-hover:underline">Produce Full PDF &rarr;</span>
+            </div>
+          </button>
+
+          <!-- Option 2: Excel Full Spreadsheet -->
+          <button onclick="exportFullCastingSheetExcel()" class="group p-3.5 rounded-xl bg-slate-950 border border-slate-700 hover:border-teal-400 hover:bg-teal-500/10 transition text-left space-y-1.5 shadow">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-black text-white group-hover:text-teal-300 flex items-center gap-1.5 font-cinzel">
+                <i data-lucide="table" class="w-4 h-4 text-teal-400"></i> Excel Complete Dataset
+              </span>
+              <span class="px-1.5 py-0.5 rounded bg-teal-500/20 text-teal-400 text-[9px] font-bold">.CSV / Excel</span>
+            </div>
+            <p class="text-[11px] text-slate-400 leading-snug">Export complete actor dataset including all 12 measurements, full credits table, training records, showreel URLs & agent contacts.</p>
+            <div class="pt-1 text-right">
+              <span class="text-[10px] font-bold text-teal-400 group-hover:underline">Download Excel &rarr;</span>
+            </div>
+          </button>
+
+          <!-- Option 3: Save / Copy Full Digital Text -->
+          <button onclick="copyFullCastingSheetText()" class="group p-3.5 rounded-xl bg-slate-950 border border-slate-700 hover:border-indigo-400 hover:bg-indigo-500/10 transition text-left space-y-1.5 shadow">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-black text-white group-hover:text-indigo-300 flex items-center gap-1.5 font-cinzel">
+                <i data-lucide="copy" class="w-4 h-4 text-indigo-400"></i> Copy / Save Full Text
+              </span>
+              <span class="px-1.5 py-0.5 rounded bg-indigo-500/20 text-indigo-400 text-[9px] font-bold">Full Pitch Pack</span>
+            </div>
+            <p class="text-[11px] text-slate-400 leading-snug">Copy comprehensive formatted casting pitch text with bio, credits, training, showreels, stats, and agency contacts to clipboard.</p>
+            <div class="pt-1 text-right">
+              <span class="text-[10px] font-bold text-indigo-400 group-hover:underline">Copy to Clipboard &rarr;</span>
+            </div>
+          </button>
+        </div>
+      </div>
+
+      <!-- Interactive 2-Photo Selector & Visual Preview (1 Headshot + 1 Full Body) -->
+      <div class="space-y-3">
+        <div class="flex items-center justify-between">
+          <h4 class="text-xs font-black text-emerald-400 uppercase tracking-wider font-mono-code flex items-center gap-2">
+            <i data-lucide="images" class="w-4 h-4"></i>
+            <span>Included Casting Photos (1 Primary Headshot & 1 Full Body Slate):</span>
+          </h4>
+          <span class="text-[10px] text-slate-400 font-mono-code">Select which high-res photos appear on the full sheet</span>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <!-- Headshot Selector & Preview -->
+          <div class="p-3.5 rounded-2xl bg-slate-950/80 border border-slate-800 space-y-2.5">
+            <div class="flex items-center justify-between">
+              <label class="text-xs font-bold text-slate-200 flex items-center gap-1.5">
+                <i data-lucide="user" class="w-3.5 h-3.5 text-amber-400"></i> 1. Primary Headshot
+              </label>
+              <select id="fullHeadshotSelect" onchange="updateFullCastingPhotos()" class="admin-input text-[11px] py-1 px-2 max-w-[200px]">
+                <!-- Populated dynamically -->
+              </select>
+            </div>
+            <div class="w-full h-56 sm:h-64 rounded-xl overflow-hidden bg-slate-900 border border-slate-800 relative flex items-center justify-center">
+              <img id="fullHeadshotImg" src="assets/steve_signature_tattoo_bg.jpg" alt="Selected Headshot" class="w-full h-full object-cover object-top">
+              <span class="absolute bottom-2 left-2 px-2 py-0.5 rounded bg-slate-950/80 text-amber-300 font-mono-code text-[9px] font-bold">1. Primary Headshot</span>
+            </div>
+          </div>
+
+          <!-- Full Body Slate Selector & Preview -->
+          <div class="p-3.5 rounded-2xl bg-slate-950/80 border border-slate-800 space-y-2.5">
+            <div class="flex items-center justify-between">
+              <label class="text-xs font-bold text-slate-200 flex items-center gap-1.5">
+                <i data-lucide="user-check" class="w-3.5 h-3.5 text-cyan-400"></i> 2. Full Body Standing Slate
+              </label>
+              <select id="fullFullBodySelect" onchange="updateFullCastingPhotos()" class="admin-input text-[11px] py-1 px-2 max-w-[200px]">
+                <!-- Populated dynamically -->
+              </select>
+            </div>
+            <div class="w-full h-56 sm:h-64 rounded-xl overflow-hidden bg-slate-900 border border-slate-800 relative flex items-center justify-center">
+              <img id="fullFullBodyImg" src="IMG_2626.jpeg" alt="Selected Full Body Slate" class="w-full h-full object-cover object-top">
+              <span class="absolute bottom-2 left-2 px-2 py-0.5 rounded bg-slate-950/80 text-cyan-300 font-mono-code text-[9px] font-bold">2. Full Body Slate</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 12-Tile Hero Stats Box -->
+      <div class="space-y-2">
+        <h4 class="text-xs font-black text-emerald-400 uppercase tracking-wider font-mono-code flex items-center gap-2">
+          <i data-lucide="activity" class="w-4 h-4"></i>
+          <span>Physical Measurements & Hero Vitals (12 Specs):</span>
+        </h4>
+        <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-2 text-xs">
+          <div class="p-2.5 rounded-lg bg-slate-950/80 border border-slate-800">
+            <span class="text-[9px] text-slate-400 block uppercase font-bold">Nationalities</span>
+            <strong id="fullStatNationalities" class="text-amber-300 font-black text-xs">British / Indian</strong>
+          </div>
+          <div class="p-2.5 rounded-lg bg-slate-950/80 border border-slate-800">
+            <span class="text-[9px] text-slate-400 block uppercase font-bold">Playing Age</span>
+            <strong id="fullStatPlayingAge" class="text-white font-black text-xs">35 – 50 Years</strong>
+          </div>
+          <div class="p-2.5 rounded-lg bg-slate-950/80 border border-slate-800">
+            <span class="text-[9px] text-slate-400 block uppercase font-bold">Height</span>
+            <strong id="fullStatHeight" class="text-white font-black text-xs">5'6.5" (169cm)</strong>
+          </div>
+          <div class="p-2.5 rounded-lg bg-slate-950/80 border border-slate-800">
+            <span class="text-[9px] text-slate-400 block uppercase font-bold">Build</span>
+            <strong id="fullStatBuild" class="text-white font-black text-xs">Athletic / Toned</strong>
+          </div>
+          <div class="p-2.5 rounded-lg bg-slate-950/80 border border-slate-800">
+            <span class="text-[9px] text-slate-400 block uppercase font-bold">Weight</span>
+            <strong id="fullStatWeight" class="text-white font-black text-xs">68 kg (9st 13)</strong>
+          </div>
+          <div class="p-2.5 rounded-lg bg-slate-950/80 border border-slate-800">
+            <span class="text-[9px] text-slate-400 block uppercase font-bold">Chest</span>
+            <strong id="fullStatChest" class="text-white font-black text-xs">38" (96.5cm)</strong>
+          </div>
+          <div class="p-2.5 rounded-lg bg-slate-950/80 border border-slate-800">
+            <span class="text-[9px] text-slate-400 block uppercase font-bold">Waist</span>
+            <strong id="fullStatWaist" class="text-white font-black text-xs">32" (76.2cm)</strong>
+          </div>
+          <div class="p-2.5 rounded-lg bg-slate-950/80 border border-slate-800">
+            <span class="text-[9px] text-slate-400 block uppercase font-bold">Hips</span>
+            <strong id="fullStatHips" class="text-white font-black text-xs">34" (86.4cm)</strong>
+          </div>
+          <div class="p-2.5 rounded-lg bg-slate-950/80 border border-slate-800">
+            <span class="text-[9px] text-slate-400 block uppercase font-bold">Inside Leg</span>
+            <strong id="fullStatInsideLeg" class="text-white font-black text-xs">28" (71cm)</strong>
+          </div>
+          <div class="p-2.5 rounded-lg bg-slate-950/80 border border-slate-800">
+            <span class="text-[9px] text-slate-400 block uppercase font-bold">Collar</span>
+            <strong id="fullStatCollar" class="text-white font-black text-xs">15.5" (39.4cm)</strong>
+          </div>
+          <div class="p-2.5 rounded-lg bg-slate-950/80 border border-slate-800">
+            <span class="text-[9px] text-slate-400 block uppercase font-bold">Shoe Size</span>
+            <strong id="fullStatShoeSize" class="text-white font-black text-xs">7.5 UK / 41 EU</strong>
+          </div>
+          <div class="p-2.5 rounded-lg bg-slate-950/80 border border-slate-800">
+            <span class="text-[9px] text-slate-400 block uppercase font-bold">Hair & Eyes</span>
+            <strong id="fullStatHairEyes" class="text-white font-black text-xs">Bald / Brown</strong>
+          </div>
+        </div>
+      </div>
+
+      <!-- Spotlight Film, Television & Commercial Credits Preview -->
+      <div class="space-y-2.5">
+        <div class="flex items-center justify-between">
+          <h4 class="text-xs font-black text-emerald-400 uppercase tracking-wider font-mono-code flex items-center gap-2">
+            <i data-lucide="clapperboard" class="w-4 h-4"></i>
+            <span>Spotlight Credits & Professional Roles:</span>
+          </h4>
+          <span id="fullCreditsCountBadge" class="px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 text-[10px] font-mono-code font-bold"></span>
+        </div>
+        <div class="rounded-xl border border-slate-800 bg-slate-950/80 overflow-hidden max-h-48 overflow-y-auto">
+          <table class="w-full text-left text-xs border-collapse">
+            <thead class="bg-slate-900/90 text-slate-400 font-mono-code text-[10px] uppercase border-b border-slate-800 sticky top-0">
+              <tr>
+                <th class="p-2.5">Title</th>
+                <th class="p-2.5">Role</th>
+                <th class="p-2.5">Category</th>
+                <th class="p-2.5">Production / Director</th>
+                <th class="p-2.5">Year</th>
+              </tr>
+            </thead>
+            <tbody id="fullCreditsPreviewList" class="divide-y divide-slate-800/60 text-slate-300">
+              <!-- Populated dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Training, Accreditations & Showreel Links Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Training & Stage Combat Certifications -->
+        <div class="p-4 rounded-2xl bg-slate-950/80 border border-slate-800 space-y-2.5">
+          <h4 class="text-xs font-black text-indigo-400 uppercase tracking-wider font-mono-code flex items-center gap-2">
+            <i data-lucide="award" class="w-4 h-4"></i>
+            <span>Accredited Training & Fight Certifications:</span>
+          </h4>
+          <div id="fullTrainingPreviewList" class="space-y-2 max-h-44 overflow-y-auto pr-1">
+            <!-- Populated dynamically -->
+          </div>
+        </div>
+
+        <!-- Video Showreels & Active Media Hyperlinks -->
+        <div class="p-4 rounded-2xl bg-slate-950/80 border border-slate-800 space-y-2.5">
+          <h4 class="text-xs font-black text-cyan-400 uppercase tracking-wider font-mono-code flex items-center gap-2">
+            <i data-lucide="video" class="w-4 h-4"></i>
+            <span>Video Showreels & Media Links (Active Hyperlinks):</span>
+          </h4>
+          <div id="fullShowreelsPreviewList" class="space-y-2 max-h-44 overflow-y-auto pr-1">
+            <!-- Populated dynamically -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Official Agency Representation Banner -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+        <div class="p-3 rounded-xl bg-red-950/40 border border-red-500/40 flex items-center justify-between">
+          <div>
+            <span class="text-[9px] uppercase tracking-wider text-red-300 font-mono-code font-bold">Acting & Commercials Agent:</span>
+            <strong class="text-white block font-bold text-sm">The Central Line Agency</strong>
+            <span class="text-slate-300 block font-mono-code text-xs">020 7434 4771 • agency@thecentralline.co.uk</span>
+          </div>
+          <a href="mailto:agency@thecentralline.co.uk" class="px-2.5 py-1 rounded bg-red-600 hover:bg-red-500 text-white font-bold text-[10px]">Email Agent</a>
+        </div>
+        <div class="p-3 rounded-xl bg-blue-950/40 border border-blue-500/40 flex items-center justify-between">
+          <div>
+            <span class="text-[9px] uppercase tracking-wider text-blue-300 font-mono-code font-bold">Model & Commercial Agent:</span>
+            <strong class="text-white block font-bold text-sm">Face Management</strong>
+            <span class="text-slate-300 block font-mono-code text-xs">0113 245 8667 • facemanagement.co.uk</span>
+          </div>
+          <a href="https://facemanagement.co.uk" target="_blank" class="px-2.5 py-1 rounded bg-blue-600 hover:bg-blue-500 text-white font-bold text-[10px]">Visit Face</a>
+        </div>
+      </div>
+
+      <!-- Bottom Bar -->
+      <div class="flex items-center justify-between border-t border-slate-800 pt-4 text-xs">
+        <a href="https://app.spotlight.com/9339-8945-6183" target="_blank" class="text-emerald-400 hover:underline font-mono-code flex items-center gap-1.5">
+          <img src="assets/steves_spotlight_badge.png" class="h-4 w-auto object-contain" alt="Spotlight">
+          <span>Verify Live on Spotlight Directory (PIN: 9339-8945-6183) ↗</span>
+        </a>
+        <button onclick="closeFullCastingSheetModal()" class="px-5 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white font-bold hover:bg-slate-800 transition">
           Close
         </button>
       </div>
