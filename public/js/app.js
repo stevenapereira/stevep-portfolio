@@ -603,7 +603,59 @@ async function pullSpotlightData() {
       latestPulledSpotlightData = json.data;
       renderPulledSpotlightData(json.data);
       updateSpotlightBindUI(true, pin);
-      alert(`✅ Successfully pulled complete Spotlight credentials for PIN ${pin}!\n\n• Ingested 12 vital measurements, 9 acting credits, 4 verified training records, and dual agency contacts.\n• Review field mappings below and click "Apply Field Mapping" to distribute across all pages.`);
+
+      // Auto-populate 12 measurements into appData.stats
+      appData.stats = appData.stats || {};
+      appData.stats.playingAge = json.data.playingAge || appData.stats.playingAge;
+      appData.stats.height = json.data.height || appData.stats.height;
+      appData.stats.build = json.data.build || appData.stats.build;
+      appData.stats.hair = json.data.hairColor || appData.stats.hair;
+      appData.stats.eyes = json.data.eyeColor || appData.stats.eyes;
+      appData.stats.nationalities = json.data.nationalities || appData.stats.nationalities;
+      appData.stats.chest = json.data.chest || appData.stats.chest;
+      appData.stats.waist = json.data.waist || appData.stats.waist;
+      appData.stats.hips = json.data.hips || appData.stats.hips;
+      appData.stats.insideLeg = json.data.insideLeg || appData.stats.insideLeg;
+      appData.stats.weight = json.data.weight || appData.stats.weight;
+      appData.stats.collar = json.data.collar || appData.stats.collar;
+      appData.stats.shoeSize = json.data.shoeSize || appData.stats.shoeSize;
+      appData.stats.accents = json.data.accents || appData.stats.accents;
+      appData.stats.spotlightPin = pin;
+      appData.stats.isBound = true;
+
+      // Auto-populate credits if available
+      if (json.data.credits && Array.isArray(json.data.credits) && json.data.credits.length > 0) {
+        appData.credits = json.data.credits;
+      }
+
+      // Auto-populate training if available
+      if (json.data.training && Array.isArray(json.data.training) && json.data.training.length > 0) {
+        appData.training = json.data.training;
+      }
+
+      // Auto-populate siteTexts and badges
+      appData.siteTexts = appData.siteTexts || {};
+      appData.siteTexts.actorName = json.data.actorName || appData.siteTexts.actorName;
+      appData.siteTexts.topBannerPin = `Spotlight Pin: ${pin}`;
+      appData.siteTexts.heroBadge1 = `SPOTLIGHT PIN: ${pin}`;
+      appData.siteTexts.heroBadge2 = 'EQUITY MEMBER';
+      appData.siteTexts.heroBadge3 = 'LONDON / UK BASED';
+
+      // Auto-populate Casting Hub admin form fields and live site views
+      populateHeroAdminInputs();
+      renderHeroStats();
+      renderAdminTrainingTable();
+      renderAdminCredits();
+      renderSpotlightTraining();
+      applySiteTexts();
+      updateLiveHeroCard();
+
+      // Auto-save directly to backend DB
+      const ok = await saveAppDataToServer();
+      alert(ok 
+        ? `✅ Spotlight Data Pulled & Saved Automatically!\n\n• Ingested 12 vital measurements, credits, and certifications.\n• Populated into Page 2: Casting Hub.\n• Saved permanently to database and live website!`
+        : `⚠️ Pulled Spotlight data updated locally. Please save from the Casting Hub.`
+      );
     } else {
       alert('Failed to pull Spotlight data: ' + (json.error || 'Server error'));
     }
@@ -1461,7 +1513,7 @@ function renderHeroStats() {
   const s = appData.stats || {};
   const setEl = (id, val) => {
     const el = document.getElementById(id);
-    if (el && val) el.textContent = val;
+    if (el) el.textContent = (val !== undefined && val !== null && String(val).trim() !== '') ? val : '';
   };
   setEl('statDisplayPlayingAge', s.playingAge || '35 – 50 Yrs');
   setEl('statDisplayHeight', s.height || '5\'6.5" (169cm)');
