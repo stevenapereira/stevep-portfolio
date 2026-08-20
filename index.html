@@ -2319,6 +2319,118 @@
             </div>
           </div>
 
+          <!-- ================= TAB 11: INSIGHTS & ANALYTICS INTELLIGENCE SUITE ================= -->
+          <div id="adminSection-analytics" class="admin-section hidden space-y-6">
+            
+            <!-- Master Header -->
+            <div class="flex flex-wrap items-center justify-between gap-4 border-b border-slate-800 pb-4">
+              <div>
+                <h3 class="text-sm font-black text-amber-400 uppercase tracking-wider font-mono-code flex items-center gap-2">
+                  <i data-lucide="bar-chart-2" class="w-4 h-4 text-amber-400"></i> 11. Insights &amp; Analytics Intelligence Suite
+                  <span class="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-[10px] font-black uppercase tracking-wider">LIVE TELEMETRY</span>
+                </h3>
+                <p class="text-xs text-slate-300 mt-0.5">Real-time visitor traffic, casting director engagement, showreel playback telemetry, CV downloads, geographic origins, device tech, and link clicks.</p>
+              </div>
+
+              <div class="flex flex-wrap items-center gap-2">
+                <button onclick="loadAnalyticsDashboard()" class="px-3.5 py-2 rounded-xl bg-slate-900 border border-slate-700 hover:border-amber-400 text-white font-bold text-xs flex items-center gap-1.5 shadow transition">
+                  <i data-lucide="refresh-cw" class="w-3.5 h-3.5 text-amber-400"></i> Refresh
+                </button>
+                <button onclick="exportActivityLogCSV()" class="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs flex items-center gap-1.5 shadow transition">
+                  <i data-lucide="download" class="w-3.5 h-3.5"></i> Export CSV
+                </button>
+                <button onclick="resetAnalyticsData()" class="px-3.5 py-2 rounded-xl bg-rose-950/80 hover:bg-rose-900 border border-rose-800/80 text-rose-300 font-bold text-xs flex items-center gap-1.5 shadow transition">
+                  <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Reset Data
+                </button>
+              </div>
+            </div>
+
+            <!-- Real-time KPI Metric Cards Grid -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3">
+              <div id="kpi-views" class="p-3.5 rounded-2xl glass-card border border-slate-800 bg-slate-950/80 text-center space-y-1 shadow-sm">
+                <span class="text-2xl font-black text-blue-400">0</span>
+                <span class="text-[10px] text-slate-400 block font-mono-code uppercase">👁️ Page Views</span>
+              </div>
+              <div id="kpi-spotlight" class="p-3.5 rounded-2xl glass-card border border-slate-800 bg-slate-950/80 text-center space-y-1 shadow-sm">
+                <span class="text-2xl font-black text-amber-400">0</span>
+                <span class="text-[10px] text-slate-400 block font-mono-code uppercase">⭐ Spotlight Clicks</span>
+              </div>
+              <div id="kpi-showreel" class="p-3.5 rounded-2xl glass-card border border-slate-800 bg-slate-950/80 text-center space-y-1 shadow-sm">
+                <span class="text-2xl font-black text-indigo-400">0</span>
+                <span class="text-[10px] text-slate-400 block font-mono-code uppercase">🎬 Showreel Plays</span>
+              </div>
+              <div id="kpi-cv" class="p-3.5 rounded-2xl glass-card border border-slate-800 bg-slate-950/80 text-center space-y-1 shadow-sm">
+                <span class="text-2xl font-black text-emerald-400">0</span>
+                <span class="text-[10px] text-slate-400 block font-mono-code uppercase">📄 CV Downloads</span>
+              </div>
+              <div id="kpi-booking" class="p-3.5 rounded-2xl glass-card border border-slate-800 bg-slate-950/80 text-center space-y-1 shadow-sm">
+                <span class="text-2xl font-black text-rose-400">0</span>
+                <span class="text-[10px] text-slate-400 block font-mono-code uppercase">📩 Enquiries</span>
+              </div>
+              <div id="kpi-affiliate" class="p-3.5 rounded-2xl glass-card border border-slate-800 bg-slate-950/80 text-center space-y-1 shadow-sm">
+                <span class="text-2xl font-black text-cyan-400">0</span>
+                <span class="text-[10px] text-slate-400 block font-mono-code uppercase">🔗 Affiliate Clicks</span>
+              </div>
+              <div id="kpi-events" class="p-3.5 rounded-2xl glass-card border border-slate-800 bg-slate-950/80 text-center space-y-1 shadow-sm">
+                <span class="text-2xl font-black text-purple-400">0</span>
+                <span class="text-[10px] text-slate-400 block font-mono-code uppercase">📊 Total Events</span>
+              </div>
+            </div>
+
+            <!-- Loading Spinner Container -->
+            <div id="analyticsLoadingSpinner" class="hidden p-4 rounded-2xl bg-slate-950/80 border border-amber-500/40 text-center text-amber-400 text-xs font-bold flex items-center justify-center gap-2">
+              <i data-lucide="loader" class="w-4 h-4 animate-spin"></i> Refreshing Analytics Telemetry...
+            </div>
+
+            <!-- Analytics Sub-Tabs Navigation -->
+            <div class="flex items-center gap-2 border-b border-slate-800 pb-3 overflow-x-auto">
+              <button data-tab="overview" onclick="setAnalyticsTab('overview')" class="analytics-tab-btn px-3.5 py-2 rounded-xl bg-amber-500/20 text-amber-400 border border-amber-500/40 font-black text-xs whitespace-nowrap">
+                📈 Traffic Overview
+              </button>
+              <button data-tab="sources" onclick="setAnalyticsTab('sources')" class="analytics-tab-btn px-3.5 py-2 rounded-xl bg-slate-900 text-slate-400 hover:text-white font-bold text-xs whitespace-nowrap transition">
+                🔍 Sources &amp; Mediums
+              </button>
+              <button data-tab="geo" onclick="setAnalyticsTab('geo')" class="analytics-tab-btn px-3.5 py-2 rounded-xl bg-slate-900 text-slate-400 hover:text-white font-bold text-xs whitespace-nowrap transition">
+                🌍 Geo &amp; Countries
+              </button>
+              <button data-tab="devices" onclick="setAnalyticsTab('devices')" class="analytics-tab-btn px-3.5 py-2 rounded-xl bg-slate-900 text-slate-400 hover:text-white font-bold text-xs whitespace-nowrap transition">
+                💻 Devices &amp; Tech
+              </button>
+              <button data-tab="links" onclick="setAnalyticsTab('links')" class="analytics-tab-btn px-3.5 py-2 rounded-xl bg-slate-900 text-slate-400 hover:text-white font-bold text-xs whitespace-nowrap transition">
+                🔗 Link Telemetry
+              </button>
+              <button data-tab="log" onclick="setAnalyticsTab('log')" class="analytics-tab-btn px-3.5 py-2 rounded-xl bg-slate-900 text-slate-400 hover:text-white font-bold text-xs whitespace-nowrap transition">
+                📋 Live Activity Log
+              </button>
+            </div>
+
+            <!-- Analytics Tab Panels -->
+            <div id="analyticsPanel-overview" class="analytics-panel space-y-6">
+              <!-- Rendered dynamically by JS -->
+            </div>
+
+            <div id="analyticsPanel-sources" class="analytics-panel hidden space-y-6">
+              <!-- Rendered dynamically by JS -->
+            </div>
+
+            <div id="analyticsPanel-geo" class="analytics-panel hidden space-y-6">
+              <!-- Rendered dynamically by JS -->
+            </div>
+
+            <div id="analyticsPanel-devices" class="analytics-panel hidden space-y-6">
+              <!-- Rendered dynamically by JS -->
+            </div>
+
+            <div id="analyticsPanel-links" class="analytics-panel hidden space-y-6">
+              <!-- Rendered dynamically by JS -->
+            </div>
+
+            <div id="analyticsPanel-log" class="analytics-panel hidden space-y-6">
+              <!-- Rendered dynamically by JS -->
+            </div>
+
+          </div>
+
           <!-- SUB-TAB 6: ENTERPRISE BACKUP & UNIVERSAL RESTORE SYSTEM -->
           <div id="adminSection-backup" class="admin-section hidden space-y-6">
             

@@ -3500,6 +3500,9 @@ function setAdminSubTab(subTab) {
   if (actualTab === 'analytics' && typeof loadAnalyticsDashboard === 'function') {
     loadAnalyticsDashboard();
   }
+  if (actualTab === 'media' && typeof renderAdminMediaGrid === 'function') {
+    renderAdminMediaGrid();
+  }
   if (actualTab === 'themes' && typeof renderAdminThemes === 'function') {
     renderAdminThemes();
   }
@@ -4914,10 +4917,10 @@ function renderAdminMediaGrid() {
   ];
 
   const rawVids = (appData.spotlightVideos && appData.spotlightVideos.length > 0) ? appData.spotlightVideos : defaultVids;
-  const vids = rawVids.map(v => ({ ...v, tag: 'Showreel Video', type: 'video' }));
-  const headshots = (appData.headshots || []).map(h => ({ ...h, type: h.type || 'photo' }));
+  const vids = rawVids.map(v => ({ ...v, tag: v.tag || 'Showreel Video', type: 'video' }));
+  const headshots = (appData.headshots || []).map(h => ({ ...h, tag: h.tag || 'Headshot', type: h.type || 'photo' }));
   const stills = (appData.stills || []).map(s => ({ ...s, tag: s.tag || 'Filming Still', type: s.type || 'photo' }));
-  const slates = (appData.fullBodySlates || []).map(f => ({ ...f, tag: 'Full Body', type: f.type || 'photo' }));
+  const slates = (appData.fullBodySlates || []).map(f => ({ ...f, tag: f.tag || 'Full Body', type: f.type || 'photo' }));
 
   let allMedia = [...vids, ...headshots, ...stills, ...slates];
 
