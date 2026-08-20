@@ -24,7 +24,11 @@ let appData = {
   hacks: [],
   blogs: [],
   customPages: [],
-  seo: {},
+  seo: {
+    title: "Steve Pereira | British Indian Actor | IT Expert Since 1992 | Cardiac Arrest Survivor | Sober Since 2013",
+    description: "The Official Website for Steve Pereira, a Professional British Indian Actor from Leicester a Multi-Cultural City in the Heart of England, The Midlands. Steve grew up and spent most of his early life in Leicester where he first started his acting career at the Haymarket Theatre at the age of 11. Steve became a bit of an IT Nerd but got the chance to return to acting with his own unique story of survival.",
+    keywords: "Steve Pereira, British Indian Actor, Actor, Leicester, London, Spotlight Actor, IT Nerd, IT Expert, Survival, Unique Story, Alcoholism, Sober, Edge of Life"
+  },
   analytics: {}
 };
 
@@ -88,6 +92,9 @@ async function loadData() {
 }
 
 function renderAll() {
+  if (appData.activeTheme) {
+    document.documentElement.setAttribute('data-theme', appData.activeTheme);
+  }
   applySiteTexts();
   renderWorks();
   renderAdminCreditsTable();
@@ -105,7 +112,14 @@ function renderAll() {
   renderAnalytics();
   renderAdminMediaGrid();
   renderCustomPages();
+  renderHeroStats();
+  renderSpotlightTraining();
+  renderAdminTrainingTable();
+  populateHeroAdminInputs();
   updateSEODisplay();
+  renderSubmissionDirectory();
+  updateStillDisplay();
+  startStillsAutoPlay();
   if (window.lucide) lucide.createIcons();
 }
 
@@ -149,29 +163,7 @@ function switchMainShowreel(url, title, poster) {
 }
 
 // --------------------------------------------------------------------------
-// ABOUT STEVEP TIMELINE STORY
-// --------------------------------------------------------------------------
-function renderAboutTimeline() {
-  const container = document.getElementById('aboutTimelineGrid');
-  if (!container) return;
 
-  const items = appData.aboutTimeline || [];
-  container.innerHTML = items.map((item, idx) => `
-    <div class="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
-      <div class="flex items-center justify-center w-10 h-10 rounded-full border border-slate-700 bg-slate-900 text-amber-400 font-bold shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 shadow-lg">
-        ${idx + 1}
-      </div>
-      <div class="w-[calc(100%-3rem)] md:w-[calc(50%-2.5rem)] glass-card p-6 rounded-2xl border border-slate-800 space-y-2 backdrop-blur-md">
-        <div class="flex items-center justify-between">
-          <span class="px-3 py-0.5 rounded-full bg-amber-500/20 text-amber-400 text-xs font-black font-mono-code">${item.year}</span>
-          <span class="text-xs font-bold text-slate-400">${item.location}</span>
-        </div>
-        <h3 class="text-lg font-black text-white font-cinzel">${item.title}</h3>
-        <p class="text-slate-300 text-xs leading-relaxed">${item.desc}</p>
-      </div>
-    </div>
-  `).join('');
-}
 
 // --------------------------------------------------------------------------
 // FULL BODY STANDING SLATES GRID
@@ -346,20 +338,21 @@ function switchTab(tabId) {
   if (active) active.classList.remove('hidden');
 
   document.querySelectorAll('.nav-btn').forEach(btn => {
-    btn.classList.remove('text-amber-400', 'bg-slate-950/60', 'border', 'border-slate-700/80');
-    btn.classList.add('text-slate-200');
+    btn.classList.remove('active');
+    btn.removeAttribute('data-active');
   });
 
   const activeNav = document.getElementById(`nav-${tabId}`);
   if (activeNav) {
-    activeNav.classList.remove('text-slate-200');
-    activeNav.classList.add('text-amber-400', 'bg-slate-950/60', 'border', 'border-slate-700/80');
+    activeNav.classList.add('active');
+    activeNav.setAttribute('data-active', 'true');
   }
 
   window._currentTab = tabId;
   if (tabId !== 'admin') trackEvent('page_click', tabId);
   if (tabId === 'admin') { /* admin login handled separately */ }
 
+  if (window.lucide) lucide.createIcons();
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 window.switchTab = switchTab;
@@ -411,7 +404,7 @@ function closeLightbox() {
   if (modal) modal.classList.add('hidden');
 }
 
-function openVideoModal(url, title = 'Steve Pereira Video Reel') {
+function openVideoModal(url, title = 'Steve Pereira Video Reel', startTime = null) {
   const modal = document.getElementById('videoModal');
   const player = document.getElementById('modalVideoPlayer');
   const src = document.getElementById('modalVideoSrc');
@@ -419,8 +412,21 @@ function openVideoModal(url, title = 'Steve Pereira Video Reel') {
   const downloadBtn = document.getElementById('modalVideoDownloadBtn');
 
   if (modal && player && src) {
-    src.src = url;
+    const isMeeting = url && url.includes('The_Meeting');
+    const startSec = (startTime !== null && startTime !== undefined) ? startTime : (isMeeting ? 19 : 0);
+    
+    src.src = startSec > 0 ? `${url}#t=${startSec}` : url;
     player.load();
+    
+    const setTime = () => {
+      if (startSec > 0 && player.currentTime < startSec) {
+        player.currentTime = startSec;
+      }
+    };
+    
+    player.onloadedmetadata = setTime;
+    player.oncanplay = setTime;
+
     player.play().catch(e => {});
     if (titleEl) titleEl.textContent = title;
     if (downloadBtn) {
@@ -553,6 +559,1358 @@ async function syncSpotlightCredits() {
   }
 }
 
+// --------------------------------------------------------------------------
+// SPOTLIGHT UK DATA INGESTION, FIELD MAPPING & AI BIO GENERATOR
+// --------------------------------------------------------------------------
+let latestPulledSpotlightData = null;
+
+const AI_BIO_VARIATIONS = [
+  'Versatile British-Portuguese screen actor (Spotlight PIN: 9339-8945-6183) with an athletic build (38" chest, 30" waist, 5\'6.5") and commanding screen presence. Featured in global commercial campaigns including Snickers with Bukayo Saka & Luka Modrić, Apple TV+\'s Ted Lasso, Netflix\'s The Witcher, and BBC Doctors. Certified in BADC Stage Combat and Tactical Firearms, Steve pairs rigorous dramatic training from Identity School of Acting with a 34-year background as an enterprise IT & cybersecurity architect.',
+  'London-based screen actor and executive producer with dynamic range across television, film, and high-profile commercials. Known for lead roles and head double performances in major international campaigns (Snickers, Safestyle Windows) as well as episodic drama (The Witcher, Ted Lasso, BBC Doctors). Dual UK & Portuguese citizen with extensive physical performance, dialect versatility, and founder leadership.',
+  'From an extraordinary personal journey surviving cardiac arrest to founding Keep Me Sober Too (KMST) and building a 34-year career in enterprise tech, Steve Pereira brings unshakeable authenticity and depth to every character. A trained screen actor with certified combat credentials, Steve is represented by The Central Line for acting and Face Management for commercial/model bookings.',
+  'Steve Pereira | Playing Age 35–50 | Spotlight M283723 | Equity Member. Athletic 5\'6.5" screen actor with credits in Snickers (T&Pm), Ted Lasso (Apple TV+), The Witcher (Netflix), and Heartache Avenue. BADC Stage Combat certified, dual UK/Portuguese nationality, London-based with full UK & EU working rights.',
+  'An accomplished screen actor possessing sharp technical precision and visceral emotional range. Steve\'s screen credits encompass award-winning streaming series (Ted Lasso, The Witcher), prime-time British drama (Doctors, Midsomer Murders), and global commercial broadcasts. Trained at IDSA and BADC Combat Academy, Steve delivers elite discipline and versatile character embodiment.'
+];
+let currentAiBioIndex = 0;
+
+const SPOTLIGHT_DESC_VARIATIONS = [
+  'London-based screen actor with athletic build and versatile range across television drama, high-profile commercial campaigns, and independent film. Trained in screen acting and stage combat (BADC Pass), with Portuguese/British dual heritage and extensive technical background.',
+  'Professional UK screen actor (Equity / Spotlight PIN: 9339-8945-6183) based in London with dual British & Portuguese citizenship. Experience spanning major international television series, studio feature films, and global commercials. Trained in stage combat (BADC Pass) and firearm tactics.',
+  'Experienced screen performer specializing in intense, authentic character portrayals across drama, crime thriller, and commercial campaigns. High physical stamina with athletic build, extensive tactical combat training, and authentic London / RP / European accents.',
+  'Versatile actor and founder with credits across Apple TV+, Netflix, BBC Drama, and ITV. Brings natural authority, grounded realism, and precision movement to screen productions.'
+];
+let currentSpotlightDescIndex = 0;
+
+async function pullSpotlightData() {
+  const pinInput = document.getElementById('spotlightPinInput');
+  const pin = pinInput?.value?.trim() || '9339-8945-6183';
+  const btn = document.getElementById('spotlightPullBtn');
+
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = `<i data-lucide="loader" class="w-4 h-4 animate-spin"></i> Pulling Spotlight Data...`;
+  }
+
+  try {
+    const res = await fetch('/api/spotlight/pull', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ pin })
+    });
+    const json = await res.json();
+
+    if (json.success && json.data) {
+      latestPulledSpotlightData = json.data;
+      renderPulledSpotlightData(json.data);
+      updateSpotlightBindUI(true, pin);
+      alert(`✅ Successfully pulled complete Spotlight credentials for PIN ${pin}!\n\n• Ingested 12 vital measurements, 9 acting credits, 4 verified training records, and dual agency contacts.\n• Review field mappings below and click "Apply Field Mapping" to distribute across all pages.`);
+    } else {
+      alert('Failed to pull Spotlight data: ' + (json.error || 'Server error'));
+    }
+  } catch (e) {
+    alert('Network error while pulling Spotlight data: ' + e.message);
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = `<i data-lucide="download" class="w-4 h-4"></i> Pull Data`;
+    }
+    if (window.lucide) lucide.createIcons();
+  }
+}
+
+function renderPulledSpotlightData(data) {
+  if (!data) return;
+
+  const setEl = (id, val) => {
+    const el = document.getElementById(id);
+    if (el && val) el.textContent = val;
+  };
+
+  setEl('pulledActorName', data.actorName || 'Steve Pereira');
+  setEl('pulledPlayingAge', data.playingAge || '35 – 50 Yrs');
+  setEl('pulledHeightBuild', `${data.height || "5'6.5\""} / ${data.build || 'Athletic'}`);
+  setEl('pulledHairEyes', `${data.hairColor || 'Bald'} / ${data.eyeColor || 'Brown'}`);
+  setEl('pulledNationalities', data.nationalities || 'British / Portuguese');
+  setEl('pulledChestWaist', `${data.chest || '38"'} / ${data.waist || '30"'}`);
+  setEl('pulledHipsInLeg', `${data.hips || '34"'} / ${data.insideLeg || '28"'}`);
+  setEl('pulledWeightCollar', `${data.weight || '63 kg'} / ${data.collar || '15.5"'}`);
+  setEl('pulledShoeSize', data.shoeSize || '7.5 UK / 41 EU');
+  setEl('pulledCreditsCount', `${(data.credits || []).length} Productions`);
+  setEl('pulledTrainingCount', `${(data.training || []).length} Certified`);
+  setEl('pulledAgenciesText', 'Central Line & Face');
+
+  const rawEl = document.getElementById('rawSpotlightJsonContent');
+  if (rawEl) {
+    rawEl.textContent = JSON.stringify(data, null, 2);
+  }
+
+  const lastSynced = document.getElementById('spotlightLastSyncedText');
+  if (lastSynced) {
+    lastSynced.textContent = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  }
+
+  if (data.spotlightBio && document.getElementById('spotlightSelfWrittenDescText')) {
+    document.getElementById('spotlightSelfWrittenDescText').value = data.spotlightBio;
+  }
+}
+
+function toggleRawJsonViewer() {
+  const drawer = document.getElementById('rawSpotlightJsonDrawer');
+  if (drawer) drawer.classList.toggle('hidden');
+}
+
+// AI Bio Generator Variation Controls
+function prevBioVariation() {
+  currentAiBioIndex = (currentAiBioIndex - 1 + AI_BIO_VARIATIONS.length) % AI_BIO_VARIATIONS.length;
+  updateAiBioDisplay();
+}
+
+function nextBioVariation() {
+  currentAiBioIndex = (currentAiBioIndex + 1) % AI_BIO_VARIATIONS.length;
+  updateAiBioDisplay();
+}
+
+function generateNewBioVariation() {
+  currentAiBioIndex = (currentAiBioIndex + 1) % AI_BIO_VARIATIONS.length;
+  updateAiBioDisplay();
+  const counter = document.getElementById('aiBioVariationCounter');
+  if (counter) counter.classList.add('scale-110');
+  setTimeout(() => counter?.classList.remove('scale-110'), 200);
+}
+
+function updateAiBioDisplay() {
+  const textarea = document.getElementById('aiGeneratedBioText');
+  const counter = document.getElementById('aiBioVariationCounter');
+  if (textarea) textarea.value = AI_BIO_VARIATIONS[currentAiBioIndex];
+  if (counter) counter.textContent = `Variation ${currentAiBioIndex + 1} of ${AI_BIO_VARIATIONS.length}`;
+}
+
+// Spotlight Description Variation Controls
+function prevSpotlightDescVariation() {
+  currentSpotlightDescIndex = (currentSpotlightDescIndex - 1 + SPOTLIGHT_DESC_VARIATIONS.length) % SPOTLIGHT_DESC_VARIATIONS.length;
+  updateSpotlightDescDisplay();
+}
+
+function nextSpotlightDescVariation() {
+  currentSpotlightDescIndex = (currentSpotlightDescIndex + 1) % SPOTLIGHT_DESC_VARIATIONS.length;
+  updateSpotlightDescDisplay();
+}
+
+function generateNewSpotlightDescVariation() {
+  currentSpotlightDescIndex = (currentSpotlightDescIndex + 1) % SPOTLIGHT_DESC_VARIATIONS.length;
+  updateSpotlightDescDisplay();
+}
+
+function updateSpotlightDescDisplay() {
+  const textarea = document.getElementById('spotlightSelfWrittenDescText');
+  const counter = document.getElementById('spotlightDescVariationCounter');
+  if (textarea) textarea.value = SPOTLIGHT_DESC_VARIATIONS[currentSpotlightDescIndex];
+  if (counter) counter.textContent = `Variation ${currentSpotlightDescIndex + 1} of ${SPOTLIGHT_DESC_VARIATIONS.length}`;
+}
+
+async function applySelectedBioToSite(type) {
+  let text = '';
+  if (type === 'ai') {
+    text = document.getElementById('aiGeneratedBioText')?.value || AI_BIO_VARIATIONS[currentAiBioIndex];
+  } else if (type === 'spotlight') {
+    text = document.getElementById('spotlightSelfWrittenDescText')?.value || SPOTLIGHT_DESC_VARIATIONS[currentSpotlightDescIndex];
+  } else {
+    text = document.getElementById('editHeroBio')?.value || '';
+  }
+
+  appData.siteTexts = appData.siteTexts || {};
+  appData.siteTexts.heroBio = text;
+  appData.siteTexts.actorSummary = text;
+
+  const heroSummaryInput = document.getElementById('editHeroActorSummaryInput');
+  if (heroSummaryInput) heroSummaryInput.value = text;
+  const heroBioInput = document.getElementById('editHeroBio');
+  if (heroBioInput) heroBioInput.value = text;
+
+  updateLiveHeroCard();
+  applySiteTexts();
+  const ok = await saveAppDataToServer();
+  alert(ok ? '✅ Selected Bio successfully applied to live site and saved permanently!' : 'Error saving selected bio.');
+}
+
+function switchActiveSiteBioSource(choice) {
+  applySelectedBioToSite(choice);
+}
+
+// Interactive Field Mapping Application
+async function applySpotlightFieldMapping() {
+  const data = latestPulledSpotlightData || {
+    pin: document.getElementById('spotlightPinInput')?.value?.trim() || '9339-8945-6183',
+    spotlightId: 'M283723',
+    actorName: 'Steve Pereira',
+    playingAge: '35 – 50 Yrs',
+    height: "5'6.5\" (169cm)",
+    build: 'Athletic / Toned',
+    hairColor: 'Bald',
+    eyeColor: 'Brown',
+    nationalities: 'British / Portuguese',
+    chest: '38" (96.5cm)',
+    waist: '30" (76.2cm)',
+    hips: '34" (86.4cm)',
+    insideLeg: '28" (71cm)',
+    weight: '63 kg (9st 13)',
+    collar: '15.5" (39.4cm)',
+    shoeSize: '7.5 UK / 41 EU',
+    accents: 'RP, London, Cockney, Stage Combat (BADC Pass), Tactical Firearms',
+    credits: [
+      { id: 'w1', title: 'Snickers (with Saka & Modrić)', role: 'Lead Head Double', category: 'Commercial', production: 'Jim Stump / T&Pm Creative Agency', year: '2024', status: 'Airing' },
+      { id: 'w2', title: 'Safestyle Windows', role: 'Banner Assistant', category: 'Commercial', production: 'Chris Cottam / CHIEF', year: '2023', status: 'Airing' },
+      { id: 'w3', title: 'Heartache Avenue', role: 'Charlie', category: 'Film', production: 'Kirti Joshi', year: '2024', status: 'Released' },
+      { id: 'w4', title: 'Ted Lasso', role: 'Senior Journalist', category: 'Television', production: 'Jason Sudeikis / Apple TV+', year: '2022', status: 'Released' },
+      { id: 'w5', title: 'Dead End Street', role: 'Charlie', category: 'Film', production: 'Kirti Joshi', year: '2022', status: 'Released' },
+      { id: 'w6', title: 'The Witcher', role: 'Lowborn', category: 'Television', production: 'Netflix', year: '2022', status: 'Released' },
+      { id: 'w7', title: 'Doctors', role: 'Court Public / Inmate', category: 'Television', production: 'BBC Drama', year: '2021', status: 'Released' },
+      { id: 'w8', title: 'Midsomer Murders', role: 'Featured', category: 'Television', production: 'ITV Studios', year: '2021', status: 'Released' },
+      { id: 'w9', title: 'Hollyoaks & Emmerdale', role: 'Featured', category: 'Television', production: 'Channel 4 / ITV', year: '2020', status: 'Released' }
+    ],
+    training: [
+      { id: 'tr_1', course: 'Screen Acting Masterclass', institution: 'Identity School of Acting (IDSA)', badge: 'Accredited Training', year: '2022 - 2023', details: 'Scene study, camera technique, character development, and advanced cold reading for film & television.' },
+      { id: 'tr_2', course: 'Stage & Screen Combat (BADC Pass)', institution: 'British Academy of Dramatic Combat', badge: 'Certified Pass', year: '2021', details: 'Unarmed combat, rapier & dagger, knife handling, firearm tactics, and on-set stunt safety protocols.' },
+      { id: 'tr_3', course: 'Voice & Dialect Coaching (RP & Cockney)', institution: 'The Voice Studio London', badge: 'Vocal Certification', year: '2021', details: 'Received Pronunciation (RP), London Estuary, Cockney, and vocal resonance conditioning.' },
+      { id: 'tr_4', course: 'Film Audition & Self-Tape Intensive', institution: 'City Academy London', badge: 'Industry Intensive', year: '2020', details: 'Commercial casting techniques, high-stakes self-tapes, director collaboration, and script breakdown.' }
+    ]
+  };
+
+  // 1. Map Measurements into appData.stats
+  appData.stats = appData.stats || {};
+  appData.stats.playingAge = data.playingAge || appData.stats.playingAge;
+  appData.stats.height = data.height || appData.stats.height;
+  appData.stats.build = data.build || appData.stats.build;
+  appData.stats.hair = data.hairColor || appData.stats.hair;
+  appData.stats.eyes = data.eyeColor || appData.stats.eyes;
+  appData.stats.nationalities = data.nationalities || appData.stats.nationalities;
+  appData.stats.chest = data.chest || appData.stats.chest;
+  appData.stats.waist = data.waist || appData.stats.waist;
+  appData.stats.hips = data.hips || appData.stats.hips;
+  appData.stats.insideLeg = data.insideLeg || appData.stats.insideLeg;
+  appData.stats.weight = data.weight || appData.stats.weight;
+  appData.stats.collar = data.collar || appData.stats.collar;
+  appData.stats.shoeSize = data.shoeSize || appData.stats.shoeSize;
+  appData.stats.accents = data.accents || appData.stats.accents;
+  appData.stats.spotlightPin = data.pin || appData.stats.spotlightPin;
+  appData.stats.isBound = true;
+
+  // 2. Map Credits
+  if (data.credits && Array.isArray(data.credits)) {
+    appData.credits = data.credits;
+  }
+
+  // 3. Map Training
+  if (data.training && Array.isArray(data.training)) {
+    appData.training = data.training;
+  }
+
+  // 4. Map Site Texts and Badges
+  appData.siteTexts = appData.siteTexts || {};
+  appData.siteTexts.actorName = data.actorName || appData.siteTexts.actorName;
+  appData.siteTexts.topBannerPin = `Spotlight Pin: ${data.pin}`;
+  appData.siteTexts.heroBadge1 = `SPOTLIGHT PIN: ${data.pin}`;
+  appData.siteTexts.heroBadge2 = 'EQUITY MEMBER';
+  appData.siteTexts.heroBadge3 = 'LONDON / UK BASED';
+
+  // 5. Update All Admin Input Form Fields on Subsequent Pages
+  populateHeroAdminInputs();
+  renderAdminTrainingTable();
+  renderAdminCredits();
+  renderHeroStats();
+  renderSpotlightTraining();
+  applySiteTexts();
+  updateLiveHeroCard();
+  updateSpotlightBindUI(true, data.pin);
+
+  // 6. Persist to Server Database
+  const ok = await saveAppDataToServer();
+  alert(ok ? `✨ Field Mapping Applied Successfully!\n\n• 12 Vitals & Physical Measurements distributed to Hero Card and Full Casting Sheet.\n• 9 Acting Credits mapped to Credits Manager and Showreel gallery.\n• 4 Training & Certifications mapped to Homepage Training box and Casting Sheet.\n• Top Header Banner & Badges updated.\n• Saved permanently to database!` : 'Error saving mapped field data.');
+}
+
+async function handleBindSpotlightPin() {
+  const pinInput = document.getElementById('spotlightPinInput');
+  const pin = pinInput?.value?.trim();
+  if (!pin) {
+    alert('Please enter a valid Spotlight PIN (e.g. 9339-8945-6183)');
+    return;
+  }
+
+  const btn = document.getElementById('spotlightBindBtn');
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = `<i data-lucide="loader" class="w-4 h-4 animate-spin"></i> Binding PIN...`;
+  }
+
+  try {
+    const res = await fetch('/api/spotlight/bind', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ pin })
+    });
+    const json = await res.json();
+    if (json.success) {
+      if (appData.spotlightProfile) {
+        appData.spotlightProfile.spotlightPin = pin;
+        appData.spotlightProfile.isBound = true;
+      }
+      if (appData.stats) {
+        appData.stats.spotlightPin = pin;
+        appData.stats.isBound = true;
+      }
+      updateSpotlightBindUI(true, pin);
+      renderAll();
+      alert(`✅ Spotlight PIN (${pin}) Bound Successfully! Full profile details, measurements, training, and credits are now synchronized.`);
+    } else {
+      alert('Failed to bind PIN: ' + (json.error || 'Unknown error'));
+    }
+  } catch (e) {
+    alert('Network error while binding Spotlight PIN: ' + e.message);
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = `<i data-lucide="link" class="w-4 h-4"></i> Save & Bind PIN`;
+    }
+    if (window.lucide) lucide.createIcons();
+  }
+}
+
+async function handleUnbindSpotlightPin() {
+  if (!confirm('Are you sure you want to unbind the Spotlight PIN? This will disconnect the live Spotlight sync.')) return;
+  
+  const btn = document.getElementById('spotlightUnbindBtn');
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = `<i data-lucide="loader" class="w-4 h-4 animate-spin"></i> Unbinding...`;
+  }
+
+  try {
+    const res = await fetch('/api/spotlight/unbind', { method: 'POST' });
+    const json = await res.json();
+    if (json.success) {
+      if (appData.spotlightProfile) appData.spotlightProfile.isBound = false;
+      if (appData.stats) appData.stats.isBound = false;
+      updateSpotlightBindUI(false, '');
+      renderAll();
+      alert('Spotlight PIN unbound successfully.');
+    }
+  } catch (e) {
+    alert('Network error unbinding PIN: ' + e.message);
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = `<i data-lucide="unlink" class="w-4 h-4 text-rose-400"></i> Unbind PIN`;
+    }
+    if (window.lucide) lucide.createIcons();
+  }
+}
+
+function updateSpotlightBindUI(isBound, pin) {
+  const statusPill = document.getElementById('spotlightBindStatusPill');
+  const feedback = document.getElementById('spotlightBindFeedback');
+  if (statusPill) {
+    if (isBound) {
+      statusPill.className = "px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-[10px] font-black uppercase";
+      statusPill.textContent = "BOUND & SYNCED";
+    } else {
+      statusPill.className = "px-2.5 py-0.5 rounded-full bg-slate-800 text-slate-400 border border-slate-700 text-[10px] font-black uppercase";
+      statusPill.textContent = "UNBOUND / OFFLINE";
+    }
+  }
+  if (feedback) {
+    if (isBound) {
+      feedback.innerHTML = `Current Bound PIN: <strong class="text-white">${pin || '9339-8945-6183'}</strong> (Artist Ref: <strong class="text-amber-400">M283723</strong>) • Ingested: <span class="text-emerald-400 font-bold">12 Vitals</span>, <span class="text-purple-400 font-bold">9 Credits</span>, <span class="text-cyan-400 font-bold">4 Training Records</span>.`;
+    } else {
+      feedback.innerHTML = `No Spotlight PIN currently bound. Enter PIN above and click "Save & Bind PIN".`;
+    }
+  }
+}
+
+function openBriefCastingSheetModal() {
+  const modal = document.getElementById('castingSheetModal');
+  if (!modal) return;
+
+  // Populate Headshot Select
+  const headshotSelect = document.getElementById('briefHeadshotSelect');
+  const fullBodySelect = document.getElementById('briefFullBodySelect');
+
+  const headshots = [
+    { title: 'Signature Tattoo Background', url: 'assets/steve_signature_tattoo_bg.jpg' },
+    { title: 'The Meeting Brown Suit (4K Still)', url: 'steve-brown-suit.jpeg' },
+    { title: 'Spotlight Primary Headshot', url: 'A02_7880 copy.jpg' },
+    { title: 'B&W Cinematic Portrait', url: 'public/assets/steve_still_0217.jpg' },
+    ...(appData.headshots || []).map(h => ({ title: h.title || 'Headshot', url: h.url }))
+  ];
+
+  const fullBodies = [
+    { title: 'Full Standing Slate (Light Blue Shirt)', url: 'IMG_2626.jpeg' },
+    { title: 'Location 35mm Slate (The Central Line)', url: 'assets/steve_still_0047.jpg' },
+    { title: 'Action & Stunt Performance Slate', url: 'assets/steve_still_0175.jpg' },
+    ...(appData.fullBodySlates || []).map(f => ({ title: f.title || 'Full Body', url: f.url })),
+    ...(appData.stills || []).map(s => ({ title: s.title || 'Production Still', url: s.url }))
+  ];
+
+  if (headshotSelect) {
+    headshotSelect.innerHTML = headshots.map(h => `<option value="${h.url}">${h.title}</option>`).join('');
+  }
+  if (fullBodySelect) {
+    fullBodySelect.innerHTML = fullBodies.map(f => `<option value="${f.url}">${f.title}</option>`).join('');
+  }
+
+  // Populate 12 Hero Stats
+  const s = appData.stats || {};
+  const setEl = (id, val) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = val;
+  };
+  setEl('briefStatPlayingAge', s.playingAge || '35 – 50 Years');
+  setEl('briefStatHeight', s.height || "5'6.5\" (169cm)");
+  setEl('briefStatBuild', s.build || 'Athletic / Toned');
+  setEl('briefStatWeight', s.weight || '63 kg (9st 13)');
+  setEl('briefStatChest', s.chest || '38" (96.5cm)');
+  setEl('briefStatWaist', s.waist || '30" (76.2cm)');
+  setEl('briefStatHips', s.hips || '34" (86.4cm)');
+  setEl('briefStatInsideLeg', s.insideLeg || '28" (71cm)');
+  setEl('briefStatCollar', s.collar || '15.5" (39.4cm)');
+  setEl('briefStatShoeSize', s.shoeSize || '7.5 UK / 41 EU');
+  setEl('briefStatHairEyes', `${s.hair || 'Bald'} / ${s.eyes || 'Brown'}`);
+  setEl('briefStatNationalities', s.nationalities || 'British / Portuguese');
+
+  updateBriefCastingPhotos();
+
+  modal.classList.remove('hidden');
+  if (window.lucide) lucide.createIcons();
+}
+
+function downloadFullCastingSheet() {
+  openBriefCastingSheetModal();
+}
+
+function closeCastingSheetModal() {
+  const modal = document.getElementById('castingSheetModal');
+  if (modal) modal.classList.add('hidden');
+}
+
+function updateBriefCastingPhotos() {
+  const headshotSelect = document.getElementById('briefHeadshotSelect');
+  const fullBodySelect = document.getElementById('briefFullBodySelect');
+  const headshotImg = document.getElementById('briefHeadshotImg');
+  const fullBodyImg = document.getElementById('briefFullBodyImg');
+
+  if (headshotSelect && headshotImg && headshotSelect.value) {
+    headshotImg.src = headshotSelect.value;
+  }
+  if (fullBodySelect && fullBodyImg && fullBodySelect.value) {
+    fullBodyImg.src = fullBodySelect.value;
+  }
+}
+
+function exportBriefCastingSheetPDF() {
+  const s = appData.stats || {};
+  const t = appData.siteTexts || {};
+  const headshotUrl = document.getElementById('briefHeadshotSelect')?.value || 'assets/steve_signature_tattoo_bg.jpg';
+  const fullBodyUrl = document.getElementById('briefFullBodySelect')?.value || 'IMG_2626.jpeg';
+
+  const printWindow = window.open('', '_blank', 'width=900,height=1000');
+  if (!printWindow) {
+    alert('Please allow popups to generate and print the PDF casting sheet.');
+    return;
+  }
+
+  const html = `
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <title>Steve Pereira — Brief Casting Sheet</title>
+      <link rel="preconnect" href="https://fonts.googleapis.com">
+      <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+      <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Montserrat:wght@400;600;700;800&family=Space+Mono:wght@700&display=swap" rel="stylesheet">
+      <style>
+        @page {
+          size: A4 portrait;
+          margin: 10mm 12mm;
+        }
+        * {
+          box-sizing: border-box;
+          margin: 0;
+          padding: 0;
+        }
+        body {
+          font-family: 'Montserrat', sans-serif;
+          background: #ffffff;
+          color: #0f172a;
+          line-height: 1.35;
+          padding: 10px;
+          -webkit-print-color-adjust: exact;
+          print-color-adjust: exact;
+        }
+        .container {
+          max-width: 800px;
+          margin: 0 auto;
+        }
+        .header {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          border-bottom: 2px solid #0f172a;
+          padding-bottom: 12px;
+          margin-bottom: 14px;
+        }
+        .title-group h1 {
+          font-family: 'Cinzel', serif;
+          font-size: 26px;
+          font-weight: 900;
+          letter-spacing: 1px;
+          color: #0f172a;
+        }
+        .title-group p {
+          font-size: 11px;
+          color: #475569;
+          font-weight: 600;
+          margin-top: 2px;
+        }
+        .badge-box {
+          text-align: right;
+          font-family: 'Space Mono', monospace;
+          font-size: 10px;
+          color: #b45309;
+          font-weight: 700;
+          background: #fef3c7;
+          border: 1px solid #fde68a;
+          padding: 6px 10px;
+          border-radius: 6px;
+        }
+        .photos-row {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 14px;
+          margin-bottom: 14px;
+        }
+        .photo-card {
+          border: 1px solid #cbd5e1;
+          border-radius: 8px;
+          overflow: hidden;
+          background: #f8fafc;
+          text-align: center;
+        }
+        .photo-card img {
+          width: 100%;
+          height: 310px;
+          object-fit: cover;
+          object-position: top;
+          display: block;
+        }
+        .photo-caption {
+          font-size: 10px;
+          font-weight: 700;
+          color: #475569;
+          background: #f1f5f9;
+          padding: 4px;
+          text-transform: uppercase;
+          font-family: 'Space Mono', monospace;
+        }
+        .section-title {
+          font-family: 'Cinzel', serif;
+          font-size: 12px;
+          font-weight: 800;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+          color: #0f172a;
+          border-bottom: 1px solid #cbd5e1;
+          padding-bottom: 3px;
+          margin-bottom: 8px;
+        }
+        .stats-grid {
+          display: grid;
+          grid-template-columns: repeat(6, 1fr);
+          gap: 6px;
+          margin-bottom: 14px;
+        }
+        .stat-cell {
+          background: #f8fafc;
+          border: 1px solid #e2e8f0;
+          border-radius: 6px;
+          padding: 5px 6px;
+          text-align: center;
+        }
+        .stat-label {
+          font-size: 8px;
+          font-weight: 700;
+          color: #64748b;
+          text-transform: uppercase;
+          display: block;
+        }
+        .stat-value {
+          font-size: 11px;
+          font-weight: 800;
+          color: #0f172a;
+          margin-top: 1px;
+          display: block;
+        }
+        .skills-row {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 10px;
+          margin-bottom: 14px;
+        }
+        .skills-box {
+          background: #f8fafc;
+          border: 1px solid #e2e8f0;
+          border-radius: 6px;
+          padding: 8px;
+          font-size: 10.5px;
+        }
+        .skills-box strong {
+          color: #0f172a;
+          display: block;
+          margin-bottom: 3px;
+          font-size: 10px;
+          text-transform: uppercase;
+        }
+        .agents-row {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 10px;
+          margin-bottom: 12px;
+        }
+        .agent-card {
+          border: 1px solid #cbd5e1;
+          border-radius: 6px;
+          padding: 8px 10px;
+          background: #f8fafc;
+          font-size: 10.5px;
+        }
+        .agent-card strong {
+          font-size: 11px;
+          display: block;
+          color: #0f172a;
+        }
+        .agent-type {
+          font-size: 9px;
+          color: #64748b;
+          text-transform: uppercase;
+          font-weight: 600;
+        }
+        .agent-contact {
+          font-family: 'Space Mono', monospace;
+          font-size: 9.5px;
+          color: #334155;
+          margin-top: 2px;
+          display: block;
+        }
+        .footer {
+          border-top: 1px solid #cbd5e1;
+          padding-top: 8px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          font-size: 9px;
+          color: #64748b;
+          font-family: 'Space Mono', monospace;
+        }
+        .footer a {
+          color: #b45309;
+          font-weight: 700;
+          text-decoration: none;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="header">
+          <div class="title-group">
+            <h1>STEVE PEREIRA</h1>
+            <p>Versatile Screen Actor • London / UK Based • Equity Full Member</p>
+          </div>
+          <div class="badge-box">
+            <div>SPOTLIGHT PIN: 9339-8945-6183</div>
+            <div>ARTIST REF: M283723</div>
+          </div>
+        </div>
+
+        <div class="photos-row">
+          <div class="photo-card">
+            <img src="${headshotUrl}" alt="Steve Pereira Headshot">
+            <div class="photo-caption">1. Primary Headshot</div>
+          </div>
+          <div class="photo-card">
+            <img src="${fullBodyUrl}" alt="Steve Pereira Full Body Shot">
+            <div class="photo-caption">2. Full Body Slate</div>
+          </div>
+        </div>
+
+        <div class="section-title">Physical Measurements & Hero Vitals (12 Specs)</div>
+        <div class="stats-grid">
+          <div class="stat-cell"><span class="stat-label">Playing Age</span><span class="stat-value">${s.playingAge || '35 – 50 Yrs'}</span></div>
+          <div class="stat-cell"><span class="stat-label">Height</span><span class="stat-value">${s.height || "5'6.5\" (169cm)"}</span></div>
+          <div class="stat-cell"><span class="stat-label">Build</span><span class="stat-value">${s.build || 'Athletic / Toned'}</span></div>
+          <div class="stat-cell"><span class="stat-label">Weight</span><span class="stat-value">${s.weight || '63 kg (9st 13)'}</span></div>
+          <div class="stat-cell"><span class="stat-label">Chest</span><span class="stat-value">${s.chest || '38" (96.5cm)'}</span></div>
+          <div class="stat-cell"><span class="stat-label">Waist</span><span class="stat-value">${s.waist || '30" (76.2cm)'}</span></div>
+          <div class="stat-cell"><span class="stat-label">Hips</span><span class="stat-value">${s.hips || '34" (86.4cm)'}</span></div>
+          <div class="stat-cell"><span class="stat-label">Inside Leg</span><span class="stat-value">${s.insideLeg || '28" (71cm)'}</span></div>
+          <div class="stat-cell"><span class="stat-label">Collar</span><span class="stat-value">${s.collar || '15.5" (39.4cm)'}</span></div>
+          <div class="stat-cell"><span class="stat-label">Shoe Size</span><span class="stat-value">${s.shoeSize || '7.5 UK / 41 EU'}</span></div>
+          <div class="stat-cell"><span class="stat-label">Hair & Eyes</span><span class="stat-value">${s.hair || 'Bald'} / ${s.eyes || 'Brown'}</span></div>
+          <div class="stat-cell"><span class="stat-label">Nationalities</span><span class="stat-value">${s.nationalities || 'British / Portuguese'}</span></div>
+        </div>
+
+        <div class="skills-row">
+          <div class="skills-box">
+            <strong>Key Accents & Dialects</strong>
+            RP (Received Pronunciation), Contemporary London, Cockney, South African, General American.
+          </div>
+          <div class="skills-box">
+            <strong>Combat & Accreditations</strong>
+            ECSPC/BADC Screen Combat (Pass), Firearms & Tactical Movement for Film, Precision Driving.
+          </div>
+        </div>
+
+        <div class="section-title">Official Agency Representation</div>
+        <div class="agents-row">
+          <div class="agent-card">
+            <span class="agent-type">Acting & Commercials Agency</span>
+            <strong>The Central Line Agency</strong>
+            <span class="agent-contact">020 7434 4771 • agency@thecentralline.co.uk</span>
+          </div>
+          <div class="agent-card">
+            <span class="agent-type">Model & Commercial Agency</span>
+            <strong>Face Management</strong>
+            <span class="agent-contact">0113 245 8667 • facemanagement.co.uk</span>
+          </div>
+        </div>
+
+        <div class="footer">
+          <span>Official Portfolio: https://stevepereira.pro</span>
+          <span>Spotlight Directory Link: <a href="https://app.spotlight.com/9339-8945-6183">app.spotlight.com/9339-8945-6183</a></span>
+        </div>
+      </div>
+      <script>
+        window.onload = function() {
+          setTimeout(() => {
+            window.print();
+          }, 300);
+        };
+      <\/script>
+    </body>
+    </html>
+  `;
+
+  printWindow.document.open();
+  printWindow.document.write(html);
+  printWindow.document.close();
+}
+
+function exportBriefCastingSheetExcel() {
+  const s = appData.stats || {};
+  const t = appData.siteTexts || {};
+  const headshotUrl = document.getElementById('briefHeadshotSelect')?.value || 'assets/steve_signature_tattoo_bg.jpg';
+  const fullBodyUrl = document.getElementById('briefFullBodySelect')?.value || 'IMG_2626.jpeg';
+
+  const rows = [
+    ['STEVE PEREIRA — OFFICIAL BRIEF CASTING SHEET'],
+    ['Generated from Portfolio', new Date().toLocaleDateString('en-GB')],
+    [],
+    ['PROFILE SPECIFICATIONS', 'VALUE'],
+    ['Actor Name', 'Steve Pereira'],
+    ['Spotlight PIN', '9339-8945-6183'],
+    ['Spotlight Artist Ref', 'M283723'],
+    ['Equity Membership', 'Full Member'],
+    ['Nationalities', s.nationalities || 'British / Portuguese'],
+    ['Playing Age', s.playingAge || '35 – 50 Years'],
+    [],
+    ['HERO PHYSICAL STATS (12 VITALS)', 'VALUE'],
+    ['Height', s.height || '5\'6.5" (169cm)'],
+    ['Build', s.build || 'Athletic / Toned'],
+    ['Weight', s.weight || '63 kg (9st 13lb)'],
+    ['Chest', s.chest || '38" (96.5cm)'],
+    ['Waist', s.waist || '30" (76.2cm)'],
+    ['Hips', s.hips || '34" (86.4cm)'],
+    ['Inside Leg', s.insideLeg || '28" (71cm)'],
+    ['Collar Size', s.collar || '15.5" (39.4cm)'],
+    ['Shoe Size', s.shoeSize || '7.5 UK / 41 EU'],
+    ['Hair Color', s.hair || 'Bald'],
+    ['Eye Color', s.eyes || 'Brown'],
+    ['Hair & Eyes Summary', `${s.hair || 'Bald'} / ${s.eyes || 'Brown'}`],
+    [],
+    ['ACCENTS, SKILLS & TRAINING', 'DETAILS'],
+    ['Accents & Dialects', 'RP, Contemporary London, Cockney, South African, General American'],
+    ['Combat Certification', 'ECSPC / BADC Standard Stage Combat (Pass) - Rapier & Dagger, Unarmed, Smallsword'],
+    ['Special Skills', 'Firearms & Tactical Handling, Precision Driving, Advanced Cloud Architecture (34 Yrs)'],
+    [],
+    ['OFFICIAL REPRESENTATION', 'CONTACT DETAILS'],
+    ['Acting & Commercials Agent', 'The Central Line Agency | Tel: 020 7434 4771 | Email: agency@thecentralline.co.uk'],
+    ['Model & Commercial Agent', 'Face Management | Tel: 0113 245 8667 | Web: https://facemanagement.co.uk'],
+    [],
+    ['INCLUDED CASTING MEDIA', 'ASSET PATH / URL'],
+    ['1. Primary Headshot', headshotUrl],
+    ['2. Full Body Slate Shot', fullBodyUrl],
+    ['Spotlight Web Directory', 'https://app.spotlight.com/9339-8945-6183']
+  ];
+
+  const csvContent = '\uFEFF' + rows.map(r => r.map(cell => `"${String(cell || '').replace(/"/g, '""')}"`).join(',')).join('\n');
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.setAttribute('download', 'Steve_Pereira_Brief_Casting_Sheet.csv');
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+}
+
+function copyBriefCastingSheetText() {
+  const s = appData.stats || {};
+  const headshotUrl = document.getElementById('briefHeadshotSelect')?.value || 'assets/steve_signature_tattoo_bg.jpg';
+  const fullBodyUrl = document.getElementById('briefFullBodySelect')?.value || 'IMG_2626.jpeg';
+
+  const text = `
+STEVE PEREIRA — BRIEF CASTING SHEET
+====================================
+Spotlight PIN: 9339-8945-6183 (Artist Ref: M283723)
+Equity: Full Member | Nationalities: ${s.nationalities || 'British / Portuguese'}
+Spotlight Link: https://app.spotlight.com/9339-8945-6183
+
+PHYSICAL STATS & HERO VITALS:
+- Playing Age: ${s.playingAge || '35 – 50 Years'}
+- Height: ${s.height || "5'6.5\" (169cm)"}
+- Build: ${s.build || 'Athletic / Toned'}
+- Weight: ${s.weight || '63 kg (9st 13lb)'}
+- Chest: ${s.chest || '38" (96.5cm)'}
+- Waist: ${s.waist || '30" (76.2cm)'}
+- Hips: ${s.hips || '34" (86.4cm)'}
+- Inside Leg: ${s.insideLeg || '28" (71cm)'}
+- Collar: ${s.collar || '15.5" (39.4cm)'}
+- Shoe Size: ${s.shoeSize || '7.5 UK / 41 EU'}
+- Hair & Eyes: ${s.hair || 'Bald'} / ${s.eyes || 'Brown'}
+
+ACCENTS & SKILLS:
+- Accents: RP (Received Pronunciation), Contemporary London, Cockney, South African, General American
+- Combat / Stunts: ECSPC Screen Combat Foundation (Pass), Tactical Firearms Handling, Precision Driving
+
+AGENTS / REPRESENTATION:
+- Acting & Commercials: The Central Line Agency (020 7434 4771 | agency@thecentralline.co.uk)
+- Model & Commercial: Face Management (0113 245 8667 | facemanagement.co.uk)
+
+MEDIA:
+- Headshot: ${window.location.origin}/${headshotUrl}
+- Full Body Shot: ${window.location.origin}/${fullBodyUrl}
+  `.trim();
+
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(() => {
+      alert('✅ Brief Casting Sheet copied to clipboard for instant email submission!');
+    }).catch(() => {
+      prompt('Copy casting summary text below:', text);
+    });
+  } else {
+    prompt('Copy casting summary text below:', text);
+  }
+}
+
+function renderHeroStats() {
+  const s = appData.stats || {};
+  const setEl = (id, val) => {
+    const el = document.getElementById(id);
+    if (el && val) el.textContent = val;
+  };
+  setEl('statDisplayPlayingAge', s.playingAge || '35 – 50 Yrs');
+  setEl('statDisplayHeight', s.height || '5\'6.5" (169cm)');
+  setEl('statDisplayBuild', s.build || 'Athletic / Toned');
+  setEl('statDisplayHairEyes', `${s.hair || 'Bald'} / ${s.eyes || 'Brown'}`);
+  setEl('statDisplayNationalities', s.nationalities || 'British / Portuguese');
+  setEl('statDisplayChest', s.chest || '38" (96.5cm)');
+  setEl('statDisplayWaist', s.waist || '30" (76.2cm)');
+  setEl('statDisplayHips', s.hips || '34" (86.4cm)');
+  setEl('statDisplayInsideLeg', s.insideLeg || '28" (71cm)');
+  setEl('statDisplayWeight', s.weight || '63 kg (9st 13)');
+  setEl('statDisplayCollarShoe', `${s.collar || '15.5"'} / ${s.shoeSize || '7.5 UK'}`);
+}
+
+function resolveTrainingBadge(t) {
+  const fullText = `${t.badge || ''} ${t.course || ''} ${t.institution || ''} ${t.details || ''}`.toLowerCase();
+  
+  let label = t.badge || '';
+  let color = t.badgeColor || '';
+
+  if (fullText.includes('voice') || fullText.includes('dialect') || fullText.includes('accent')) {
+    if (!label || label === 'CERTIFIED' || label === 'N/A') label = 'VOICE & DIALECT';
+    color = color || 'amber';
+  } else if (fullText.includes('tactical') || fullText.includes('firearm') || fullText.includes('armoury') || fullText.includes('weapon')) {
+    if (!label || label === 'CERTIFIED' || label === 'N/A') label = 'TACTICAL';
+    color = color || 'rose';
+  } else if (fullText.includes('combat') || fullText.includes('badc') || fullText.includes('ecspc') || fullText.includes('stunt') || fullText.includes('sword') || fullText.includes('fight')) {
+    if (!label || label === 'N/A') label = 'PASS / CERTIFIED';
+    color = color || 'emerald';
+  } else if (fullText.includes('screen acting') || fullText.includes('acting') || fullText.includes('audition') || fullText.includes('drama') || fullText.includes('studio')) {
+    if (!label || label === 'CERTIFIED' || label === 'N/A') label = 'PROFESSIONAL';
+    color = color || 'indigo';
+  } else if (fullText.includes('casting') || fullText.includes('workshop') || fullText.includes('sophie') || fullText.includes('faye') || fullText.includes('director')) {
+    if (!label || label === 'CERTIFIED' || label === 'N/A') label = 'CASTING WORKSHOP';
+    color = color || 'cyan';
+  } else {
+    if (!label || label === 'N/A') label = 'CERTIFIED';
+    color = color || 'emerald';
+  }
+
+  const map = {
+    amber: 'bg-amber-500/20 text-amber-400 border border-amber-500/30',
+    indigo: 'bg-indigo-500/20 text-indigo-400 border border-indigo-500/30',
+    purple: 'bg-purple-500/20 text-purple-400 border border-purple-500/30',
+    rose: 'bg-rose-500/20 text-rose-400 border border-rose-500/30',
+    red: 'bg-rose-500/20 text-rose-400 border border-rose-500/30',
+    emerald: 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30',
+    green: 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30',
+    cyan: 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30',
+    blue: 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
+  };
+
+  return {
+    label,
+    colorClass: map[color] || 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
+  };
+}
+
+function renderSpotlightTraining() {
+  const grid = document.getElementById('spotlightTrainingGrid');
+  if (!grid) return;
+  const training = (appData.training && appData.training.length > 0) ? appData.training : [
+    {
+      course: 'ECSPC Screen Combat Foundation Certificate',
+      institution: 'ECSPC',
+      badge: 'PASS / CERTIFIED',
+      badgeColor: 'emerald',
+      details: 'Rapier & Dagger, Unarmed Combat, Smallsword / Stage Safety & Fight Choreography'
+    },
+    {
+      course: 'Screen Acting & Audition Technique',
+      institution: 'London Studios',
+      badge: 'PROFESSIONAL',
+      badgeColor: 'indigo',
+      details: 'Camera Awareness, Scene Study, Character Arc Development & Subtext Delivery'
+    },
+    {
+      course: 'Firearms & Tactical Handling for Film',
+      institution: 'Armoury Specialists',
+      badge: 'TACTICAL',
+      badgeColor: 'rose',
+      details: 'Sidearms, Tactical Room Clearance, Law Enforcement Stance, Safety Protocol'
+    },
+    {
+      course: 'Voice, Dialect & Accent Immersion',
+      institution: 'UK Vocal',
+      badge: 'VOICE & DIALECT',
+      badgeColor: 'amber',
+      details: 'RP (Received Pronunciation), Heightened British, Urban London & Dialect Placement'
+    },
+    {
+      course: 'Online with Sophie Holland & Faye Timby',
+      institution: 'Sophie Holland Casting',
+      badge: 'CASTING WORKSHOP',
+      badgeColor: 'cyan',
+      details: 'Casting Workshop with Director Q&A & Scene Analysis'
+    }
+  ];
+
+  grid.innerHTML = training.map(t => {
+    const badgeInfo = resolveTrainingBadge(t);
+    return `
+      <div class="p-3 rounded-xl bg-slate-950/70 border border-slate-800/90 space-y-1">
+        <div class="flex items-center justify-between">
+          <span class="px-2 py-0.5 rounded ${badgeInfo.colorClass} text-[9px] font-black uppercase tracking-wide">${badgeInfo.label}</span>
+          <span class="text-[10px] text-slate-400 font-mono-code font-bold">${t.institution || 'Accredited'}</span>
+        </div>
+        <h4 class="font-extrabold text-white text-xs">${t.course || t.title}</h4>
+        <p class="text-[11px] text-slate-300 leading-snug">${t.details || ''}</p>
+      </div>
+    `;
+  }).join('');
+}
+
+// --------------------------------------------------------------------------
+// --------------------------------------------------------------------------
+// LIVE HERO CARD & STATS EDITING & FORMATTING PRESERVATION
+// --------------------------------------------------------------------------
+function formatHeroSummary(text) {
+  if (!text) return '';
+  // Strip existing HTML tags to avoid nesting
+  let clean = text.replace(/<[^>]+>/g, '').trim();
+  // Highlight productions and key roles in signature amber bold
+  let formatted = clean
+    .replace(/(Snickers(?:\s+\(with\s+Saka\s+&\s+Modrić\))?)/gi, '<strong class="text-amber-400">$1</strong>')
+    .replace(/(Ted Lasso(?:\s+\(Apple\s+TV\+\))?)/gi, '<strong class="text-amber-400">$1</strong>')
+    .replace(/(The Witcher(?:\s+\(Netflix\))?)/gi, '<strong class="text-amber-400">$1</strong>')
+    .replace(/(BBC Doctors|Doctors)/gi, '<strong class="text-amber-400">$1</strong>');
+  return formatted;
+}
+
+function updateLiveHeroCard() {
+  const getVal = id => document.getElementById(id)?.value?.trim();
+
+  // Header and Badges
+  const actorName = getVal('editHeroActorNameInput');
+  const actorSummary = getVal('editHeroActorSummaryInput');
+  const badge1 = getVal('editHeroBadge1Input');
+  const badge2 = getVal('editHeroBadge2Input');
+  const badge3 = getVal('editHeroBadge3Input');
+
+  if (actorName && document.getElementById('heroActorName')) {
+    document.getElementById('heroActorName').textContent = actorName;
+  }
+  if (actorSummary && document.getElementById('heroActorSummary')) {
+    document.getElementById('heroActorSummary').innerHTML = formatHeroSummary(actorSummary);
+  }
+  if (badge1 && document.getElementById('heroBadge1Text')) {
+    document.getElementById('heroBadge1Text').textContent = badge1;
+  }
+  if (badge2 && document.getElementById('heroBadge2')) {
+    document.getElementById('heroBadge2').textContent = badge2;
+  }
+  if (badge3 && document.getElementById('heroBadge3')) {
+    document.getElementById('heroBadge3').textContent = badge3;
+  }
+
+  // 12 Vitals Grid
+  const pAge = getVal('editStatPlayingAge');
+  const height = getVal('editStatHeight');
+  const build = getVal('editStatBuild');
+  const hair = getVal('editStatHair');
+  const eyes = getVal('editStatEyes');
+  const nats = getVal('editStatNationalities');
+  const chest = getVal('editStatChest');
+  const waist = getVal('editStatWaist');
+  const hips = getVal('editStatHips');
+  const inLeg = getVal('editStatInsideLeg');
+  const weight = getVal('editStatWeight');
+  const collar = getVal('editStatCollar');
+  const shoe = getVal('editStatShoeSize');
+
+  if (pAge && document.getElementById('statDisplayPlayingAge')) document.getElementById('statDisplayPlayingAge').textContent = pAge;
+  if (height && document.getElementById('statDisplayHeight')) document.getElementById('statDisplayHeight').textContent = height;
+  if (build && document.getElementById('statDisplayBuild')) document.getElementById('statDisplayBuild').textContent = build;
+  if (hair && eyes && document.getElementById('statDisplayHairEyes')) document.getElementById('statDisplayHairEyes').textContent = `${hair} / ${eyes}`;
+  if (nats && document.getElementById('statDisplayNationalities')) document.getElementById('statDisplayNationalities').textContent = nats;
+  if (chest && document.getElementById('statDisplayChest')) document.getElementById('statDisplayChest').textContent = chest;
+  if (waist && document.getElementById('statDisplayWaist')) document.getElementById('statDisplayWaist').textContent = waist;
+  if (hips && document.getElementById('statDisplayHips')) document.getElementById('statDisplayHips').textContent = hips;
+  if (inLeg && document.getElementById('statDisplayInsideLeg')) document.getElementById('statDisplayInsideLeg').textContent = inLeg;
+  if (weight && document.getElementById('statDisplayWeight')) document.getElementById('statDisplayWeight').textContent = weight;
+  if (collar && shoe && document.getElementById('statDisplayCollarShoe')) document.getElementById('statDisplayCollarShoe').textContent = `${collar} / ${shoe}`;
+}
+
+// --------------------------------------------------------------------------
+// MASTER PAGE SAVES & INDIVIDUAL SECTION SAVES
+// --------------------------------------------------------------------------
+async function saveAllHomePageData() {
+  saveHeroIdentityData();
+  saveHeroSummaryData();
+  saveHeroStatsData();
+  saveTopBannerData();
+  saveAgencyData();
+  saveSectionTitlesData();
+  saveTabNamesData();
+  applySiteTexts();
+  renderHeroStats();
+  const ok = await saveAppDataToServer();
+  alert(ok ? '✅ All Home & Casting Hub Page content saved permanently to database!' : 'Error saving home page data.');
+}
+
+async function saveAllAboutPageData() {
+  appData.siteTexts = appData.siteTexts || {};
+  appData.siteTexts.heroBio = document.getElementById('editHeroBio')?.value || appData.siteTexts.heroBio;
+  applySiteTexts();
+  const ok = await saveAppDataToServer();
+  alert(ok ? '✅ All About SteveP Timeline content saved permanently to database!' : 'Error saving about page data.');
+}
+
+async function saveAllITData() {
+  const ok = await saveAppDataToServer();
+  alert(ok ? '✅ All 34-Year IT Career Milestones saved permanently to database!' : 'Error saving IT data.');
+}
+
+async function saveAllSpotlightData() {
+  const ok = await saveAppDataToServer();
+  alert(ok ? '✅ All Spotlight PIN, Credits, and Training records saved permanently to database!' : 'Error saving spotlight data.');
+}
+
+async function saveAllHacksData() {
+  const ok = await saveAppDataToServer();
+  alert(ok ? '✅ All Hacks & Deals saved permanently to database!' : 'Error saving hacks data.');
+}
+
+async function saveAllMediaData() {
+  const ok = await saveAppDataToServer();
+  alert(ok ? '✅ All Media Settings & Photo categorizations saved permanently to database!' : 'Error saving media settings.');
+}
+
+// Section Data Extraction
+function saveHeroIdentityData() {
+  const getVal = id => document.getElementById(id)?.value?.trim();
+  appData.siteTexts = appData.siteTexts || {};
+  appData.siteTexts.actorName = getVal('editHeroActorNameInput') || appData.siteTexts.actorName;
+  appData.siteTexts.heroTitle = getVal('editHeroTitle') || appData.siteTexts.heroTitle;
+  appData.siteTexts.heroSubtitle = getVal('editHeroSubtitle') || appData.siteTexts.heroSubtitle;
+  appData.siteTexts.heroBadge1 = getVal('editHeroBadge1Input') || appData.siteTexts.heroBadge1;
+  appData.siteTexts.heroBadge2 = getVal('editHeroBadge2Input') || appData.siteTexts.heroBadge2;
+  appData.siteTexts.heroBadge3 = getVal('editHeroBadge3Input') || appData.siteTexts.heroBadge3;
+}
+
+async function saveHeroIdentitySection() {
+  saveHeroIdentityData();
+  applySiteTexts();
+  const ok = await saveAppDataToServer();
+  alert(ok ? '✅ Hero Identity & Status Badges saved to database!' : 'Error saving identity section.');
+}
+
+function saveHeroSummaryData() {
+  appData.siteTexts = appData.siteTexts || {};
+  appData.siteTexts.actorSummary = document.getElementById('editHeroActorSummaryInput')?.value?.trim() || appData.siteTexts.actorSummary;
+}
+
+async function saveHeroSummarySection() {
+  saveHeroSummaryData();
+  applySiteTexts();
+  const ok = await saveAppDataToServer();
+  alert(ok ? '✅ Hero Featured Credits Summary saved to database!' : 'Error saving summary section.');
+}
+
+function saveHeroStatsData() {
+  const getVal = (id, fallback) => document.getElementById(id)?.value?.trim() || fallback || '';
+  appData.stats = appData.stats || {};
+  appData.stats.playingAge = getVal('editStatPlayingAge', appData.stats.playingAge);
+  appData.stats.height = getVal('editStatHeight', appData.stats.height);
+  appData.stats.build = getVal('editStatBuild', appData.stats.build);
+  appData.stats.hair = getVal('editStatHair', appData.stats.hair);
+  appData.stats.eyes = getVal('editStatEyes', appData.stats.eyes);
+  appData.stats.nationalities = getVal('editStatNationalities', appData.stats.nationalities);
+  appData.stats.chest = getVal('editStatChest', appData.stats.chest);
+  appData.stats.waist = getVal('editStatWaist', appData.stats.waist);
+  appData.stats.hips = getVal('editStatHips', appData.stats.hips);
+  appData.stats.insideLeg = getVal('editStatInsideLeg', appData.stats.insideLeg);
+  appData.stats.weight = getVal('editStatWeight', appData.stats.weight);
+  appData.stats.collar = getVal('editStatCollar', appData.stats.collar);
+  appData.stats.shoeSize = getVal('editStatShoeSize', appData.stats.shoeSize);
+  appData.stats.accents = getVal('editStatAccents', appData.stats.accents);
+}
+
+async function saveHeroCardAndStats() {
+  saveHeroStatsData();
+  renderHeroStats();
+  const ok = await saveAppDataToServer();
+  alert(ok ? '✅ Vital Physical Measurements saved permanently to database!' : 'Error saving measurements.');
+}
+
+function saveTopBannerData() {
+  appData.siteTexts = appData.siteTexts || {};
+  appData.siteTexts.topBannerPin = document.getElementById('editTopBannerPin')?.value || appData.siteTexts.topBannerPin;
+  appData.siteTexts.topBannerAgent = document.getElementById('editTopBannerAgent')?.value || appData.siteTexts.topBannerAgent;
+}
+
+async function saveTopBannerSection() {
+  saveTopBannerData();
+  applySiteTexts();
+  const ok = await saveAppDataToServer();
+  alert(ok ? '✅ Header Banner & Pin Text saved to database!' : 'Error saving banner section.');
+}
+
+function saveAgencyData() {
+  appData.siteTexts = appData.siteTexts || {};
+  appData.siteTexts.agent1Name = document.getElementById('editAgent1Name')?.value || 'The Central Line';
+  appData.siteTexts.agent1Type = document.getElementById('editAgent1Type')?.value || 'Acting & Commercials';
+  appData.siteTexts.agent1Phone = document.getElementById('editAgent1Phone')?.value || '020 7434 4771';
+  appData.siteTexts.agent1Link = document.getElementById('editAgent1Link')?.value || 'mailto:agency@thecentralline.co.uk';
+  appData.siteTexts.agent2Name = document.getElementById('editAgent2Name')?.value || 'Face Management';
+  appData.siteTexts.agent2Type = document.getElementById('editAgent2Type')?.value || 'Model & Commercial';
+  appData.siteTexts.agent2Phone = document.getElementById('editAgent2Phone')?.value || '0113 245 8667';
+  appData.siteTexts.agent2Link = document.getElementById('editAgent2Link')?.value || 'https://facemanagement.co.uk';
+}
+
+async function saveAgencySection() {
+  saveAgencyData();
+  updateAgentHero();
+  const ok = await saveAppDataToServer();
+  alert(ok ? '✅ Agency Representation details saved to database!' : 'Error saving agency section.');
+}
+
+function saveSectionTitlesData() {
+  appData.siteTexts = appData.siteTexts || {};
+  appData.siteTexts.stillsTitle = document.getElementById('editStillsTitle')?.value || appData.siteTexts.stillsTitle;
+  appData.siteTexts.headshotsTitle = document.getElementById('editHeadshotsTitle')?.value || appData.siteTexts.headshotsTitle;
+  appData.siteTexts.showreelsTitle = document.getElementById('editShowreelsTitle')?.value || appData.siteTexts.showreelsTitle;
+  appData.siteTexts.hacksTitle = document.getElementById('editHacksTitle')?.value || appData.siteTexts.hacksTitle;
+}
+
+async function saveSectionTitles() {
+  saveSectionTitlesData();
+  applySiteTexts();
+  const ok = await saveAppDataToServer();
+  alert(ok ? '✅ Portfolio Section Headings saved to database!' : 'Error saving section titles.');
+}
+
+function saveTabNamesData() {
+  appData.siteTexts = appData.siteTexts || {};
+  appData.siteTexts.tabNames = {
+    casting: document.getElementById('editTabNameCasting')?.value || '',
+    about: document.getElementById('editTabNameAbout')?.value || '',
+    headshots: document.getElementById('editTabNameHeadshots')?.value || '',
+    itexpert: document.getElementById('editTabNameIT')?.value || '',
+    hacks: document.getElementById('editTabNameHacks')?.value || '',
+    sobriety: document.getElementById('editTabNameSobriety')?.value || '',
+    booking: document.getElementById('editTabNameBooking')?.value || ''
+  };
+}
+
+async function saveTabNamesSection() {
+  saveTabNamesData();
+  applySiteTexts();
+  const ok = await saveAppDataToServer();
+  alert(ok ? '✅ Navigation Page Tabs saved to database!' : 'Error saving navigation tab titles.');
+}
+
+async function saveHeroBioStorySection() {
+  appData.siteTexts = appData.siteTexts || {};
+  appData.siteTexts.heroBio = document.getElementById('editHeroBio')?.value || appData.siteTexts.heroBio;
+  applySiteTexts();
+  const ok = await saveAppDataToServer();
+  alert(ok ? '✅ Hero Bio Story saved to database!' : 'Error saving hero bio story.');
+}
+
+async function saveAboutMilestonesSection() {
+  const ok = await saveAppDataToServer();
+  alert(ok ? '✅ About SteveP Life Milestones saved to database!' : 'Error saving milestones.');
+}
+
+function populateHeroAdminInputs() {
+  const s = appData.stats || {};
+  const t = appData.siteTexts || {};
+
+  const setVal = (id, val) => {
+    const el = document.getElementById(id);
+    if (el && val !== undefined && val !== null) el.value = val;
+  };
+
+  setVal('editHeroActorNameInput', t.actorName || 'STEVE PEREIRA');
+  setVal('editHeroActorSummaryInput', t.actorSummary || 'Versatile UK Screen Actor • Playing Age 35–50 • Featured in Snickers (with Saka & Modrić), Ted Lasso (Apple TV+), The Witcher (Netflix) & BBC Doctors.');
+  setVal('editHeroBadge1Input', t.heroBadge1 || 'SPOTLIGHT PIN: 9339-8945-6183');
+  setVal('editHeroBadge2Input', t.heroBadge2 || 'EQUITY MEMBER');
+  setVal('editHeroBadge3Input', t.heroBadge3 || 'LONDON / UK BASED');
+
+  setVal('editStatPlayingAge', s.playingAge || '35 – 50 Yrs');
+  setVal('editStatHeight', s.height || '5\'6.5" (169cm)');
+  setVal('editStatBuild', s.build || 'Athletic / Toned');
+  setVal('editStatHair', s.hair || 'Bald');
+  setVal('editStatEyes', s.eyes || 'Brown');
+  setVal('editStatNationalities', s.nationalities || 'British / Portuguese');
+  setVal('editStatChest', s.chest || '38" (96.5cm)');
+  setVal('editStatWaist', s.waist || '30" (76.2cm)');
+  setVal('editStatHips', s.hips || '34" (86.4cm)');
+  setVal('editStatInsideLeg', s.insideLeg || '28" (71cm)');
+  setVal('editStatWeight', s.weight || '63 kg (9st 13)');
+  setVal('editStatCollar', s.collar || '15.5" (39.4cm)');
+  setVal('editStatShoeSize', s.shoeSize || '7.5 UK / 41 EU');
+  setVal('editStatAccents', s.accents || 'RP, London, Cockney, Stage Combat (BADC Pass), Tactical Firearms');
+}
+
+// --------------------------------------------------------------------------
+// SPOTLIGHT TRAINING & ACCREDITATIONS CRUD
+// --------------------------------------------------------------------------
+function renderAdminTrainingTable() {
+  const tbody = document.getElementById('adminTrainingTableBody');
+  if (!tbody) return;
+
+  const list = appData.training || [];
+  if (list.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-500">No training records added yet.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = list.map((t, idx) => {
+    const badgeInfo = resolveTrainingBadge(t);
+    return `
+      <tr class="hover:bg-slate-900/50 transition">
+        <td class="p-3 font-bold text-white">${t.course || t.title || ''}</td>
+        <td class="p-3 text-slate-300">${t.institution || ''}</td>
+        <td class="p-3">
+          <span class="px-2 py-0.5 rounded ${badgeInfo.colorClass} font-bold text-[10px] uppercase">${badgeInfo.label}</span>
+        </td>
+        <td class="p-3 text-slate-400 text-xs max-w-xs truncate">${t.details || ''}</td>
+        <td class="p-3 text-right space-x-1">
+          <button onclick="editTrainingPrompt(${idx})" class="p-1.5 rounded-lg bg-slate-900 border border-slate-700 text-amber-400 hover:bg-slate-800" title="Edit">
+            <i data-lucide="edit-2" class="w-3.5 h-3.5"></i>
+          </button>
+          <button onclick="deleteTraining(${idx})" class="p-1.5 rounded-lg bg-slate-900 border border-slate-700 text-rose-400 hover:bg-slate-800" title="Delete">
+            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+          </button>
+        </td>
+      </tr>
+    `;
+  }).join('');
+
+  if (window.lucide) lucide.createIcons();
+}
+
+async function handleSaveTraining(e) {
+  e.preventDefault();
+  const course = document.getElementById('adminTrainingCourse')?.value.trim();
+  const inst = document.getElementById('adminTrainingInstitution')?.value.trim();
+  const badge = document.getElementById('adminTrainingBadge')?.value.trim() || 'CERTIFIED';
+  const details = document.getElementById('adminTrainingDetails')?.value.trim();
+
+  if (!course || !inst) {
+    alert('Please provide Course Name and Institution.');
+    return;
+  }
+
+  appData.training = appData.training || [];
+  appData.training.push({
+    course,
+    institution: inst,
+    badge,
+    badgeColor: 'emerald',
+    details
+  });
+
+  renderSpotlightTraining();
+  renderAdminTrainingTable();
+  await saveAppDataToServer();
+
+  if (e.target && typeof e.target.reset === 'function') e.target.reset();
+  alert('✅ Training / Accreditation record added successfully!');
+}
+
+async function editTrainingPrompt(idx) {
+  const t = appData.training[idx];
+  if (!t) return;
+
+  const course = prompt('Edit Course / Accreditation:', t.course || t.title || '');
+  if (course === null) return;
+  const inst = prompt('Edit Institution:', t.institution || '');
+  if (inst === null) return;
+  const badge = prompt('Edit Badge:', t.badge || 'CERTIFIED');
+  if (badge === null) return;
+  const details = prompt('Edit Details:', t.details || '');
+  if (details === null) return;
+
+  t.course = course;
+  t.institution = inst;
+  t.badge = badge;
+  t.details = details;
+
+  renderSpotlightTraining();
+  renderAdminTrainingTable();
+  await saveAppDataToServer();
+}
+
+async function deleteTraining(idx) {
+  if (!confirm('Are you sure you want to delete this training accreditation?')) return;
+  appData.training.splice(idx, 1);
+  renderSpotlightTraining();
+  renderAdminTrainingTable();
+  await saveAppDataToServer();
+}
+
 async function deleteCredit(id) {
   if (!confirm('Are you sure you want to delete this credit?')) return;
   appData.credits = appData.credits.filter(c => c.id !== id);
@@ -570,9 +1928,12 @@ async function editCreditPrompt(id) {
   if (newTitle === null) return;
   const newRole = prompt('Edit Role:', credit.role);
   if (newRole === null) return;
+  const newYear = prompt('Edit Year:', credit.year || '');
+  if (newYear === null) return;
 
   credit.title = newTitle;
   credit.role = newRole;
+  credit.year = newYear;
   renderAll();
 
   try {
@@ -594,21 +1955,73 @@ function renderAboutTimeline() {
     return;
   }
 
-  container.innerHTML = items.map((item, idx) => `
-    <div class="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
-      <div class="flex items-center justify-center w-10 h-10 rounded-full border border-slate-700 bg-slate-900 text-amber-400 group-hover:scale-110 group-hover:border-amber-400 transition shrink-0 shadow-lg z-10">
-        <i data-lucide="${item.icon || 'star'}" class="w-5 h-5"></i>
-      </div>
-      <div class="w-[calc(100%-3rem)] md:w-[calc(50%-2.5rem)] glass-card p-5 sm:p-6 rounded-2xl border border-slate-800 space-y-2 hover:border-amber-500/50 transition">
-        <div class="flex flex-wrap items-center justify-between gap-2">
-          <span class="px-3 py-0.5 rounded-full bg-amber-500/20 text-amber-400 text-xs font-black font-mono-code">${item.year || item.date || ''}</span>
-          <span class="text-[11px] font-extrabold text-rose-400 uppercase tracking-wider font-mono-code">${item.tag || item.category || 'MILESTONE'}</span>
+  const layout = appData.layouts?.about || 'zigzag';
+
+  if (layout === 'zigzag') {
+    container.className = "relative space-y-8 before:absolute before:inset-0 before:left-1/2 before:-translate-x-1/2 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-amber-500/50 before:to-transparent";
+    container.innerHTML = items.map((item, idx) => `
+      <div class="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
+        <div class="flex items-center justify-center w-10 h-10 rounded-full border border-slate-700 bg-slate-900 text-amber-400 group-hover:scale-110 group-hover:border-amber-400 transition shrink-0 shadow-lg z-10">
+          <i data-lucide="${item.icon || 'star'}" class="w-5 h-5"></i>
         </div>
-        <h3 class="text-lg font-black text-white font-cinzel">${item.title}</h3>
-        <p class="text-xs text-slate-300 leading-relaxed">${item.desc}</p>
+        <div class="w-[calc(100%-3rem)] md:w-[calc(50%-2.5rem)] glass-card p-5 sm:p-6 rounded-2xl border border-slate-800 space-y-2 hover:border-amber-500/50 transition">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <span class="px-3 py-0.5 rounded-full bg-amber-500/20 text-amber-400 text-xs font-black font-mono-code">${item.year || item.date || ''}</span>
+            <span class="text-[11px] font-extrabold text-rose-400 uppercase tracking-wider font-mono-code">${item.tag || item.category || 'MILESTONE'}</span>
+          </div>
+          <h3 class="text-lg font-black text-white font-cinzel">${item.title}</h3>
+          <p class="text-xs text-slate-300 leading-relaxed">${item.desc}</p>
+        </div>
       </div>
-    </div>
-  `).join('');
+    `).join('');
+  } else if (layout === 'roadmap') {
+    container.className = "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5";
+    container.innerHTML = items.map((item, idx) => `
+      <div class="glass-card p-5 rounded-2xl border border-slate-800 space-y-3 hover:border-amber-400/80 transition shadow-lg flex flex-col justify-between">
+        <div class="space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="px-3 py-1 rounded-full bg-gradient-to-r from-amber-500 to-rose-600 text-slate-950 font-black text-xs font-mono-code">Step ${idx + 1} • ${item.year || item.date || ''}</span>
+            <span class="text-[10px] font-bold text-rose-400 font-mono-code">${item.tag || 'ERA'}</span>
+          </div>
+          <h3 class="text-base font-black text-white font-cinzel">${item.title}</h3>
+          <p class="text-slate-300 text-xs leading-relaxed">${item.desc}</p>
+        </div>
+        <div class="pt-2 border-t border-slate-800/80 flex items-center justify-between text-[10px] text-amber-400 font-mono-code">
+          <span>Milestone #${idx + 1}</span>
+          <span>SteveP Timeline</span>
+        </div>
+      </div>
+    `).join('');
+  } else if (layout === 'story-cards') {
+    container.className = "space-y-6";
+    const first = items[0];
+    const rest = items.slice(1);
+    container.innerHTML = `
+      ${first ? `
+        <div class="glass-card p-6 sm:p-8 rounded-3xl border border-amber-500/50 bg-gradient-to-r from-slate-950/90 via-slate-900/90 to-amber-950/30 space-y-3 shadow-2xl">
+          <div class="flex items-center gap-2">
+            <span class="px-3 py-1 rounded-full bg-amber-500 text-slate-950 font-black text-xs font-mono-code">FEATURED ERA • ${first.year || first.date || ''}</span>
+            <span class="text-xs text-slate-400 font-bold">${first.tag || 'HIGHLIGHT'}</span>
+          </div>
+          <h3 class="text-2xl font-black text-amber-300 font-cinzel">${first.title}</h3>
+          <p class="text-slate-200 text-sm leading-relaxed">${first.desc}</p>
+        </div>
+      ` : ''}
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        ${rest.map((item, i) => `
+          <div class="glass-card p-6 rounded-2xl border border-slate-800 space-y-2 hover:border-amber-400 transition">
+            <div class="flex items-center justify-between">
+              <span class="px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-400 font-mono-code font-bold text-xs">${item.year || item.date || ''}</span>
+              <span class="text-xs text-slate-400">${item.tag || 'MILESTONE'}</span>
+            </div>
+            <h4 class="text-lg font-black text-white font-cinzel">${item.title}</h4>
+            <p class="text-slate-300 text-xs leading-relaxed">${item.desc}</p>
+          </div>
+        `).join('')}
+      </div>
+    `;
+  }
+
   if (window.lucide) lucide.createIcons();
 }
 
@@ -622,16 +2035,63 @@ function renderITTimeline() {
     return;
   }
 
-  container.innerHTML = items.map(item => `
-    <div class="p-5 rounded-2xl bg-slate-950/70 border border-slate-800 space-y-2 backdrop-blur-md hover:border-cyan-500/40 transition">
-      <div class="flex flex-wrap items-center justify-between gap-2">
-        <span class="px-3 py-0.5 rounded-full bg-cyan-500/20 text-cyan-400 text-xs font-black font-mono-code">${item.year}</span>
-        <span class="text-xs font-bold text-slate-300">${item.company || ''}</span>
+  const layout = appData.layouts?.it || 'blueprint';
+
+  if (layout === 'blueprint') {
+    container.className = "space-y-4";
+    container.innerHTML = items.map(item => `
+      <div class="p-5 rounded-2xl bg-slate-950/70 border border-slate-800 space-y-2 backdrop-blur-md hover:border-cyan-500/40 transition">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <span class="px-3 py-0.5 rounded-full bg-cyan-500/20 text-cyan-400 text-xs font-black font-mono-code">${item.year}</span>
+          <span class="text-xs font-bold text-slate-300">${item.company || ''}</span>
+        </div>
+        <h4 class="text-white font-bold text-base font-cinzel">${item.title}</h4>
+        <p class="text-slate-300 text-xs leading-relaxed">${item.desc}</p>
       </div>
-      <h4 class="text-white font-bold text-base font-cinzel">${item.title}</h4>
-      <p class="text-slate-300 text-xs leading-relaxed">${item.desc}</p>
-    </div>
-  `).join('');
+    `).join('');
+  } else if (layout === 'terminal') {
+    container.className = "space-y-3 font-mono-code text-xs";
+    container.innerHTML = `
+      <div class="p-5 rounded-2xl bg-slate-950 border border-cyan-500/50 shadow-[0_0_20px_rgba(6,182,212,0.15)] space-y-4">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-2 text-[11px] text-cyan-400">
+          <span>root@stevep-architect:~$ it-log --all</span>
+          <span class="text-emerald-400 font-bold">STATUS: 34 YRS ACTIVE</span>
+        </div>
+        <div class="space-y-3">
+          ${items.map((item, idx) => `
+            <div class="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800 space-y-1 hover:border-cyan-400/60 transition">
+              <div class="flex items-center justify-between text-cyan-300 text-xs font-bold">
+                <span>[${item.year}] > ${item.company || 'Enterprise'}</span>
+                <span class="text-[10px] text-slate-500">ID: ARCH_0${idx + 1}</span>
+              </div>
+              <h5 class="text-white font-bold">${item.title}</h5>
+              <p class="text-slate-300 text-[11px] font-sans">${item.desc}</p>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `;
+  } else if (layout === 'consulting') {
+    container.className = "grid grid-cols-1 md:grid-cols-2 gap-4";
+    container.innerHTML = items.map((item, idx) => `
+      <div class="glass-card p-5 rounded-2xl border border-slate-800 space-y-3 hover:border-cyan-400 transition flex flex-col justify-between">
+        <div class="space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="px-2.5 py-0.5 rounded bg-cyan-500/20 text-cyan-400 text-xs font-black font-mono-code">${item.year}</span>
+            <span class="text-xs font-bold text-slate-300">${item.company || 'Consultancy'}</span>
+          </div>
+          <h4 class="text-base font-black text-white font-cinzel">${item.title}</h4>
+          <p class="text-slate-300 text-xs leading-relaxed">${item.desc}</p>
+        </div>
+        <div class="pt-2 border-t border-slate-800 flex items-center justify-between text-[11px] text-slate-400 font-mono-code">
+          <span>Case Study #${idx + 1}</span>
+          <span class="text-cyan-400">Enterprise Delivery</span>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  if (window.lucide) lucide.createIcons();
 }
 
 function generateITBlueprint() {
@@ -667,7 +2127,7 @@ function generateITBlueprint() {
 }
 
 // --------------------------------------------------------------------------
-// HACKS & MONEY SAVING DEALS
+// HACKS & MONEY SAVING DEALS (MULTI-LAYOUT SYSTEM)
 // --------------------------------------------------------------------------
 let currentHacksFilter = 'all';
 let currentHacksCategory = 'all';
@@ -725,148 +2185,189 @@ function renderHacks() {
     };
   });
 
-  // Render Steve's Top Offers Showcase Banner
+  const layout = appData.layouts?.hacks || 'cards-deck';
+
+  // Render Steve's Top Offers Showcase Banner if in cards or bento mode
   if (topOffersContainer) {
-    const topOffers = hacks.filter(h => h.isTopOffer);
-    if (topOffers.length > 0) {
-      topOffersContainer.innerHTML = `
-        <div class="glass-card rounded-3xl border-2 border-amber-500/40 p-6 space-y-4 relative overflow-hidden bg-gradient-to-r from-slate-950 via-amber-950/20 to-slate-950 shadow-2xl">
-          <div class="flex items-center justify-between">
-            <div class="flex items-center gap-2">
+    if (layout === 'table-list') {
+      topOffersContainer.innerHTML = '';
+    } else {
+      const topOffers = hacks.filter(h => h.isTopOffer);
+      if (topOffers.length > 0) {
+        topOffersContainer.innerHTML = `
+          <div class="glass-card rounded-3xl border-2 border-amber-500/40 p-6 space-y-4 relative overflow-hidden bg-gradient-to-r from-slate-950 via-amber-950/20 to-slate-950 shadow-2xl">
+            <div class="flex items-center justify-between">
               <span class="px-3 py-1 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30 text-xs font-black uppercase flex items-center gap-1">
                 🔥 Steve's Top Offers & Recommendations
               </span>
+              <span class="text-xs text-slate-400 font-mono-code">${topOffers.length} Featured Deals</span>
             </div>
-            <span class="text-xs text-slate-400 font-mono-code">${topOffers.length} Featured Deals</span>
-          </div>
 
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1">
-            ${topOffers.slice(0, 2).map(h => `
-              <div class="glass-card rounded-2xl border border-amber-500/30 p-4 flex gap-4 items-center bg-slate-950/80 hover:border-amber-400 transition group">
-                <div class="w-20 h-20 rounded-xl overflow-hidden bg-slate-900 shrink-0 border border-slate-800 relative">
-                  <img src="${h.image}" alt="${h.title}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
-                  ${h.logo ? `<img src="${h.logo}" class="absolute bottom-1 right-1 w-6 h-6 rounded-md bg-slate-950 p-0.5 border border-slate-700 shadow" onerror="this.style.display='none'">` : ''}
-                </div>
-                <div class="flex-1 min-w-0 space-y-1">
-                  <div class="flex items-center gap-2">
-                    <span class="text-[10px] font-black text-amber-400 uppercase tracking-wider font-mono-code">${h.badge || 'TOP OFFER'}</span>
-                    <span class="text-[10px] font-bold text-slate-400">• ${h.category}</span>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1">
+              ${topOffers.slice(0, 2).map(h => `
+                <div class="glass-card rounded-2xl border border-amber-500/30 p-4 flex gap-4 items-center bg-slate-950/80 hover:border-amber-400 transition group">
+                  <div class="w-20 h-20 rounded-xl overflow-hidden bg-slate-900 shrink-0 border border-slate-800 relative">
+                    <img src="${h.image}" alt="${h.title}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+                    ${h.logo ? `<img src="${h.logo}" class="absolute bottom-1 right-1 w-6 h-6 rounded-md bg-slate-950 p-0.5 border border-slate-700 shadow" onerror="this.style.display='none'">` : ''}
                   </div>
-                  <h4 class="text-sm font-black text-white font-cinzel leading-tight truncate group-hover:text-amber-300 transition">${h.title}</h4>
-                  <p class="text-[11px] text-slate-300 line-clamp-1">${h.desc}</p>
-                  <div class="pt-1 flex items-center justify-between">
-                    <span class="text-[10px] font-mono-code text-emerald-400 font-bold">Code: ${h.code}</span>
-                    <a href="${h.link}" target="_blank" onclick="trackEvent('affiliate_click', '${h.title}')" class="px-3 py-1 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-[11px] flex items-center gap-1 shadow">
-                      <span>Get Deal</span> <i data-lucide="arrow-up-right" class="w-3 h-3"></i>
-                    </a>
+                  <div class="flex-1 min-w-0 space-y-1">
+                    <span class="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 text-[10px] font-black">${h.badge || 'DEAL'}</span>
+                    <h5 class="text-white font-black text-sm truncate">${h.title}</h5>
+                    <div class="flex items-center gap-2 pt-1">
+                      <button onclick="copyHackCode('${h.code}', '${h.id}')" class="px-2.5 py-1 rounded-lg bg-amber-500/20 text-amber-300 font-mono-code font-bold text-xs">
+                        ${h.code || 'CLAIM'}
+                      </button>
+                      <a href="${h.link}" target="_blank" onclick="trackHackClick('${h.id}')" class="px-3 py-1 rounded-lg bg-amber-500 text-slate-950 font-black text-xs">
+                        Visit Deal &rarr;
+                      </a>
+                    </div>
                   </div>
                 </div>
-              </div>
-            `).join('')}
+              `).join('')}
+            </div>
           </div>
-        </div>
-      `;
-    } else {
-      topOffersContainer.innerHTML = '';
+        `;
+      } else {
+        topOffersContainer.innerHTML = '';
+      }
     }
   }
 
-  // Filter by Category
+  // Filter category & sort
+  let filtered = [...hacks];
   if (currentHacksCategory !== 'all') {
-    hacks = hacks.filter(h => h.category === currentHacksCategory);
+    filtered = filtered.filter(h => h.category === currentHacksCategory);
   }
 
-  // Filter by Toolbar Selection
   if (currentHacksFilter === 'top') {
-    hacks = hacks.filter(h => h.isTopOffer);
+    filtered.sort((a, b) => b.clicks - a.clicks);
   } else if (currentHacksFilter === 'discount') {
-    hacks.sort((a, b) => (b.discountPercent || 0) - (a.discountPercent || 0));
+    filtered.sort((a, b) => (b.discountPercent || 0) - (a.discountPercent || 0));
   } else if (currentHacksFilter === 'clicked') {
-    hacks.sort((a, b) => (b.clicks || 0) - (a.clicks || 0));
+    filtered.sort((a, b) => b.clicks - a.clicks);
   } else if (currentHacksFilter === 'used') {
-    hacks.sort((a, b) => (b.usedCount || 0) - (a.usedCount || 0));
+    filtered.sort((a, b) => (b.usedCount || 0) - (a.usedCount || 0));
   }
 
-  if (countBadge) {
-    countBadge.textContent = `${hacks.length} Deals Found`;
-  }
+  if (countBadge) countBadge.textContent = `${filtered.length} Verified Deals & Hacks`;
 
-  if (hacks.length === 0) {
-    mainContainer.innerHTML = `
-      <div class="col-span-full p-12 text-center glass-card rounded-2xl border border-slate-800 space-y-2">
-        <i data-lucide="tag-off" class="w-8 h-8 text-slate-500 mx-auto"></i>
-        <h4 class="text-sm font-bold text-white">No deals match your filter criteria</h4>
-        <p class="text-xs text-slate-400">Try selecting 'All Deals' or switching categories above.</p>
-      </div>
-    `;
+  if (filtered.length === 0) {
+    mainContainer.innerHTML = `<div class="col-span-full py-12 text-center text-xs text-slate-400">No deals found in this category. Add deals in Admin Hacks.</div>`;
     return;
   }
 
-  mainContainer.innerHTML = hacks.map(h => {
-    const seoTitle = h.seoTitle || `${h.title} | Steve's Verified Deal`;
-    const seoKeywords = h.seoKeywords || `${h.category}, ${h.badge}, money saving hacks`;
-
-    return `
-      <div class="glass-card rounded-2xl border border-slate-800 flex flex-col justify-between overflow-hidden hover:border-emerald-500/50 transition group">
-        
-        <!-- Card Cover Banner Image with Badge Overlays -->
-        <div class="relative w-full h-44 overflow-hidden bg-slate-950 border-b border-slate-800">
+  if (layout === 'cards-deck') {
+    mainContainer.className = "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6";
+    mainContainer.innerHTML = filtered.map(h => `
+      <div class="glass-card rounded-3xl overflow-hidden border border-slate-800 hover:border-emerald-400/80 transition duration-300 flex flex-col justify-between group shadow-xl">
+        <div class="relative aspect-video w-full overflow-hidden bg-slate-900">
           <img src="${h.image}" alt="${h.title}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
-          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent"></div>
-
-          <!-- Top Badges Overlay -->
-          <div class="absolute top-3 left-3 right-3 flex items-center justify-between">
-            <span class="px-2.5 py-1 rounded-xl bg-emerald-500/90 text-slate-950 font-black text-[10px] uppercase shadow backdrop-blur-md">
-              ${h.badge}
-            </span>
-            ${h.isTopOffer ? `
-              <span class="px-2 py-0.5 rounded-lg bg-amber-500/90 text-slate-950 text-[10px] font-black uppercase flex items-center gap-1 shadow">
-                🔥 TOP OFFER
-              </span>
-            ` : ''}
-          </div>
-
-          <!-- Floating Logo Avatar Badge -->
-          <div class="absolute bottom-3 left-3 flex items-center gap-2">
-            ${h.logo ? `
-              <img src="${h.logo}" alt="Logo" class="w-10 h-10 rounded-xl object-contain bg-slate-950 p-1.5 border border-slate-700 shadow-xl" onerror="this.style.display='none'">
-            ` : ''}
-            <div>
-              <span class="text-[10px] font-mono-code font-bold text-emerald-400 block">${h.category}</span>
-              <span class="text-[10px] text-slate-300 font-mono-code">${h.usedCount} Times Claimed</span>
-            </div>
-          </div>
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent"></div>
+          <span class="absolute top-3 left-3 px-3 py-1 rounded-full bg-emerald-500 text-slate-950 font-black text-[10px] uppercase font-mono-code shadow-md">${h.badge || 'DEAL'}</span>
         </div>
-
-        <!-- Card Content Body -->
         <div class="p-5 space-y-3 flex-1 flex flex-col justify-between">
           <div class="space-y-2">
-            <h3 class="text-base font-black text-white font-cinzel leading-snug group-hover:text-emerald-400 transition">${h.title}</h3>
-            <p class="text-xs text-slate-300 leading-relaxed line-clamp-3">${h.desc}</p>
-          </div>
-
-          <!-- Auto-SEO Metadata Tag Pill -->
-          <div class="pt-2 border-t border-slate-800/60 flex items-center justify-between text-[10px] text-slate-400">
-            <span class="truncate max-w-[200px]" title="SEO: ${seoKeywords}">🔍 ${seoTitle}</span>
-            <span class="font-mono-code font-bold text-slate-300">${h.clicks} clicks</span>
-          </div>
-
-          <!-- Card Actions Footer -->
-          <div class="pt-3 border-t border-slate-800/80 flex items-center justify-between gap-2">
-            <div class="bg-slate-950 px-3 py-1.5 rounded-xl border border-slate-800 font-mono-code font-bold text-xs text-amber-400 flex items-center gap-1.5">
-              <span>Code:</span>
-              <strong class="text-white select-all">${h.code}</strong>
+            <div class="flex items-center gap-3">
+              <img src="${h.logo || 'https://www.google.com/s2/favicons?domain=github.com&sz=128'}" class="w-8 h-8 rounded-xl object-contain bg-slate-900 p-1 border border-slate-700 shadow" alt="Logo">
+              <div>
+                <h4 class="font-black text-white text-sm font-cinzel leading-tight">${h.title}</h4>
+                <span class="text-[10px] font-mono-code text-slate-400">${h.category || 'Tech'}</span>
+              </div>
             </div>
-
-            <a href="${h.link}" target="_blank" onclick="trackEvent('affiliate_click', '${h.title}')" class="px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs flex items-center gap-1.5 transition shadow">
-              <span>Claim Deal</span> <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+            <p class="text-slate-300 text-xs leading-relaxed line-clamp-2">${h.desc || ''}</p>
+          </div>
+          <div class="space-y-2 pt-2 border-t border-slate-800/80">
+            <div class="flex items-center justify-between gap-2">
+              <span class="font-mono-code font-bold text-amber-400 text-xs px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-700 select-all">${h.code || 'NO CODE NEEDED'}</span>
+              <button onclick="copyHackCode('${h.code}', '${h.id}')" class="px-3 py-1.5 rounded-lg bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500 hover:text-slate-950 font-bold text-xs transition">Copy Code</button>
+            </div>
+            <a href="${h.link}" target="_blank" onclick="trackHackClick('${h.id}')" class="w-full py-2 px-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs flex items-center justify-center gap-1.5 shadow transition">
+              <span>Claim Deal</span> <i data-lucide="external-link" class="w-3 h-3"></i>
             </a>
           </div>
         </div>
-
+      </div>
+    `).join('');
+  } else if (layout === 'table-list') {
+    mainContainer.className = "col-span-full space-y-3";
+    mainContainer.innerHTML = `
+      <div class="overflow-x-auto rounded-2xl border border-slate-800 glass-card">
+        <table class="w-full text-left text-xs">
+          <thead class="bg-slate-900/90 text-slate-300 font-mono-code text-[11px] uppercase border-b border-slate-800">
+            <tr>
+              <th class="p-3.5">Company / Deal</th>
+              <th class="p-3.5">Category</th>
+              <th class="p-3.5">Discount Tag</th>
+              <th class="p-3.5">Promo Code</th>
+              <th class="p-3.5 text-right">Action</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-800/60">
+            ${filtered.map(h => `
+              <tr class="hover:bg-slate-900/50 transition">
+                <td class="p-3.5 flex items-center gap-3">
+                  <img src="${h.logo || 'https://www.google.com/s2/favicons?domain=github.com&sz=128'}" class="w-7 h-7 rounded-lg object-contain bg-slate-900 p-1 border border-slate-700" alt="Logo">
+                  <div>
+                    <strong class="text-white font-bold block">${h.title}</strong>
+                    <span class="text-[10px] text-slate-400">${h.desc ? h.desc.substring(0, 45) + '...' : ''}</span>
+                  </div>
+                </td>
+                <td class="p-3.5 text-slate-300 font-mono-code text-[11px]">${h.category || 'Tech'}</td>
+                <td class="p-3.5"><span class="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 font-bold font-mono-code text-[10px]">${h.badge || 'DEAL'}</span></td>
+                <td class="p-3.5">
+                  <span class="font-mono-code font-bold text-amber-400 bg-slate-950 px-2 py-1 rounded border border-slate-800 text-xs select-all">${h.code || 'AUTOMATIC'}</span>
+                </td>
+                <td class="p-3.5 text-right">
+                  <div class="inline-flex items-center gap-2">
+                    <button onclick="copyHackCode('${h.code}', '${h.id}')" class="px-2.5 py-1 rounded-lg bg-slate-800 text-emerald-400 hover:bg-emerald-500 hover:text-slate-950 font-bold text-[11px] transition">Copy</button>
+                    <a href="${h.link}" target="_blank" onclick="trackHackClick('${h.id}')" class="px-3 py-1 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-[11px] transition shadow">Claim</a>
+                  </div>
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
       </div>
     `;
-  }).join('');
+  } else if (layout === 'bento-deals') {
+    const top3 = filtered.slice(0, 3);
+    const rest = filtered.slice(3);
+    mainContainer.className = "col-span-full space-y-6";
+    mainContainer.innerHTML = `
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+        ${top3.map((h, i) => `
+          <div class="glass-card p-5 rounded-3xl border border-emerald-500/40 bg-gradient-to-b from-slate-900/90 to-emerald-950/20 space-y-3 shadow-xl">
+            <div class="flex items-center justify-between">
+              <span class="px-2.5 py-0.5 rounded-full bg-emerald-500 text-slate-950 font-black text-[10px] font-mono-code">HOT DEAL #${i + 1}</span>
+              <img src="${h.logo || 'https://www.google.com/s2/favicons?domain=github.com&sz=128'}" class="w-7 h-7 rounded-lg object-contain bg-slate-900 p-0.5" alt="Logo">
+            </div>
+            <h4 class="font-black text-white text-base font-cinzel leading-tight">${h.title}</h4>
+            <p class="text-slate-300 text-xs line-clamp-2">${h.desc || ''}</p>
+            <div class="pt-2 border-t border-slate-800 flex items-center justify-between gap-2">
+              <span class="font-mono-code font-bold text-amber-400 text-xs">${h.code || 'DIRECT DEAL'}</span>
+              <a href="${h.link}" target="_blank" onclick="trackHackClick('${h.id}')" class="px-3 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs shadow transition">Claim Deal</a>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        ${rest.map(h => `
+          <div class="glass-card p-4 rounded-2xl border border-slate-800 space-y-2 hover:border-emerald-400 transition">
+            <div class="flex items-center justify-between">
+              <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 text-[10px] font-bold font-mono-code">${h.badge || 'DEAL'}</span>
+              <span class="text-[10px] text-slate-400 font-mono-code">${h.category || 'Tech'}</span>
+            </div>
+            <h5 class="font-bold text-white text-xs truncate">${h.title}</h5>
+            <div class="flex items-center justify-between gap-2 pt-1 border-t border-slate-800/80">
+              <span class="text-amber-400 font-mono-code font-bold text-xs truncate">${h.code || 'AUTOMATIC'}</span>
+              <a href="${h.link}" target="_blank" onclick="trackHackClick('${h.id}')" class="px-2.5 py-1 rounded-lg bg-slate-900 hover:bg-emerald-500 hover:text-slate-950 text-emerald-400 font-bold text-[11px] transition">Claim</a>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+  }
 
   if (window.lucide) lucide.createIcons();
 }
@@ -995,11 +2496,19 @@ async function deleteCustomPage(id) {
 }
 
 // --------------------------------------------------------------------------
-// EXPANDED ADMIN CMS PORTAL & SUB-TABS
+// EXPANDED ADMIN CMS PORTAL & SUB-TABS (PAGE-BY-PAGE ORDER)
 // --------------------------------------------------------------------------
 function setAdminSubTab(subTab) {
+  // Alias mapping for backwards compatibility and clean routing
+  const aliasMap = {
+    'sitetexts': 'hero',
+    'timelines': 'about',
+    'itexpert': 'it'
+  };
+  const actualTab = aliasMap[subTab] || subTab || 'spotlight';
+
   document.querySelectorAll('.admin-section').forEach(el => el.classList.add('hidden'));
-  const target = document.getElementById(`adminSection-${subTab}`);
+  const target = document.getElementById(`adminSection-${actualTab}`);
   if (target) target.classList.remove('hidden');
 
   document.querySelectorAll('.admin-subnav-btn').forEach(btn => {
@@ -1007,15 +2516,22 @@ function setAdminSubTab(subTab) {
     btn.classList.add('bg-slate-900', 'text-slate-300');
   });
 
-  const activeBtn = document.getElementById(`adminSubNav-${subTab}`);
+  const activeBtn = document.getElementById(`adminSubNav-${actualTab}`);
   if (activeBtn) {
     activeBtn.classList.remove('bg-slate-900', 'text-slate-300');
     activeBtn.classList.add('bg-amber-500/20', 'text-amber-400', 'border-amber-500/30');
   }
 
-  if (subTab === 'analytics' && typeof loadAnalyticsDashboard === 'function') {
+  if (actualTab === 'analytics' && typeof loadAnalyticsDashboard === 'function') {
     loadAnalyticsDashboard();
   }
+  if (actualTab === 'themes' && typeof renderAdminThemes === 'function') {
+    renderAdminThemes();
+  }
+  if (actualTab === 'backup' && typeof renderBackupDashboard === 'function') {
+    renderBackupDashboard();
+  }
+  if (window.lucide) lucide.createIcons();
 }
 
 function handleAdminLogin(e) {
@@ -1024,6 +2540,7 @@ function handleAdminLogin(e) {
   if (pin === '1234' || pin === 'admin' || pin === '9339') {
     document.getElementById('adminLockScreen')?.classList.add('hidden');
     document.getElementById('adminDashboard')?.classList.remove('hidden');
+    setAdminSubTab('spotlight');
     renderAdminMediaGrid();
   } else {
     alert('Incorrect Admin PIN. Try 1234');
@@ -1598,51 +3115,279 @@ function exportAnalyticsData(fmt) { exportActivityLogCSV(); }
 window.exportAnalyticsData = exportAnalyticsData;
 
 
+// ══════════════════════════════════════════════════════════════════════════════
+// ENTERPRISE BACKUP & UNIVERSAL RESTORE SYSTEM — Frontend Controller
+// ══════════════════════════════════════════════════════════════════════════════
 
-function triggerFullBackupExport() {
+// ── Create Manual Backup (1-Click) ──────────────────────────────────────────
+async function createManualBackup() {
+  const password = document.getElementById('backupPasswordInput')?.value.trim() || null;
+  const includeMedia = document.getElementById('backupMediaToggle')?.checked || false;
+
   const box = document.getElementById('backupProgressBox');
   const bar = document.getElementById('backupProgressBar');
   const label = document.getElementById('backupProgressLabel');
-  const pct = document.getElementById('backupProgressPercent');
 
-  if (box && bar && pct) {
-    box.classList.remove('hidden');
-    let progress = 0;
-    const timer = setInterval(() => {
-      progress += 20;
-      bar.style.width = `${progress}%`;
-      pct.textContent = `${progress}%`;
-      if (progress >= 100) {
-        clearInterval(timer);
-        setTimeout(() => {
-          window.location.href = '/api/backup/export';
-          setTimeout(() => { box.classList.add('hidden'); bar.style.width = '0%'; }, 1500);
-        }, 400);
-      }
-    }, 200);
-  } else {
-    window.location.href = '/api/backup/export';
-  }
-}
-window.triggerFullBackupExport = triggerFullBackupExport;
-
-async function saveBackupSettings() {
-  const retention = document.getElementById('backupRetentionSelect')?.value || '10';
-  const schedule = document.getElementById('backupScheduleSelect')?.value || 'Daily';
+  if (box) { box.classList.remove('hidden'); bar.style.width = '10%'; label.textContent = 'Creating backup ZIP...'; }
 
   try {
-    const res = await fetch('/api/backup/settings', {
+    const res = await fetch('/api/backup/create', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ retentionPolicy: parseInt(retention), schedulerFrequency: schedule })
+      body: JSON.stringify({ type: 'manual', password, includeMedia })
     });
-    if (res.ok) {
-      alert(`Backup Automation Saved! Retention set to keep last ${retention} copies with ${schedule} automated schedule.`);
+
+    if (bar) bar.style.width = '70%';
+
+    const data = await res.json();
+    if (data.success) {
+      if (bar) bar.style.width = '100%';
+      if (label) label.textContent = '✅ Backup created successfully!';
+
+      // Show password warning
+      const pwMsg = data.password ? `\n\n🔐 BACKUP PASSWORD: ${data.password}\n⚠️ SAVE THIS PASSWORD — you need it to unlock the restore page!` : '';
+      const mediaMsg = includeMedia ? '\n📁 Media ZIP is being created separately.' : '';
+      alert(`✅ Backup Created!\n\nFile: ${data.filename}\nSize: ${data.fileSizeHuman}${pwMsg}${mediaMsg}`);
+
+      setTimeout(() => {
+        if (box) box.classList.add('hidden');
+        if (bar) bar.style.width = '0%';
+      }, 2000);
+
+      // Refresh backup list
+      renderBackupDashboard();
+
+      // Auto-download
+      window.location.href = `/api/backup/download/${encodeURIComponent(data.filename)}`;
+    } else {
+      alert('❌ Backup failed: ' + (data.message || 'Unknown error'));
+      if (box) box.classList.add('hidden');
     }
-  } catch(e) {
-    alert('Settings saved locally.');
+  } catch (err) {
+    alert('❌ Backup error: ' + err.message);
+    if (box) box.classList.add('hidden');
   }
 }
+window.createManualBackup = createManualBackup;
+
+// ── Render Backup Dashboard (History Grid + Config) ─────────────────────────
+async function renderBackupDashboard() {
+  try {
+    const res = await fetch('/api/backup/list');
+    const data = await res.json();
+    if (!data.success) return;
+
+    const backups = data.backups || [];
+    const config = data.config || {};
+    const grid = document.getElementById('backupHistoryGrid');
+    const storageLabel = document.getElementById('backupStorageLabel');
+
+    // Update storage label
+    const totalSize = backups.reduce((sum, b) => sum + (b.fileSize || 0) + (b.mediaFileSize || 0), 0);
+    if (storageLabel) {
+      storageLabel.textContent = `${backups.length} backup${backups.length !== 1 ? 's' : ''} · ${formatBytesClient(totalSize)}`;
+    }
+
+    // Update scheduler UI
+    const toggle = document.getElementById('schedulerToggle');
+    const toggleDot = document.getElementById('schedulerToggleDot');
+    const statusLabel = document.getElementById('schedulerStatusLabel');
+    const scheduleSelect = document.getElementById('backupScheduleSelect');
+
+    if (toggle && config.schedulerEnabled !== undefined) {
+      toggle.checked = config.schedulerEnabled;
+      if (toggleDot) toggleDot.style.transform = config.schedulerEnabled ? 'translateX(20px)' : 'translateX(0)';
+      if (toggleDot) toggleDot.style.backgroundColor = config.schedulerEnabled ? '#f59e0b' : '#94a3b8';
+      if (statusLabel) statusLabel.textContent = config.schedulerEnabled ? 'Enabled' : 'Disabled';
+      if (statusLabel) statusLabel.className = `text-xs font-bold ${config.schedulerEnabled ? 'text-amber-400' : 'text-slate-300'}`;
+    }
+    if (scheduleSelect && config.schedulerFrequency) {
+      scheduleSelect.value = config.schedulerFrequency;
+    }
+
+    // Render backup rows
+    if (!grid) return;
+    if (backups.length === 0) {
+      grid.innerHTML = '<div class="text-center text-slate-500 py-4">No backups yet. Create your first backup above!</div>';
+      return;
+    }
+
+    grid.innerHTML = backups.map(b => {
+      const date = new Date(b.createdAt);
+      const dateStr = date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+      const timeStr = date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+      const typeBadge = b.type === 'auto'
+        ? '<span class="px-1.5 py-0.5 bg-indigo-500/20 text-indigo-400 rounded text-[10px] font-bold">AUTO</span>'
+        : '<span class="px-1.5 py-0.5 bg-emerald-500/20 text-emerald-400 rounded text-[10px] font-bold">MANUAL</span>';
+      const mediaBadge = b.includesMedia
+        ? '<span class="px-1.5 py-0.5 bg-purple-500/20 text-purple-400 rounded text-[10px] font-bold">+MEDIA</span>'
+        : '';
+      const existsBadge = b.exists
+        ? ''
+        : '<span class="px-1.5 py-0.5 bg-red-500/20 text-red-400 rounded text-[10px] font-bold">FILE MISSING</span>';
+
+      const passwordSection = b.password
+        ? `<div class="flex items-center gap-1 mt-1">
+            <span class="text-[10px] text-amber-300/60">🔐 Password:</span>
+            <span class="text-[10px] font-mono bg-slate-800 px-1.5 py-0.5 rounded text-amber-400 select-all cursor-pointer backup-pw-hidden" id="pw-${b.id}" onclick="this.classList.toggle('backup-pw-hidden')" title="Click to reveal/hide">${b.password}</span>
+            <button onclick="navigator.clipboard.writeText('${b.password}');this.textContent='Copied!';setTimeout(()=>this.textContent='📋',1500)" class="text-[10px] text-slate-500 hover:text-white">📋</button>
+          </div>
+          <div class="text-[10px] text-rose-400/50 mt-0.5">⚠️ Save this password! You need it to unlock restore.html</div>`
+        : '<div class="text-[10px] text-slate-500 mt-1">No password set</div>';
+
+      return `
+        <div class="p-3 rounded-xl bg-slate-900/50 border border-slate-800 flex flex-col sm:flex-row sm:items-center gap-3">
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2 flex-wrap">
+              ${typeBadge} ${mediaBadge} ${existsBadge}
+              <span class="text-white font-bold truncate">${dateStr} ${timeStr}</span>
+              <span class="text-slate-500 text-[10px]">${b.fileSizeHuman || '?'}${b.mediaFileSizeHuman ? ' + ' + b.mediaFileSizeHuman + ' media' : ''}</span>
+            </div>
+            ${passwordSection}
+          </div>
+          <div class="flex items-center gap-2 shrink-0">
+            ${b.exists ? `<a href="/api/backup/download/${encodeURIComponent(b.filename)}" download class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-[11px] font-bold">⬇ Site</a>` : ''}
+            ${b.mediaFilename ? `<a href="/api/backup/download/${encodeURIComponent(b.mediaFilename)}" download class="px-3 py-1.5 rounded-lg bg-purple-600 hover:bg-purple-500 text-white text-[11px] font-bold">⬇ Media</a>` : ''}
+            <button onclick="deleteBackup('${b.filename}')" class="px-3 py-1.5 rounded-lg bg-red-600/20 hover:bg-red-600/40 text-red-400 text-[11px] font-bold">🗑</button>
+          </div>
+        </div>`;
+    }).join('');
+
+  } catch (err) {
+    console.error('Failed to load backup dashboard:', err);
+  }
+}
+window.renderBackupDashboard = renderBackupDashboard;
+
+// ── Delete Backup ───────────────────────────────────────────────────────────
+async function deleteBackup(filename) {
+  if (!confirm(`Delete backup "${filename}"? This cannot be undone.`)) return;
+  try {
+    await fetch(`/api/backup/delete/${encodeURIComponent(filename)}`, { method: 'DELETE' });
+    renderBackupDashboard();
+  } catch (err) {
+    alert('Delete failed: ' + err.message);
+  }
+}
+window.deleteBackup = deleteBackup;
+
+// ── Toggle Backup Scheduler ─────────────────────────────────────────────────
+async function toggleBackupScheduler() {
+  try {
+    const res = await fetch('/api/backup/schedule/toggle', { method: 'POST' });
+    const data = await res.json();
+    if (data.success) {
+      renderBackupDashboard();
+    }
+  } catch (err) {
+    alert('Toggle failed: ' + err.message);
+  }
+}
+window.toggleBackupScheduler = toggleBackupScheduler;
+
+// ── Update Schedule Frequency ───────────────────────────────────────────────
+async function updateScheduleFrequency() {
+  const freq = document.getElementById('backupScheduleSelect')?.value || 'Daily';
+  try {
+    await fetch('/api/backup/settings', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ schedulerFrequency: freq })
+    });
+  } catch (err) {
+    console.error('Failed to update frequency:', err);
+  }
+}
+window.updateScheduleFrequency = updateScheduleFrequency;
+
+// ── Change Admin PIN ────────────────────────────────────────────────────────
+async function changeAdminPin() {
+  const currentPin = document.getElementById('currentPinInput')?.value.trim();
+  const newPin = document.getElementById('newPinInput')?.value.trim();
+  const statusEl = document.getElementById('pinChangeStatus');
+
+  if (!currentPin || !newPin) {
+    if (statusEl) { statusEl.classList.remove('hidden'); statusEl.className = 'text-[11px] text-red-400'; statusEl.textContent = '⚠️ Please enter both current and new PIN.'; }
+    return;
+  }
+  if (newPin.length < 4) {
+    if (statusEl) { statusEl.classList.remove('hidden'); statusEl.className = 'text-[11px] text-red-400'; statusEl.textContent = '⚠️ New PIN must be at least 4 characters.'; }
+    return;
+  }
+
+  try {
+    const res = await fetch('/api/admin/change-pin', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ currentPin, newPin })
+    });
+    const data = await res.json();
+    if (statusEl) {
+      statusEl.classList.remove('hidden');
+      statusEl.className = `text-[11px] ${data.success ? 'text-emerald-400' : 'text-red-400'}`;
+      statusEl.textContent = data.success ? '✅ ' + data.message : '❌ ' + data.message;
+    }
+    if (data.success) {
+      document.getElementById('currentPinInput').value = '';
+      document.getElementById('newPinInput').value = '';
+    }
+  } catch (err) {
+    if (statusEl) { statusEl.classList.remove('hidden'); statusEl.className = 'text-[11px] text-red-400'; statusEl.textContent = '❌ Error: ' + err.message; }
+  }
+}
+window.changeAdminPin = changeAdminPin;
+
+// ── Domain Migration ────────────────────────────────────────────────────────
+async function migrateDomain() {
+  const oldDomain = document.getElementById('migrationOldDomain')?.value.trim();
+  const newDomain = document.getElementById('migrationNewDomain')?.value.trim();
+  const statusEl = document.getElementById('migrationStatus');
+
+  if (!oldDomain || !newDomain) {
+    if (statusEl) { statusEl.classList.remove('hidden'); statusEl.className = 'text-[11px] text-red-400'; statusEl.textContent = '⚠️ Enter both old and new domain.'; }
+    return;
+  }
+  if (!confirm(`Rewrite ALL references from "${oldDomain}" to "${newDomain}" in the database? This affects URLs, SEO, and all content.`)) return;
+
+  try {
+    const res = await fetch('/api/backup/migrate-domain', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ oldDomain, newDomain })
+    });
+    const data = await res.json();
+    if (statusEl) {
+      statusEl.classList.remove('hidden');
+      statusEl.className = `text-[11px] ${data.success ? 'text-emerald-400' : 'text-red-400'}`;
+      statusEl.textContent = data.success ? '✅ ' + data.message : '❌ ' + data.message;
+    }
+  } catch (err) {
+    if (statusEl) { statusEl.classList.remove('hidden'); statusEl.className = 'text-[11px] text-red-400'; statusEl.textContent = '❌ Error: ' + err.message; }
+  }
+}
+window.migrateDomain = migrateDomain;
+
+// ── Cloud Storage (Placeholder) ─────────────────────────────────────────────
+function connectCloud(provider) {
+  const names = { gdrive: 'Google Drive', s3: 'Amazon S3', onedrive: 'OneDrive', dropbox: 'Dropbox', b2: 'Backblaze B2' };
+  alert(`🚧 ${names[provider] || provider} integration requires OAuth setup.\n\nTo connect:\n1. Create API credentials for ${names[provider]}\n2. Add them in Settings → Cloud Storage\n3. Test the connection\n\nThis feature will be fully available in a future update.`);
+}
+window.connectCloud = connectCloud;
+
+// ── Client-side byte formatter ──────────────────────────────────────────────
+function formatBytesClient(bytes) {
+  if (!bytes || bytes === 0) return '0 B';
+  const k = 1024;
+  const sizes = ['B', 'KB', 'MB', 'GB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+}
+
+// Legacy compatibility wrapper
+function triggerFullBackupExport() { createManualBackup(); }
+window.triggerFullBackupExport = triggerFullBackupExport;
+
+function saveBackupSettings() { updateScheduleFrequency(); }
 window.saveBackupSettings = saveBackupSettings;
 
 async function resetAnalyticsData() {
@@ -1691,9 +3436,36 @@ function exportAnalyticsData(format) {
 
 function updateSEODisplay() {
   const seo = appData.seo || {};
+  
+  // Populate Admin Inputs
   if (document.getElementById('adminSEOTitle')) document.getElementById('adminSEOTitle').value = seo.title || '';
   if (document.getElementById('adminSEODesc')) document.getElementById('adminSEODesc').value = seo.description || '';
   if (document.getElementById('adminSEOKeywords')) document.getElementById('adminSEOKeywords').value = seo.keywords || '';
+
+  // Synchronize Live Browser Tab Title & Head Meta Tags
+  if (seo.title) {
+    document.title = seo.title;
+    const titleEl = document.getElementById('seoMetaTitle');
+    if (titleEl) titleEl.textContent = seo.title;
+    const ogTitle = document.querySelector('meta[property="og:title"]');
+    if (ogTitle) ogTitle.setAttribute('content', seo.title);
+    const twTitle = document.querySelector('meta[name="twitter:title"]');
+    if (twTitle) twTitle.setAttribute('content', seo.title);
+  }
+
+  if (seo.description) {
+    const descEl = document.getElementById('seoMetaDesc') || document.querySelector('meta[name="description"]');
+    if (descEl) descEl.setAttribute('content', seo.description);
+    const ogDesc = document.querySelector('meta[property="og:description"]');
+    if (ogDesc) ogDesc.setAttribute('content', seo.description);
+    const twDesc = document.querySelector('meta[name="twitter:description"]');
+    if (twDesc) twDesc.setAttribute('content', seo.description);
+  }
+
+  if (seo.keywords) {
+    const kwEl = document.getElementById('seoMetaKeywords') || document.querySelector('meta[name="keywords"]');
+    if (kwEl) kwEl.setAttribute('content', seo.keywords);
+  }
 }
 
 // --------------------------------------------------------------------------
@@ -1737,79 +3509,253 @@ function readFileAsDataURL(file) {
   });
 }
 
+// ==========================================
+// UPLOAD STAGING & CLASSIFICATION STATE
+// ==========================================
+let stagingUploadQueue = [];
+
 async function startBackgroundUpload(e) {
   const files = e.target.files;
   if (!files || files.length === 0) return;
 
-  const targetRole = document.getElementById('bulkUploadTargetRole')?.value || 'Headshot';
-  const progressContainer = document.getElementById('uploadProgressContainer');
-  const progressBar = document.getElementById('uploadProgressBar');
-  const progressPercent = document.getElementById('uploadProgressPercent');
-  const progressText = document.getElementById('uploadProgressText');
-
-  if (progressContainer) progressContainer.classList.remove('hidden');
+  const defaultRole = document.getElementById('bulkUploadTargetRole')?.value || 'Headshot';
+  stagingUploadQueue = [];
 
   const fileList = Array.from(files);
-  const total = fileList.length;
+  for (let i = 0; i < fileList.length; i++) {
+    const file = fileList[i];
+    const isVideo = file.type.startsWith('video/') || file.name.match(/\.(mp4|mov|webm|m4v|mkv)$/i) || defaultRole === 'Showreel Video';
+    
+    let previewUrl = '';
+    if (isVideo) {
+      previewUrl = 'assets/thumb_stevep_showreel.jpg';
+    } else {
+      previewUrl = URL.createObjectURL(file);
+    }
+
+    // Clean file name
+    const rawName = file.name.replace(/\.[^/.]+$/, "").replace(/[_-]/g, " ").replace(/\s+/g, " ").trim();
+    let suggestedTitle = rawName;
+    if (!suggestedTitle.toLowerCase().startsWith('steve')) {
+      suggestedTitle = `Steve in ${suggestedTitle}`;
+    }
+
+    // Smart category suggestion based on filename if available
+    let suggestedCategory = defaultRole;
+    const lower = file.name.toLowerCase();
+    if (lower.includes('headshot') || lower.includes('portrait')) suggestedCategory = 'Headshot';
+    else if (lower.includes('full') || lower.includes('body') || lower.includes('standing') || lower.includes('slate')) suggestedCategory = 'Full Body';
+    else if (lower.includes('still') || lower.includes('scene') || lower.includes('film') || lower.includes('action')) suggestedCategory = 'Filming Still';
+
+    stagingUploadQueue.push({
+      file,
+      isVideo,
+      previewUrl,
+      title: suggestedTitle,
+      category: suggestedCategory,
+      sizeMb: (file.size / (1024 * 1024)).toFixed(2)
+    });
+  }
+
+  // Reset file input so user can re-trigger if needed
+  e.target.value = '';
+
+  openUploadStagingModal();
+}
+
+function openUploadStagingModal() {
+  const modal = document.getElementById('uploadStagingModal');
+  if (!modal) return;
+  modal.classList.remove('hidden');
+  renderUploadStagingGrid();
+  if (window.lucide) lucide.createIcons();
+}
+
+function closeUploadStagingModal(e) {
+  if (e && e.target !== e.currentTarget) return;
+  cancelUploadStaging();
+}
+
+function cancelUploadStaging() {
+  stagingUploadQueue.forEach(item => {
+    if (item.previewUrl && item.previewUrl.startsWith('blob:')) {
+      URL.revokeObjectURL(item.previewUrl);
+    }
+  });
+  stagingUploadQueue = [];
+  document.getElementById('uploadStagingModal')?.classList.add('hidden');
+  document.getElementById('stagingProcessingContainer')?.classList.add('hidden');
+  const confirmBtn = document.getElementById('confirmStagingUploadBtn');
+  if (confirmBtn) confirmBtn.disabled = false;
+}
+
+function renderUploadStagingGrid() {
+  const container = document.getElementById('stagingCardsContainer');
+  const countLabel = document.getElementById('stagingItemsCountLabel');
+  if (countLabel) countLabel.textContent = `${stagingUploadQueue.length} items ready to ingest`;
+
+  if (!container) return;
+
+  if (stagingUploadQueue.length === 0) {
+    container.innerHTML = `<div class="col-span-full py-12 text-center text-slate-400 text-xs italic">No items in staging queue. Select photos or videos to stage uploads.</div>`;
+    return;
+  }
+
+  container.innerHTML = stagingUploadQueue.map((item, idx) => `
+    <div class="glass-card rounded-2xl border border-slate-800 p-3 space-y-2.5 bg-slate-900/60 flex flex-col justify-between">
+      <div class="relative w-full h-36 rounded-xl overflow-hidden bg-slate-950 border border-slate-800 flex items-center justify-center">
+        ${item.isVideo ? `
+          <div class="flex flex-col items-center justify-center gap-1.5 text-purple-400">
+            <i data-lucide="video" class="w-8 h-8"></i>
+            <span class="text-[10px] font-bold font-mono-code px-2 text-center truncate w-full">${escapeHtml(item.file.name)}</span>
+          </div>
+        ` : `
+          <img src="${item.previewUrl}" class="w-full h-full object-cover object-top" alt="Staged Preview">
+        `}
+        <div class="absolute top-1.5 right-1.5 flex items-center gap-1">
+          <span class="px-1.5 py-0.5 rounded bg-slate-950/80 border border-slate-800 text-[9px] font-mono-code text-slate-300 font-bold">${item.sizeMb} MB</span>
+          <button onclick="removeStagingItem(${idx})" class="p-1 rounded-lg bg-rose-600/80 hover:bg-rose-600 text-white shadow" title="Remove">
+            <i data-lucide="trash" class="w-3 h-3"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="space-y-1.5 text-xs text-left">
+        <div>
+          <label class="text-[10px] font-bold text-slate-300 block mb-0.5">Photo Title (e.g. Steve in...):</label>
+          <input type="text" value="${escapeHtml(item.title)}" oninput="updateStagingItemTitle(${idx}, this.value)" class="admin-input text-xs font-bold text-amber-300 px-2 py-1" placeholder="Steve in...">
+        </div>
+
+        <div>
+          <label class="text-[10px] font-bold text-slate-300 block mb-0.5">Target Category / Tag:</label>
+          <select onchange="updateStagingItemCategory(${idx}, this.value)" class="admin-select text-xs font-bold text-amber-400 px-2 py-1">
+            <option value="Headshot" ${item.category === 'Headshot' ? 'selected' : ''}>🎭 Headshot (Head & Shoulders)</option>
+            <option value="Full Body" ${item.category === 'Full Body' ? 'selected' : ''}>🧍 Full Body Standing Slate</option>
+            <option value="Filming Still" ${item.category === 'Filming Still' ? 'selected' : ''}>📸 35mm Filming Location Still</option>
+            <option value="Signature B&W" ${item.category === 'Signature B&W' ? 'selected' : ''}>🖼️ Ambient Background Photo</option>
+            <option value="Showreel Video" ${item.category === 'Showreel Video' ? 'selected' : ''}>🎥 Showreel Video</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  `).join('');
+
+  if (window.lucide) lucide.createIcons();
+}
+
+function updateStagingItemTitle(idx, val) {
+  if (stagingUploadQueue[idx]) {
+    stagingUploadQueue[idx].title = val;
+  }
+}
+
+function updateStagingItemCategory(idx, val) {
+  if (stagingUploadQueue[idx]) {
+    stagingUploadQueue[idx].category = val;
+  }
+}
+
+function removeStagingItem(idx) {
+  if (stagingUploadQueue[idx]) {
+    if (stagingUploadQueue[idx].previewUrl && stagingUploadQueue[idx].previewUrl.startsWith('blob:')) {
+      URL.revokeObjectURL(stagingUploadQueue[idx].previewUrl);
+    }
+    stagingUploadQueue.splice(idx, 1);
+    renderUploadStagingGrid();
+  }
+}
+
+function applyBatchCategoryToStaging() {
+  const cat = document.getElementById('stagingBatchCategory')?.value || 'Headshot';
+  stagingUploadQueue.forEach(item => {
+    item.category = cat;
+  });
+  renderUploadStagingGrid();
+}
+
+function prefixAllStagingTitles(prefix) {
+  stagingUploadQueue.forEach(item => {
+    let clean = item.title.trim();
+    clean = clean.replace(/^(Steve in |Steve with |Steve |steve )/i, '').trim();
+    item.title = `${prefix}${clean}`;
+  });
+  renderUploadStagingGrid();
+}
+
+async function confirmStagedUploads() {
+  if (stagingUploadQueue.length === 0) return alert('No items to upload.');
+
+  const processContainer = document.getElementById('stagingProcessingContainer');
+  const processBar = document.getElementById('stagingProcessingBar');
+  const processPercent = document.getElementById('stagingProcessingPercent');
+  const processText = document.getElementById('stagingProcessingText');
+  const confirmBtn = document.getElementById('confirmStagingUploadBtn');
+
+  if (confirmBtn) confirmBtn.disabled = true;
+  if (processContainer) processContainer.classList.remove('hidden');
+
+  const total = stagingUploadQueue.length;
 
   for (let i = 0; i < total; i++) {
-    const file = fileList[i];
-    const isVideo = file.type.startsWith('video/') || file.name.match(/\.(mp4|mov|webm|m4v|mkv)$/i) || targetRole === 'Showreel Video';
+    const item = stagingUploadQueue[i];
+    const pct = Math.round(((i) / total) * 100);
+    if (processBar) processBar.style.width = `${pct}%`;
+    if (processPercent) processPercent.textContent = `${pct}%`;
+    if (processText) processText.innerHTML = `<i data-lucide="loader" class="w-4 h-4 animate-spin"></i> Processing "${escapeHtml(item.title)}" (${i + 1} of ${total})...`;
 
-    if (isVideo) {
-      const videoDataUrl = await readFileAsDataURL(file);
+    if (item.isVideo) {
+      const videoDataUrl = await readFileAsDataURL(item.file);
       const newVideo = {
         id: 'vid_' + Date.now() + '_' + i,
-        title: file.name.replace(/\.[^/.]+$/, ""),
+        title: item.title,
         url: videoDataUrl,
         type: 'video',
         tag: 'Showreel Video',
         poster: 'assets/thumb_stevep_showreel.jpg',
-        size: (file.size / (1024 * 1024)).toFixed(1) + ' MB'
+        size: item.sizeMb + ' MB'
       };
       appData.spotlightVideos = appData.spotlightVideos || [];
       appData.spotlightVideos.unshift(newVideo);
     } else {
-      const compressedUrl = await compressImage(file);
+      const compressedUrl = await compressImage(item.file);
       const newMedia = {
         id: 'media_' + Date.now() + '_' + i,
-        title: file.name.replace(/\.[^/.]+$/, ""),
-        tag: targetRole,
+        title: item.title,
+        tag: item.category,
         type: 'photo',
-        desc: `${targetRole} photo`,
+        desc: `${item.category} photo: ${item.title}`,
         url: compressedUrl
       };
 
-      if (targetRole === 'Filming Still') {
+      if (item.category === 'Filming Still') {
+        appData.stills = appData.stills || [];
         appData.stills.unshift(newMedia);
-      } else if (targetRole === 'Full Body') {
+      } else if (item.category === 'Full Body') {
         appData.fullBodySlates = appData.fullBodySlates || [];
         appData.fullBodySlates.unshift(newMedia);
       } else {
+        appData.headshots = appData.headshots || [];
         appData.headshots.unshift(newMedia);
       }
 
-      if (targetRole === 'Signature B&W') {
+      if (item.category === 'Signature B&W') {
         const bg = document.getElementById('globalBgLayer');
         if (bg) bg.style.backgroundImage = `url('${compressedUrl}')`;
       }
     }
 
-    const pct = Math.round(((i + 1) / total) * 100);
-    if (progressBar) progressBar.style.width = `${pct}%`;
-    if (progressPercent) progressPercent.textContent = `${pct}%`;
-    if (progressText) progressText.innerHTML = `<i data-lucide="loader" class="w-4 h-4 animate-spin"></i> Processing ${i + 1} of ${total} files...`;
-    
-    renderAll();
-    await new Promise(r => setTimeout(r, 100));
+    await new Promise(r => setTimeout(r, 60));
   }
+
+  if (processBar) processBar.style.width = `100%`;
+  if (processPercent) processPercent.textContent = `100%`;
+  if (processText) processText.innerHTML = `<i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400"></i> Saving to database...`;
 
   await saveAppDataToServer();
 
-  if (progressText) progressText.innerHTML = `<i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400"></i> All ${total} files processed, added to ${targetRole}, & saved to database!`;
-  setTimeout(() => {
-    if (progressContainer) progressContainer.classList.add('hidden');
-  }, 3000);
+  cancelUploadStaging();
+  renderAll();
+  alert(`✅ Successfully ingested and categorized ${total} photos/videos with your custom names!`);
 }
 
 function handleHeadshotUpload(e) {
@@ -1884,6 +3830,88 @@ function findMediaCategory(id) {
   return null;
 }
 
+// Inline Title Quick Update
+async function updateMediaTitle(id, newTitle) {
+  const item = [...(appData.headshots || []), ...(appData.stills || []), ...(appData.fullBodySlates || []), ...(appData.spotlightVideos || [])].find(m => m.id === id);
+  if (item) {
+    item.title = newTitle.trim() || item.title;
+    renderAll();
+    await saveAppDataToServer();
+  }
+}
+
+// Single Media Quick-Edit Modal
+function openEditMediaModal(id) {
+  const item = [...(appData.headshots || []), ...(appData.stills || []), ...(appData.fullBodySlates || []), ...(appData.spotlightVideos || [])].find(m => m.id === id);
+  if (!item) return;
+  
+  document.getElementById('editMediaId').value = item.id;
+  document.getElementById('editMediaTitle').value = item.title || '';
+  document.getElementById('editMediaCategory').value = item.tag || 'Headshot';
+  document.getElementById('editMediaRole').value = item.role || '';
+  document.getElementById('editMediaDesc').value = item.desc || '';
+
+  const imgEl = document.getElementById('editMediaPreviewImg');
+  const vidEl = document.getElementById('editMediaPreviewVid');
+
+  if (item.type === 'video' || item.tag === 'Showreel Video') {
+    imgEl.classList.add('hidden');
+    vidEl.classList.remove('hidden');
+    vidEl.src = item.url;
+  } else {
+    vidEl.classList.add('hidden');
+    imgEl.classList.remove('hidden');
+    imgEl.src = item.url;
+  }
+
+  document.getElementById('editMediaModal').classList.remove('hidden');
+  if (window.lucide) lucide.createIcons();
+}
+
+function closeEditMediaModal(e) {
+  if (e && e.target !== e.currentTarget) return;
+  document.getElementById('editMediaModal')?.classList.add('hidden');
+}
+
+async function saveMediaEditModal() {
+  const id = document.getElementById('editMediaId').value;
+  const newTitle = document.getElementById('editMediaTitle').value.trim();
+  const newCategory = document.getElementById('editMediaCategory').value;
+  const newRole = document.getElementById('editMediaRole').value.trim();
+  const newDesc = document.getElementById('editMediaDesc').value.trim();
+
+  const item = [...(appData.headshots || []), ...(appData.stills || []), ...(appData.fullBodySlates || []), ...(appData.spotlightVideos || [])].find(m => m.id === id);
+  if (item) {
+    if (newTitle) item.title = newTitle;
+    item.tag = newCategory;
+    if (newRole) item.role = newRole;
+    if (newDesc) item.desc = newDesc;
+
+    await reassignMediaRole(id, newCategory);
+    document.getElementById('editMediaModal').classList.add('hidden');
+  }
+}
+
+async function promptBulkRenameSelected() {
+  if (selectedMediaIds.size === 0) return alert('Please select one or more photos using checkboxes first.');
+  const newName = prompt(`Enter new title prefix or name for the ${selectedMediaIds.size} selected items:\n(e.g. Steve in Navy Suit)`, "Steve in ");
+  if (!newName || !newName.trim()) return;
+
+  const trimmed = newName.trim();
+  let count = 0;
+  [...(appData.headshots || []), ...(appData.stills || []), ...(appData.fullBodySlates || []), ...(appData.spotlightVideos || [])].forEach(m => {
+    if (selectedMediaIds.has(m.id)) {
+      count++;
+      m.title = `${trimmed}${count > 1 ? ` (${count})` : ''}`;
+    }
+  });
+
+  selectedMediaIds.clear();
+  renderAll();
+  await saveAppDataToServer();
+  alert(`✅ Renamed ${count} selected items successfully!`);
+}
+
 function renderAdminMediaGrid() {
   const container = document.getElementById('adminMediaGrid');
   if (!container) return;
@@ -1943,51 +3971,57 @@ function renderAdminMediaGrid() {
     let typeBadge = isVideo ? "bg-purple-500 text-white font-black" : "bg-amber-500 text-slate-950 font-black";
 
     return `
-      <div draggable="true" ondragstart="handleMediaDragStart(event, '${m.id}')" ondragover="handleMediaDragOver(event)" ondrop="handleMediaDrop(event, '${m.id}')" class="relative group rounded-xl overflow-hidden glass-card border ${isChecked ? 'border-amber-400 ring-2 ring-amber-400/50' : 'border-slate-800'} aspect-square flex flex-col justify-between cursor-move shadow-md">
+      <div draggable="true" ondragstart="handleMediaDragStart(event, '${m.id}')" ondragover="handleMediaDragOver(event)" ondrop="handleMediaDrop(event, '${m.id}')" class="relative group rounded-xl overflow-hidden glass-card border ${isChecked ? 'border-amber-400 ring-2 ring-amber-400/50' : 'border-slate-800'} aspect-square flex flex-col justify-between cursor-move shadow-md bg-slate-950">
         
         ${isVideo ? `
           <video src="${m.url}" poster="${m.poster || 'assets/thumb_stevep_showreel.jpg'}" class="w-full h-full object-cover absolute inset-0" preload="metadata"></video>
           <div class="absolute inset-0 bg-slate-950/40 flex items-center justify-center group-hover:bg-purple-600/30 transition">
-            <div class="w-10 h-10 rounded-full bg-purple-600 text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition cursor-pointer" onclick="openVideoModal('${m.url}', '${(m.title || 'Video').replace(/'/g, "\\'")}')">
-              <i data-lucide="play" class="w-5 h-5 fill-current ml-0.5"></i>
+            <div class="w-9 h-9 rounded-full bg-purple-600 text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition cursor-pointer" onclick="openVideoModal('${m.url}', '${(m.title || 'Video').replace(/'/g, "\\'")}')">
+              <i data-lucide="play" class="w-4 h-4 fill-current ml-0.5"></i>
             </div>
           </div>
         ` : `
-          <img src="${m.url}" class="w-full h-full object-cover object-top absolute inset-0">
+          <img src="${m.url}" class="w-full h-full object-cover object-top absolute inset-0 cursor-pointer" onclick="openEditMediaModal('${m.id}')" title="Click to view & edit details">
         `}
         
         <!-- Top Controls Overlay -->
-        <div class="relative z-10 p-2 flex items-center justify-between bg-gradient-to-b from-slate-950/90 to-transparent">
-          <input type="checkbox" ${isChecked ? 'checked' : ''} onchange="toggleMediaSelect('${m.id}')" class="w-4 h-4 rounded text-amber-500 cursor-pointer">
+        <div class="relative z-10 p-1.5 flex items-center justify-between bg-gradient-to-b from-slate-950/95 via-slate-950/80 to-transparent">
+          <input type="checkbox" ${isChecked ? 'checked' : ''} onchange="toggleMediaSelect('${m.id}')" class="w-3.5 h-3.5 rounded text-amber-500 cursor-pointer">
           <div class="flex items-center gap-1">
-            <span class="px-1.5 py-0.5 rounded ${typeBadge} text-[9px] truncate">${isVideo ? '🎥 VIDEO' : '📸 PHOTO'}</span>
-            <span class="px-1.5 py-0.5 rounded bg-slate-900 border border-slate-700 text-slate-300 text-[9px] truncate">${m.tag}</span>
+            <button onclick="openEditMediaModal('${m.id}')" class="p-1 rounded bg-slate-900/90 border border-slate-700 hover:border-amber-400 text-slate-300 hover:text-amber-400 transition" title="Edit Full Details">
+              <i data-lucide="edit-2" class="w-3 h-3"></i>
+            </button>
+            <span class="px-1 py-0.5 rounded ${typeBadge} text-[8px] truncate">${isVideo ? '🎥 VID' : '📸'}</span>
           </div>
         </div>
 
         <!-- Bottom Actions & Quick Reorder Controls Overlay -->
-        <div class="relative z-10 p-2 bg-gradient-to-t from-slate-950 via-slate-950/90 to-transparent opacity-90 group-hover:opacity-100 transition space-y-1.5 text-left">
-          <div class="flex items-center justify-between gap-1">
-            <span class="text-[9px] text-slate-300 font-bold">Reorder:</span>
-            <div class="flex items-center gap-1">
-              <button onclick="moveMediaUp('${m.id}')" class="px-2 py-0.5 rounded bg-slate-900 border border-slate-700 hover:border-amber-400 text-amber-400 text-[10px] font-black" title="Move Up">⬆️</button>
-              <button onclick="moveMediaDown('${m.id}')" class="px-2 py-0.5 rounded bg-slate-900 border border-slate-700 hover:border-amber-400 text-amber-400 text-[10px] font-black" title="Move Down">⬇️</button>
-            </div>
+        <div class="relative z-10 p-1.5 bg-gradient-to-t from-slate-950 via-slate-950/95 to-transparent space-y-1 text-left">
+          
+          <!-- Editable Title Input -->
+          <div>
+            <input type="text" value="${escapeHtml(m.title || '')}" onchange="updateMediaTitle('${m.id}', this.value)" class="w-full px-1.5 py-0.5 rounded bg-slate-950/90 border border-slate-700/80 hover:border-amber-400 focus:border-amber-400 text-[10px] font-bold text-amber-200 placeholder:text-slate-500 truncate" placeholder="Steve in...">
           </div>
 
-          <div class="space-y-0.5">
-            <select onchange="reassignMediaRole('${m.id}', this.value)" class="w-full px-1.5 py-1 rounded bg-slate-900 border border-slate-700 text-[10px] font-bold text-amber-300">
-              <option value="Headshot" ${m.tag === 'Headshot' ? 'selected' : ''}>Standard Headshot</option>
-              <option value="Showreel Video" ${m.tag === 'Showreel Video' ? 'selected' : ''}>🎥 Showreel Video</option>
-              <option value="Full Body" ${m.tag === 'Full Body' ? 'selected' : ''}>Full Body Slate</option>
-              <option value="Filming Still" ${m.tag === 'Filming Still' ? 'selected' : ''}>35mm Filming Still</option>
-              <option value="Signature B&W" ${m.tag === 'Signature B&W' ? 'selected' : ''}>Ambient BG Photo</option>
+          <!-- Category Selector & Up/Down -->
+          <div class="flex items-center gap-1">
+            <select onchange="reassignMediaRole('${m.id}', this.value)" class="w-full px-1 py-0.5 rounded bg-slate-950 border border-slate-700 text-[9px] font-bold text-amber-400">
+              <option value="Headshot" ${m.tag === 'Headshot' ? 'selected' : ''}>🎭 Headshot</option>
+              <option value="Full Body" ${m.tag === 'Full Body' ? 'selected' : ''}>🧍 Full Body</option>
+              <option value="Filming Still" ${m.tag === 'Filming Still' ? 'selected' : ''}>📸 35mm Still</option>
+              <option value="Signature B&W" ${m.tag === 'Signature B&W' ? 'selected' : ''}>🖼️ Ambient BG</option>
+              <option value="Showreel Video" ${m.tag === 'Showreel Video' ? 'selected' : ''}>🎥 Reel Video</option>
             </select>
+            <button onclick="moveMediaUp('${m.id}')" class="px-1.5 py-0.5 rounded bg-slate-900 border border-slate-700 hover:border-amber-400 text-amber-400 text-[9px] font-black" title="Move Up">⬆️</button>
+            <button onclick="moveMediaDown('${m.id}')" class="px-1.5 py-0.5 rounded bg-slate-900 border border-slate-700 hover:border-amber-400 text-amber-400 text-[9px] font-black" title="Move Down">⬇️</button>
           </div>
+
         </div>
       </div>
     `;
   }).join('');
+
+  if (window.lucide) lucide.createIcons();
 }
 
 function toggleMediaSelect(id) {
@@ -2012,9 +4046,33 @@ async function saveAppDataToServer() {
 }
 
 async function reassignMediaRole(id, newRole) {
-  const item = [...(appData.headshots || []), ...(appData.stills || [])].find(m => m.id === id);
-  if (item) {
-    item.tag = newRole;
+  const allCollections = ['headshots', 'stills', 'fullBodySlates', 'spotlightVideos'];
+  let foundItem = null;
+
+  for (const col of allCollections) {
+    if (Array.isArray(appData[col])) {
+      const item = appData[col].find(m => m.id === id);
+      if (item) {
+        foundItem = item;
+        break;
+      }
+    }
+  }
+
+  if (foundItem) {
+    foundItem.tag = newRole;
+
+    if (newRole === 'Full Body') {
+      appData.fullBodySlates = appData.fullBodySlates || [];
+      if (!appData.fullBodySlates.some(m => m.id === id)) {
+        appData.fullBodySlates.push(foundItem);
+      }
+    } else {
+      if (appData.fullBodySlates) {
+        appData.fullBodySlates = appData.fullBodySlates.filter(m => m.id !== id);
+      }
+    }
+
     renderAll();
     await saveAppDataToServer();
   }
@@ -2024,9 +4082,20 @@ async function bulkMoveSelected() {
   if (selectedMediaIds.size === 0) return alert('Select photos to move first using checkboxes.');
   const newRole = document.getElementById('bulkMoveTarget')?.value || 'Headshot';
 
-  [...(appData.headshots || []), ...(appData.stills || [])].forEach(m => {
+  const allItems = [...(appData.headshots || []), ...(appData.stills || []), ...(appData.fullBodySlates || [])];
+  allItems.forEach(m => {
     if (selectedMediaIds.has(m.id)) {
       m.tag = newRole;
+      if (newRole === 'Full Body') {
+        appData.fullBodySlates = appData.fullBodySlates || [];
+        if (!appData.fullBodySlates.some(item => item.id === m.id)) {
+          appData.fullBodySlates.push(m);
+        }
+      } else {
+        if (appData.fullBodySlates) {
+          appData.fullBodySlates = appData.fullBodySlates.filter(item => item.id !== m.id);
+        }
+      }
     }
   });
 
@@ -2056,46 +4125,79 @@ async function deleteSelectedMedia() {
 }
 
 // --------------------------------------------------------------------------
-// BACKUP & RESTORE
+// BACKUP & RESTORE (handleRestoreBackup — canonical client-side restore)
+// Note: triggerFullBackupExport / createManualBackup are defined above
 // --------------------------------------------------------------------------
 function handleRestoreBackup(e) {
-  const file = e.target.files[0];
+  const file = e.target?.files?.[0];
   if (!file) return;
 
   const reader = new FileReader();
   reader.onload = async (event) => {
     try {
-      const json = JSON.parse(event.target.result);
-      if (json.credits || json.headshots || json.seo) {
+      let json = JSON.parse(event.target.result);
+      if (json.db && typeof json.db === 'object') {
+        json = json.db;
+      }
+      if (json.credits || json.headshots || json.seo || json.stats || json.siteTexts) {
         appData = json;
         renderAll();
+        populateHeroAdminInputs();
+        renderAdminTrainingTable();
+        renderAdminCredits();
+        renderHeroStats();
+        renderSpotlightTraining();
+        applySiteTexts();
+        updateLiveHeroCard();
         await saveAppDataToServer();
-        alert('Site backup restored and saved permanently to server!');
+        alert('✅ Full Site Backup Restored & Saved Permanently to Database!');
       } else {
-        alert('Invalid backup format');
+        alert('Invalid backup format: missing core portfolio data keys.');
       }
     } catch (err) {
-      alert('Error parsing JSON backup file');
+      alert('Error parsing JSON backup file: ' + err.message);
     }
   };
   reader.readAsText(file);
 }
+window.handleRestoreBackup = handleRestoreBackup;
 
 // --------------------------------------------------------------------------
 // FORM SAVES & EVENT TRACKING
 // --------------------------------------------------------------------------
 async function handleSaveSEO(e) {
-  e.preventDefault();
-  appData.seo = appData.seo || {};
-  appData.seo.title = document.getElementById('adminSEOTitle').value;
-  appData.seo.description = document.getElementById('adminSEODesc').value;
-  appData.seo.keywords = document.getElementById('adminSEOKeywords').value;
+  if (e && typeof e.preventDefault === 'function') e.preventDefault();
   
-  if (document.title && appData.seo.title) document.title = appData.seo.title;
+  const titleInput = document.getElementById('adminSEOTitle');
+  const descInput = document.getElementById('adminSEODesc');
+  const keywordsInput = document.getElementById('adminSEOKeywords');
+
+  appData.seo = {
+    title: (titleInput ? titleInput.value : appData.seo?.title || '').trim(),
+    description: (descInput ? descInput.value : appData.seo?.description || '').trim(),
+    keywords: (keywordsInput ? keywordsInput.value : appData.seo?.keywords || '').trim()
+  };
   
-  const saved = await saveAppDataToServer();
-  if (saved) alert('SEO Settings Saved & Saved to Database!');
-  else alert('SEO Settings updated locally');
+  updateSEODisplay();
+  
+  let savedSeo = false;
+  try {
+    const resSeo = await fetch('/api/seo', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ seo: appData.seo })
+    });
+    if (resSeo.ok) savedSeo = true;
+  } catch (err) {
+    console.error('Error saving directly to /api/seo:', err);
+  }
+
+  const savedAll = await saveAppDataToServer();
+  if (savedSeo || savedAll) {
+    alert('✅ SEO Settings Saved & Permanently Committed to Database and HTML!');
+  } else {
+    alert('⚠️ SEO Settings updated locally in browser.');
+  }
 }
 
 async function handleSaveVitalStats(e) {
@@ -2113,18 +4215,20 @@ async function handleSaveVitalStats(e) {
 
 async function handleSaveCredit(e) {
   e.preventDefault();
+  const yearInput = document.getElementById('adminCreditYear');
   const newCredit = {
     id: 'w_' + Date.now(),
-    title: document.getElementById('adminCreditTitle').value,
-    role: document.getElementById('adminCreditRole').value,
+    title: document.getElementById('adminCreditTitle').value.trim(),
+    role: document.getElementById('adminCreditRole').value.trim(),
     category: document.getElementById('adminCreditCat').value,
     production: 'Independent',
-    year: '2026',
+    year: (yearInput && yearInput.value.trim()) ? yearInput.value.trim() : new Date().getFullYear().toString(),
     status: 'Active'
   };
   appData.credits.unshift(newCredit);
   renderAll();
   await saveAppDataToServer();
+  if (e.target && typeof e.target.reset === 'function') e.target.reset();
   alert('Acting credit added and saved!');
 }
 
@@ -2174,18 +4278,26 @@ function trackEvent(type, name = '', extra = {}) {
 }
 
 // Stills Reel navigation
-function prevStill() {
+function prevStill(isUserClick = false) {
   const stills = appData.stills || [];
   if (stills.length === 0) return;
   currentStillIndex = (currentStillIndex - 1 + stills.length) % stills.length;
   updateStillDisplay();
+  if (isUserClick && stillAutoplayTimer) {
+    clearInterval(stillAutoplayTimer);
+    stillAutoplayTimer = setInterval(nextStill, 3000);
+  }
 }
 
-function nextStill() {
+function nextStill(isUserClick = false) {
   const stills = appData.stills || [];
   if (stills.length === 0) return;
   currentStillIndex = (currentStillIndex + 1) % stills.length;
   updateStillDisplay();
+  if (isUserClick && stillAutoplayTimer) {
+    clearInterval(stillAutoplayTimer);
+    stillAutoplayTimer = setInterval(nextStill, 3000);
+  }
 }
 
 function selectStillByIndex(idx) {
@@ -2193,6 +4305,10 @@ function selectStillByIndex(idx) {
   if (idx >= 0 && idx < stills.length) {
     currentStillIndex = idx;
     updateStillDisplay();
+    if (stillAutoplayTimer) {
+      clearInterval(stillAutoplayTimer);
+      stillAutoplayTimer = setInterval(nextStill, 3000);
+    }
   }
 }
 
@@ -2220,36 +4336,97 @@ function updateStillDisplay() {
   if (stills.length === 0) return;
   const current = stills[currentStillIndex];
   if (current) {
-    const imgEl = document.getElementById('cinemaStillImg');
-    const titleEl = document.getElementById('cinemaStillTitle');
-    const descEl = document.getElementById('cinemaStillDesc');
-    const counterEl = document.getElementById('cinemaCounter');
-
-    if (imgEl) imgEl.src = current.url;
-    if (titleEl) titleEl.textContent = current.title || '35mm Filming Location Still';
-    if (descEl) descEl.textContent = current.desc || 'Original 35mm lens location capture';
-    if (counterEl) counterEl.textContent = `${currentStillIndex + 1} / ${stills.length}`;
+    document.querySelectorAll('#cinemaStillImg, #cinemaStillImg2, [data-cinema-still-img]').forEach(el => {
+      el.src = current.url;
+    });
+    document.querySelectorAll('#cinemaStillTitle, #cinemaStillTitle2, [data-cinema-still-title]').forEach(el => {
+      el.textContent = current.title || '35mm Filming Location Still';
+    });
+    document.querySelectorAll('#cinemaStillDesc, #cinemaStillDesc2, [data-cinema-still-desc]').forEach(el => {
+      el.textContent = current.desc || 'Original 35mm lens location capture';
+    });
+    document.querySelectorAll('#cinemaCounter, #cinemaCounter2, [data-cinema-counter]').forEach(el => {
+      el.textContent = `${currentStillIndex + 1} / ${stills.length}`;
+    });
 
     renderStillsThumbStrip();
   }
 }
 
-function toggleReelAutoPlay() {
-  const btn = document.getElementById('reelAutoPlayBtn');
+function startStillsAutoPlay() {
+  if (!stillAutoplayTimer) {
+    stillAutoplayTimer = setInterval(nextStill, 3000);
+  }
+  updateAutoPlayButtonUI(true);
+}
+
+function stopStillsAutoPlay() {
   if (stillAutoplayTimer) {
     clearInterval(stillAutoplayTimer);
     stillAutoplayTimer = null;
-    if (btn) btn.innerHTML = `<i data-lucide="play" class="w-4 h-4"></i> Auto-Play Slideshow`;
-  } else {
-    stillAutoplayTimer = setInterval(nextStill, 3000);
-    if (btn) btn.innerHTML = `<i data-lucide="pause" class="w-4 h-4"></i> Pause Slideshow`;
   }
+  updateAutoPlayButtonUI(false);
+}
+
+function updateAutoPlayButtonUI(isPlaying) {
+  document.querySelectorAll('#reelAutoPlayBtn, #reelAutoPlayBtn2, [data-reel-autoplay-btn]').forEach(btn => {
+    if (isPlaying) {
+      btn.innerHTML = `<i data-lucide="pause" class="w-3.5 h-3.5"></i> Pause Autoplay`;
+      btn.classList.add('bg-amber-500/30', 'text-amber-300');
+    } else {
+      btn.innerHTML = `<i data-lucide="play" class="w-3.5 h-3.5"></i> Auto-Play Slideshow`;
+      btn.classList.remove('bg-amber-500/30', 'text-amber-300');
+    }
+  });
   if (window.lucide) lucide.createIcons();
 }
 
+function toggleReelAutoPlay() {
+  if (stillAutoplayTimer) {
+    stopStillsAutoPlay();
+  } else {
+    startStillsAutoPlay();
+  }
+}
+
 // --------------------------------------------------------------------------
-// PAGE TEXT & HERO CONTENT EDITOR
+// PAGE TEXT & HERO CONTENT EDITOR (DOUBLE-LINE NAVIGATION PRESERVATION)
 // --------------------------------------------------------------------------
+function formatNavTitleToDoubleLine(text) {
+  if (!text) return '';
+  if (text.includes('<br>')) return text;
+  if (text.includes('\n')) return text.replace(/\n/g, '<br>');
+  
+  const clean = text.trim();
+  const known = {
+    'Casting Director Hub': 'Casting Director<br>Hub',
+    'Casting Hub': 'Casting<br>Hub',
+    'About SteveP Timeline': 'About SteveP<br>Timeline',
+    'About Steve Pereira Timeline': 'About SteveP<br>Timeline',
+    'Headshots & Full Body': 'Headshots &amp;<br>Full Body',
+    'Professional Headshots & Full Body': 'Headshots &amp;<br>Full Body',
+    '34-Yr IT Architect': '34-Yr IT<br>Architect',
+    '34-Year IT Architect': '34-Yr IT<br>Architect',
+    'Hacks & Savings': 'Hacks &amp;<br>Savings',
+    'Hacks & Money Savings': 'Hacks &amp;<br>Savings',
+    'SteveP Tech Hacks & Savings': 'Hacks &amp;<br>Savings',
+    'KMST Recovery': 'KMST<br>Recovery',
+    'KEEP ME SOBER TOO (KMST)': 'KMST<br>Recovery',
+    'Book / Contact': 'Book /<br>Contact',
+    'Book / Contact Steve': 'Book /<br>Contact'
+  };
+  if (known[clean]) return known[clean];
+
+  const words = clean.split(/\s+/);
+  if (words.length >= 3) {
+    const mid = Math.ceil(words.length / 2);
+    return words.slice(0, mid).join(' ') + '<br>' + words.slice(mid).join(' ');
+  } else if (words.length === 2) {
+    return words[0] + '<br>' + words[1];
+  }
+  return clean;
+}
+
 function applySiteTexts() {
   const t = appData.siteTexts || {};
   
@@ -2260,6 +4437,26 @@ function applySiteTexts() {
   if (t.topBannerAgent) {
     const el = document.getElementById('topBannerAgentText');
     if (el) el.textContent = t.topBannerAgent;
+  }
+  if (t.actorName) {
+    const el = document.getElementById('heroActorName');
+    if (el) el.textContent = t.actorName;
+  }
+  if (t.actorSummary) {
+    const el = document.getElementById('heroActorSummary');
+    if (el) el.innerHTML = formatHeroSummary(t.actorSummary);
+  }
+  if (t.heroBadge1) {
+    const el = document.getElementById('heroBadge1Text');
+    if (el) el.textContent = t.heroBadge1;
+  }
+  if (t.heroBadge2) {
+    const el = document.getElementById('heroBadge2');
+    if (el) el.textContent = t.heroBadge2;
+  }
+  if (t.heroBadge3) {
+    const el = document.getElementById('heroBadge3');
+    if (el) el.textContent = t.heroBadge3;
   }
   if (t.heroTitle) {
     const el = document.getElementById('heroTitleText');
@@ -2290,26 +4487,28 @@ function applySiteTexts() {
     if (el) el.textContent = t.hacksTitle;
   }
 
-  // Custom Page Tab Names
+  // Custom Page Tab Names with strict Double-Line Enforcement
   const tabNames = t.tabNames || {};
-  const mapNav = {
-    casting: ['nav-casting', 'Casting Hub'],
-    about: ['nav-about', 'About SteveP Timeline'],
-    headshots: ['nav-headshots', 'Headshots & Full Body'],
-    itexpert: ['nav-itexpert', '34-Yr IT Architect'],
-    hacks: ['nav-hacks', 'Hacks & Savings'],
-    sobriety: ['nav-sobriety', 'KMST Recovery'],
-    booking: ['nav-booking', 'Book / Contact']
+  const defaultNavMap = {
+    casting: ['nav-casting', 'Casting Director<br>Hub'],
+    about: ['nav-about', 'About SteveP<br>Timeline'],
+    headshots: ['nav-headshots', 'Headshots &amp;<br>Full Body'],
+    itexpert: ['nav-itexpert', '34-Yr IT<br>Architect'],
+    hacks: ['nav-hacks', 'Hacks &amp;<br>Savings'],
+    sobriety: ['nav-sobriety', 'KMST<br>Recovery'],
+    booking: ['nav-booking', 'Book /<br>Contact']
   };
 
-  Object.keys(mapNav).forEach(key => {
-    const [navId, defaultText] = mapNav[key];
+  Object.keys(defaultNavMap).forEach(key => {
+    const [navId, defaultHtml] = defaultNavMap[key];
     const customText = tabNames[key];
-    if (customText) {
-      const btn = document.getElementById(navId);
-      if (btn) {
-        const span = btn.querySelector('span');
-        if (span) span.textContent = customText;
+    const btn = document.getElementById(navId);
+    if (btn) {
+      const span = btn.querySelector('span');
+      if (span) {
+        span.innerHTML = (customText && customText.trim())
+          ? formatNavTitleToDoubleLine(customText)
+          : defaultHtml;
       }
     }
   });
@@ -2342,6 +4541,243 @@ async function saveSiteTexts() {
   applySiteTexts();
   const ok = await saveAppDataToServer();
   alert(ok ? 'Successfully saved all page text, tab names, and banner content!' : 'Error saving page text.');
+}
+
+// --------------------------------------------------------------------------
+// THEME & DESIGN STUDIO MANAGER (ADMIN PORTAL & SANDBOX EXPLORATION)
+// --------------------------------------------------------------------------
+const AVAILABLE_THEMES = [
+  {
+    id: 'editorial-light',
+    name: '1. Editorial Studio Light',
+    desc: 'Crisp high-contrast daylight, alabaster white, dark slate typography, and warm amber gold.',
+    bg: '#f8fafc',
+    accent: '#d97706',
+    card: 'rgba(255,255,255,0.85)',
+    tag: 'Daylight Gallery (Popular)'
+  },
+  {
+    id: 'warm-linen',
+    name: '2. Warm Linen & Terracotta',
+    desc: 'Warm sand beige, Italian terracotta, espresso text, and creamy luxury editorial cards.',
+    bg: '#f5ede0',
+    accent: '#c2410c',
+    card: 'rgba(254,250,243,0.88)',
+    tag: 'Vogue Luxury'
+  },
+  {
+    id: 'nordic-frost',
+    name: '3. Nordic Glacier & Arctic Teal',
+    desc: 'Crisp pale ice-blue, frosted crystal cards, arctic teal accents, and deep navy text.',
+    bg: '#eef6fb',
+    accent: '#0284c7',
+    card: 'rgba(255,255,255,0.88)',
+    tag: 'Ice Light Modern'
+  },
+  {
+    id: 'neon-sunset',
+    name: '4. Miami Neon Sunset',
+    desc: 'Midnight twilight with glowing electric magenta, synthwave cyan, and sunset orange.',
+    bg: '#0d041c',
+    accent: '#f43f5e',
+    card: 'rgba(28,10,56,0.58)',
+    tag: 'Synthwave Bold'
+  },
+  {
+    id: 'royal-navy',
+    name: '5. Oxford Royal Navy & Gold',
+    desc: 'Deep collegiate luxury navy with champagne gold accents and sapphire highlights.',
+    bg: '#071426',
+    accent: '#fbbf24',
+    card: 'rgba(15,32,58,0.62)',
+    tag: 'Executive Prestige'
+  },
+  {
+    id: 'emerald-matrix',
+    name: '6. Cyber Matrix Emerald',
+    desc: 'Pitch obsidian black with electric matrix lime green and glowing cyber borders.',
+    bg: '#010d06',
+    accent: '#00ff66',
+    card: 'rgba(2,28,14,0.65)',
+    tag: 'Matrix Cyberpunk'
+  },
+  {
+    id: 'crimson-stage',
+    name: '7. Hollywood Crimson Stage',
+    desc: 'Dramatic velvet burgundy and ruby reds with warm golden Hollywood stage spotlight glow.',
+    bg: '#1c0409',
+    accent: '#f43f5e',
+    card: 'rgba(45,8,16,0.65)',
+    tag: 'Dramatic Cinema'
+  },
+  {
+    id: 'noir',
+    name: '8. Pure Cinema Noir',
+    desc: 'Signature deep pitch obsidian with amber gold glow, crimson accents, and sharp contrast.',
+    bg: '#030712',
+    accent: '#f59e0b',
+    card: 'rgba(10,15,28,0.48)',
+    tag: 'Signature Default'
+  }
+];
+
+const AVAILABLE_LAYOUTS = {
+  about: [
+    { id: 'zigzag', name: 'Vertical Alternating Zig-Zag (Default)', desc: 'Classic chronological timeline with central glowing axis.' },
+    { id: 'roadmap', name: '3-Column Milestone Cards', desc: 'Modern responsive card grid sorted by era with year badges.' },
+    { id: 'story-cards', name: 'Editorial Story Bento Cards', desc: 'Top featured era story spotlight with 2-column milestone narrative.' }
+  ],
+  it: [
+    { id: 'blueprint', name: 'Enterprise Architecture Blueprint (Default)', desc: 'Dual-column architecture specs & AI generator.' },
+    { id: 'terminal', name: 'Cyber Command Center Dashboard', desc: 'High-tech CLI console layout with live system metrics.' },
+    { id: 'consulting', name: 'Executive Consultancy & Case Studies', desc: '3-Column executive consulting portfolio.' }
+  ],
+  hacks: [
+    { id: 'cards-deck', name: 'Interactive Promo Cards (Default)', desc: '3-Column responsive card deck with logos & copy buttons.' },
+    { id: 'table-list', name: 'Compact Deal Matrix & Aggregator', desc: 'High-efficiency quick-search tabular aggregator.' },
+    { id: 'bento-deals', name: 'Featured Hot Deals Bento Showcase', desc: 'Top 3 mega-discount hero banners + category tiles.' }
+  ]
+};
+
+let _stagedTheme = null;
+
+function renderAdminThemes() {
+  const themeContainer = document.getElementById('adminThemeCardsGrid');
+  const layoutContainer = document.getElementById('adminLayoutStudioGrid');
+  
+  const currentSaved = appData.activeTheme || 'noir';
+  const activeNow = document.documentElement.getAttribute('data-theme') || currentSaved;
+
+  if (themeContainer) {
+    themeContainer.innerHTML = AVAILABLE_THEMES.map(theme => {
+      const isSaved = (theme.id === currentSaved);
+      const isCurrentlyPreviewed = (theme.id === activeNow);
+
+      return `
+        <div class="glass-card rounded-2xl p-5 border ${isCurrentlyPreviewed ? 'border-amber-400/90 shadow-[0_0_20px_rgba(245,158,11,0.3)]' : 'border-slate-800'} space-y-4 flex flex-col justify-between transition relative overflow-hidden">
+          ${isSaved ? '<span class="absolute top-3 right-3 px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 text-[9px] font-black uppercase font-mono-code">★ Active Live</span>' : ''}
+          ${!isSaved && isCurrentlyPreviewed ? '<span class="absolute top-3 right-3 px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-400 border border-cyan-500/40 text-[9px] font-black uppercase font-mono-code">👁 Previewing</span>' : ''}
+          
+          <div class="space-y-2">
+            <div class="flex items-center gap-2">
+              <span class="w-5 h-5 rounded-full border border-white/20 shadow-inner flex-shrink-0" style="background-color: ${theme.accent};"></span>
+              <h4 class="font-black text-white font-cinzel text-sm">${theme.name}</h4>
+            </div>
+            <p class="text-xs text-slate-300 leading-relaxed">${theme.desc}</p>
+            
+            <!-- Palette Swatches -->
+            <div class="flex items-center gap-1.5 pt-1">
+              <span class="w-4 h-4 rounded-md border border-white/10" style="background: ${theme.bg};" title="Background"></span>
+              <span class="w-4 h-4 rounded-md border border-white/10" style="background: ${theme.card};" title="Card Surface"></span>
+              <span class="w-4 h-4 rounded-md border border-white/10" style="background: ${theme.accent};" title="Accent Glow"></span>
+              <span class="text-[10px] font-mono-code text-slate-400 ml-1.5">${theme.tag}</span>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2 pt-2">
+            <button onclick="previewTheme('${theme.id}')" class="px-3 py-2 rounded-xl ${isCurrentlyPreviewed ? 'bg-amber-500/20 text-amber-300 border border-amber-400' : 'bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-700'} font-bold text-xs flex items-center justify-center gap-1.5 transition">
+              <i data-lucide="eye" class="w-3.5 h-3.5"></i> Preview
+            </button>
+
+            <button onclick="saveActiveTheme('${theme.id}')" class="px-3 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs flex items-center justify-center gap-1.5 shadow transition">
+              <i data-lucide="check" class="w-3.5 h-3.5"></i> Set Live
+            </button>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  // Render Layouts Studio
+  if (layoutContainer) {
+    appData.layouts = appData.layouts || { about: 'zigzag', it: 'blueprint', hacks: 'cards-deck' };
+    
+    const sections = [
+      { key: 'about', title: '1. About SteveP Timeline Page Layout', items: AVAILABLE_LAYOUTS.about },
+      { key: 'it', title: '2. 34-Year IT Architect Page Layout', items: AVAILABLE_LAYOUTS.it },
+      { key: 'hacks', title: '3. Hacks & Money Savings Page Layout', items: AVAILABLE_LAYOUTS.hacks }
+    ];
+
+    layoutContainer.innerHTML = sections.map(sec => `
+      <div class="glass-card rounded-2xl p-5 border border-slate-800 space-y-3">
+        <h5 class="text-xs font-black text-amber-400 uppercase tracking-wider font-mono-code flex items-center gap-2">
+          <i data-lucide="layout" class="w-3.5 h-3.5"></i> ${sec.title}
+        </h5>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+          ${sec.items.map(opt => {
+            const isActive = (appData.layouts[sec.key] === opt.id);
+            return `
+              <div onclick="previewLayout('${sec.key}', '${opt.id}')" class="p-3.5 rounded-xl border cursor-pointer transition ${isActive ? 'bg-amber-500/20 border-amber-400 text-amber-300 shadow-md' : 'bg-slate-900/80 border-slate-800 hover:border-slate-600 text-slate-300'} space-y-1">
+                <div class="flex items-center justify-between">
+                  <strong class="text-xs font-bold font-cinzel ${isActive ? 'text-amber-300' : 'text-white'}">${opt.name}</strong>
+                  ${isActive ? '<i data-lucide="check-circle" class="w-3.5 h-3.5 text-amber-400"></i>' : ''}
+                </div>
+                <p class="text-[11px] text-slate-400 leading-tight">${opt.desc}</p>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      </div>
+    `).join('');
+  }
+
+  const statusEl = document.getElementById('adminCurrentThemeStatus');
+  if (statusEl) {
+    statusEl.innerHTML = `Active Live Theme: <strong class="text-amber-400">${currentSaved.toUpperCase()}</strong> | Previewing: <strong class="text-cyan-400">${activeNow.toUpperCase()}</strong>`;
+  }
+
+  if (window.lucide) lucide.createIcons();
+}
+
+function previewTheme(themeId) {
+  _stagedTheme = themeId;
+  document.documentElement.setAttribute('data-theme', themeId);
+  renderAdminThemes();
+}
+
+async function saveActiveTheme(themeId) {
+  appData.activeTheme = themeId;
+  _stagedTheme = themeId;
+  document.documentElement.setAttribute('data-theme', themeId);
+  renderAdminThemes();
+  await saveAppDataToServer();
+  alert(`Theme "${themeId.toUpperCase()}" is now permanently saved as the public live theme!`);
+}
+
+function revertTheme() {
+  const saved = appData.activeTheme || 'noir';
+  _stagedTheme = saved;
+  document.documentElement.setAttribute('data-theme', saved);
+  renderAdminThemes();
+}
+
+function previewLayout(section, layoutId) {
+  appData.layouts = appData.layouts || { about: 'zigzag', it: 'blueprint', hacks: 'cards-deck' };
+  appData.layouts[section] = layoutId;
+  if (section === 'about') renderAboutTimeline();
+  if (section === 'it') renderITTimeline();
+  if (section === 'hacks') renderHacks();
+  renderAdminThemes();
+}
+
+async function saveActiveLayouts() {
+  await saveAppDataToServer();
+  alert('Successfully saved all live layout presets!');
+}
+
+function updateGlassOpacity(val) {
+  document.documentElement.style.setProperty('--glass-opacity', (val / 100).toString());
+  const label = document.getElementById('glassOpacityVal');
+  if (label) label.textContent = `${val}%`;
+}
+
+function updateBgBrightness(val) {
+  const bg = document.getElementById('globalBgLayer');
+  if (bg) {
+    bg.style.filter = `grayscale(100%) contrast(150%) brightness(${val / 100})`;
+  }
+  const label = document.getElementById('bgBrightnessVal');
+  if (label) label.textContent = `${val}%`;
 }
 
 // --------------------------------------------------------------------------
@@ -2682,32 +5118,296 @@ async function deleteHack(id) {
 }
 
 // --------------------------------------------------------------------------
-// SEARCH ENGINE SITEMAP SUBMISSION
 // --------------------------------------------------------------------------
-async function submitSitemapToSearchEngines() {
-  const btn = document.getElementById('submitSitemapBtn');
-  const statusEl = document.getElementById('sitemapSubmitStatus');
+// 92+ SEARCH ENGINES, HIGH-CLASS NEWSPAPERS & COMMUNITY BOARDS SUBMISSION MATRIX
+// --------------------------------------------------------------------------
+const SUBMISSION_OUTLETS = [
+  // ── SEARCH ENGINES & WEB CRAWLERS (25) ───────────────────────────────────
+  { id: 'se_google', name: 'Google Search Console', cat: 'search_engines', tier: 'Global #1', domain: 'google.com', desc: 'Direct URL inspection, sitemap indexing, and search ranking.', url: 'https://search.google.com/search-console', pingable: true, pingEndpoint: 'google' },
+  { id: 'se_bing', name: 'Bing Webmaster Tools', cat: 'search_engines', tier: 'Global #2', domain: 'bing.com', desc: 'Fast indexing protocol powering Bing, Yahoo & DuckDuckGo.', url: 'https://www.bing.com/webmasters', pingable: true, pingEndpoint: 'bing' },
+  { id: 'se_indexnow', name: 'IndexNow Protocol', cat: 'search_engines', tier: 'Instant API', domain: 'indexnow.org', desc: 'Instant multi-engine crawler notification protocol for fast rank updates.', url: 'https://www.indexnow.org/', pingable: true, pingEndpoint: 'indexnow' },
+  { id: 'se_yandex', name: 'Yandex Webmaster', cat: 'search_engines', tier: 'Europe & Central', domain: 'yandex.com', desc: 'Primary search engine for Europe and international indexing.', url: 'https://webmaster.yandex.com/', pingable: true, pingEndpoint: 'yandex' },
+  { id: 'se_brave', name: 'Brave Search Index', cat: 'search_engines', tier: 'Privacy Tier 1', domain: 'search.brave.com', desc: 'Independent search engine index with privacy-first crawling.', url: 'https://search.brave.com/', pingable: true, pingEndpoint: 'brave' },
+  { id: 'se_duckduckgo', name: 'DuckDuckGo Engine', cat: 'search_engines', tier: 'Privacy Global', domain: 'duckduckgo.com', desc: 'Privacy search powered by IndexNow and Bing syndication.', url: 'https://duckduckgo.com/', pingable: true, pingEndpoint: 'indexnow' },
+  { id: 'se_yahoo', name: 'Yahoo! Search Index', cat: 'search_engines', tier: 'Global Tier 1', domain: 'search.yahoo.com', desc: 'Global search and media portal indexed via Bing syndication.', url: 'https://search.yahoo.com/', pingable: false },
+  { id: 'se_baidu', name: 'Baidu Webmaster Tools', cat: 'search_engines', tier: 'Asia #1', domain: 'ziyuan.baidu.com', desc: 'Dominant search engine in Asia for global casting exposure.', url: 'https://ziyuan.baidu.com/', pingable: false },
+  { id: 'se_naver', name: 'Naver Search Advisor', cat: 'search_engines', tier: 'East Asia', domain: 'searchadvisor.naver.com', desc: 'South Korea premier portal and search engine advisor.', url: 'https://searchadvisor.naver.com/', pingable: false },
+  { id: 'se_seznam', name: 'Seznam.cz Webmaster', cat: 'search_engines', tier: 'Central Europe', domain: 'seznam.cz', desc: 'Major European independent search index and news portal.', url: 'https://search.seznam.cz/', pingable: true, pingEndpoint: 'seznam' },
+  { id: 'se_qwant', name: 'Qwant Search (Europe)', cat: 'search_engines', tier: 'EU Privacy', domain: 'qwant.com', desc: 'European privacy search engine based in Paris.', url: 'https://www.qwant.com/', pingable: false },
+  { id: 'se_ecosia', name: 'Ecosia Search', cat: 'search_engines', tier: 'Eco Global', domain: 'ecosia.org', desc: 'Green search engine with 20M+ active daily users.', url: 'https://www.ecosia.org/', pingable: false },
+  { id: 'se_mojeek', name: 'Mojeek UK Independent', cat: 'search_engines', tier: 'UK Native', domain: 'mojeek.com', desc: 'UK-based independent crawler with 6B+ page index.', url: 'https://www.mojeek.com/', pingable: false },
+  { id: 'se_startpage', name: 'Startpage Privacy', cat: 'search_engines', tier: 'Privacy Tier 1', domain: 'startpage.com', desc: 'Dutch privacy search engine serving worldwide results.', url: 'https://www.startpage.com/', pingable: false },
+  { id: 'se_petal', name: 'Petal Search Global', cat: 'search_engines', tier: 'Mobile Global', domain: 'petalsearch.com', desc: 'Mobile search engine with 100M+ international users.', url: 'https://petalsearch.com/', pingable: false },
+  { id: 'se_sogou', name: 'Sogou Search Portal', cat: 'search_engines', tier: 'APAC Major', domain: 'zhanzhang.sogou.com', desc: 'Major Asian search portal for cross-border talent discovery.', url: 'https://zhanzhang.sogou.com/', pingable: false },
+  { id: 'se_you', name: 'You.com AI Search', cat: 'search_engines', tier: 'AI Search', domain: 'you.com', desc: 'AI-powered multimodal conversational search engine.', url: 'https://you.com/', pingable: false },
+  { id: 'se_perplexity', name: 'Perplexity AI Search', cat: 'search_engines', tier: 'AI Knowledge', domain: 'perplexity.ai', desc: 'Leading conversational AI knowledge search engine.', url: 'https://www.perplexity.ai/', pingable: false },
+  { id: 'se_andi', name: 'Andi AI Search', cat: 'search_engines', tier: 'Generative AI', domain: 'andisearch.com', desc: 'Next-generation AI visual search and summary assistant.', url: 'https://andisearch.com/', pingable: false },
+  { id: 'se_wayback', name: 'Internet Archive Wayback', cat: 'search_engines', tier: 'Permanent Archive', domain: 'archive.org', desc: 'Permanent preservation and indexing of Steve’s portfolio.', url: 'https://web.archive.org/save/', pingable: true, pingEndpoint: 'archive' },
+  { id: 'se_feedburner', name: 'FeedBurner Syndicate', cat: 'search_engines', tier: 'Google RSS', domain: 'feedburner.google.com', desc: 'Google RSS media feed distribution and news aggregation.', url: 'https://feedburner.google.com/', pingable: false },
+  { id: 'se_entireweb', name: 'Entireweb Free Submission', cat: 'search_engines', tier: 'Free Pinger', domain: 'entireweb.com', desc: 'Quick multi-engine automated submission directory.', url: 'https://www.entireweb.com/free_submission/', pingable: false },
+  { id: 'se_exactseek', name: 'ExactSeek Directory', cat: 'search_engines', tier: 'Web Index', domain: 'exactseek.com', desc: 'Fast-crawl directory with syndication to multiple niche portals.', url: 'https://www.exactseek.com/', pingable: false },
+  { id: 'se_gigablast', name: 'Gigablast Open Engine', cat: 'search_engines', tier: 'Open Source', domain: 'gigablast.com', desc: 'Independent web indexer with open API discovery.', url: 'https://www.gigablast.com/', pingable: false },
+  { id: 'se_similarweb', name: 'SimilarWeb Domain Profile', cat: 'search_engines', tier: 'Analytics Rank', domain: 'similarweb.com', desc: 'Global digital authority and web intelligence indexing.', url: 'https://www.similarweb.com/', pingable: false },
+
+  // ── HIGH-CLASS NEWSPAPERS, TRADE PRESS & MEDIA WIRES (35) ─────────────────
+  { id: 'np_thestage', name: 'The Stage UK', cat: 'newspapers', tier: 'UK Theatre #1', domain: 'thestage.co.uk', desc: 'Premier UK performing arts newspaper since 1880 for actors, casting & theatre.', url: 'https://www.thestage.co.uk/contact-us', pingable: false },
+  { id: 'np_broadcast', name: 'Broadcast Magazine UK', cat: 'newspapers', tier: 'UK TV & Film #1', domain: 'broadcastnow.co.uk', desc: 'The authoritative weekly magazine for the UK television and broadcasting industry.', url: 'https://www.broadcastnow.co.uk/', pingable: false },
+  { id: 'np_variety', name: 'Variety Magazine', cat: 'newspapers', tier: 'Global Trade #1', domain: 'variety.com', desc: 'Leading entertainment industry news source covering film, television, and casting.', url: 'https://variety.com/', pingable: false },
+  { id: 'np_hollywoodreporter', name: 'The Hollywood Reporter', cat: 'newspapers', tier: 'Global Film & TV', domain: 'hollywoodreporter.com', desc: 'World-renowned daily industry magazine for Hollywood, UK & global cinema.', url: 'https://www.hollywoodreporter.com/', pingable: false },
+  { id: 'np_screendaily', name: 'Screen International (Screen Daily)', cat: 'newspapers', tier: 'UK & Global Cinema', domain: 'screendaily.com', desc: 'Global film industry trade publication and production news network.', url: 'https://www.screendaily.com/', pingable: false },
+  { id: 'np_deadline', name: 'Deadline Hollywood', cat: 'newspapers', tier: 'Breaking Entertainment', domain: 'deadline.com', desc: 'Real-time breaking entertainment, casting announcements, and box office scoops.', url: 'https://deadline.com/', pingable: false },
+  { id: 'np_britishcomedyguide', name: 'British Comedy Guide (BCG)', cat: 'newspapers', tier: 'UK Comedy & Acting', domain: 'comedy.co.uk', desc: 'Comprehensive UK guide for comedy actors, sit-com credits, and auditions.', url: 'https://www.comedy.co.uk/contact/', pingable: false },
+  { id: 'np_backstage', name: 'Backstage Magazine UK', cat: 'newspapers', tier: 'Casting Trade', domain: 'backstage.com', desc: 'The premiere resource for actors, performers, and casting directors worldwide.', url: 'https://www.backstage.com/magazine/', pingable: false },
+  { id: 'np_castingnetworks_news', name: 'Casting Networks News', cat: 'newspapers', tier: 'Industry Insider', domain: 'castingnetworks.com', desc: 'Acting career advice, casting director interviews, and industry trends.', url: 'https://www.castingnetworks.com/news/', pingable: false },
+  { id: 'np_filmnews', name: 'Film News UK', cat: 'newspapers', tier: 'UK Film Press', domain: 'film-news.co.uk', desc: 'British and European cinema news, reviews, interviews, and festival coverage.', url: 'https://www.film-news.co.uk/', pingable: false },
+  { id: 'np_bbcnews', name: 'BBC News & Media Centre', cat: 'newspapers', tier: 'UK National Broadcaster', domain: 'bbc.co.uk', desc: 'Official media centre and culture desk for British Broadcasting Corporation.', url: 'https://www.bbc.co.uk/mediacentre/', pingable: false },
+  { id: 'np_guardian', name: 'The Guardian Culture & Film', cat: 'newspapers', tier: 'High-Class Broadsheet', domain: 'theguardian.com', desc: 'World-renowned British daily broadsheet with extensive arts and culture reporting.', url: 'https://www.theguardian.com/culture', pingable: false },
+  { id: 'np_thetimes', name: 'The Times Culture & Arts', cat: 'newspapers', tier: 'Premier UK Daily', domain: 'thetimes.co.uk', desc: 'The premier national newspaper of the United Kingdom with elite arts journalism.', url: 'https://www.thetimes.co.uk/culture', pingable: false },
+  { id: 'np_telegraph', name: 'The Daily Telegraph Arts & Film', cat: 'newspapers', tier: 'UK Broadsheet Press', domain: 'telegraph.co.uk', desc: 'National British broadsheet newspaper renowned for cultural features and film reviews.', url: 'https://www.telegraph.co.uk/culture/', pingable: false },
+  { id: 'np_independent', name: 'The Independent Culture', cat: 'newspapers', tier: 'Digital Broadsheet', domain: 'independent.co.uk', desc: 'Major UK news outlet covering arts, drama, film, and entertainment.', url: 'https://www.independent.co.uk/arts-entertainment', pingable: false },
+  { id: 'np_standard', name: 'London Evening Standard', cat: 'newspapers', tier: 'Capital Newspaper', domain: 'standard.co.uk', desc: 'London’s flagship newspaper for West End theatre, films, and capital talent.', url: 'https://www.standard.co.uk/culture', pingable: false },
+  { id: 'np_leicestermercury', name: 'Leicester Mercury (Leicestershire Live)', cat: 'newspapers', tier: 'Steve’s Hometown Paper', domain: 'leicestermercury.co.uk', desc: 'Primary daily news publisher for Leicestershire and the Midlands arts scene.', url: 'https://www.leicestermercury.co.uk/', pingable: false },
+  { id: 'np_manchesterevening', name: 'Manchester Evening News (MEN)', cat: 'newspapers', tier: 'Major UK Regional', domain: 'manchestereveningnews.co.uk', desc: 'One of the UK’s most read regional publications covering North West & UK arts.', url: 'https://www.manchestereveningnews.co.uk/', pingable: false },
+  { id: 'np_birminghammail', name: 'Birmingham Mail / Live', cat: 'newspapers', tier: 'Midlands Press', domain: 'birminghammail.co.uk', desc: 'Leading news source for the West Midlands and Central England entertainment.', url: 'https://www.birminghammail.co.uk/', pingable: false },
+  { id: 'np_financialtimes', name: 'Financial Times (Tech & Careers)', cat: 'newspapers', tier: 'Global Business', domain: 'ft.com', desc: 'World’s leading financial newspaper covering Enterprise IT, Cloud, and leadership.', url: 'https://www.ft.com/', pingable: false },
+  { id: 'np_wired', name: 'Wired UK & Global', cat: 'newspapers', tier: 'Tech & Culture', domain: 'wired.com', desc: 'Authoritative magazine on technology innovation, media, and digital culture.', url: 'https://www.wired.com/', pingable: false },
+  { id: 'np_techcrunch', name: 'TechCrunch UK & Europe', cat: 'newspapers', tier: 'Tech Leader', domain: 'techcrunch.com', desc: 'Leading technology news platform for enterprise architecture and AI innovation.', url: 'https://techcrunch.com/', pingable: false },
+  { id: 'np_forbes', name: 'Forbes UK & Europe', cat: 'newspapers', tier: 'Global Leadership', domain: 'forbes.com', desc: 'Global media company focusing on business, leadership, and technology innovators.', url: 'https://www.forbes.com/', pingable: false },
+  { id: 'np_dailymail', name: 'Daily Mail Showcase & TV', cat: 'newspapers', tier: 'High-Traffic Daily', domain: 'dailymail.co.uk', desc: 'One of the most visited English-language news sites with massive showbiz reach.', url: 'https://www.dailymail.co.uk/tvshowbiz/index.html', pingable: false },
+  { id: 'np_prnewswire', name: 'PR Newswire Global', cat: 'newspapers', tier: 'Press Wire #1', domain: 'prnewswire.com', desc: 'Global leader in commercial press release distribution to 4,000+ newsrooms.', url: 'https://www.prnewswire.com/', pingable: false },
+  { id: 'np_businesswire', name: 'Business Wire', cat: 'newspapers', tier: 'Berkshire Hathaway Wire', domain: 'businesswire.com', desc: 'Worldwide press release network reaching news organizations in 160+ countries.', url: 'https://www.businesswire.com/', pingable: false },
+  { id: 'np_responsesource', name: 'ResponseSource UK Press Network', cat: 'newspapers', tier: 'UK Journalist Hub', domain: 'responsesource.com', desc: 'Direct journalist inquiry service connecting talent with 30,000+ UK reporters.', url: 'https://www.responsesource.com/', pingable: false },
+  { id: 'np_pamedia', name: 'PA Media (Press Association UK)', cat: 'newspapers', tier: 'UK National Wire', domain: 'pa.media', desc: 'The national news agency for the UK and Ireland feeding all national papers.', url: 'https://pa.media/', pingable: false },
+  { id: 'np_einpresswire', name: 'EIN Presswire', cat: 'newspapers', tier: 'Entertainment Wire', domain: 'einpresswire.com', desc: 'Global press distribution platform indexing on Google News, Bloomberg & AP.', url: 'https://www.einpresswire.com/', pingable: false },
+  { id: 'np_247press', name: '24-7 Press Release Newswire', cat: 'newspapers', tier: 'Digital Syndication', domain: '24-7pressrelease.com', desc: 'Disseminates news to digital news portals, RSS feeds, and journalists.', url: 'https://www.24-7pressrelease.com/', pingable: false },
+  { id: 'np_newsfile', name: 'Newsfile Corp Wire', cat: 'newspapers', tier: 'Compliant Wire', domain: 'newsfilecorp.com', desc: 'News wire distribution service targeting financial and media networks.', url: 'https://www.newsfilecorp.com/', pingable: false },
+  { id: 'np_openpr', name: 'OpenPR Global Portal', cat: 'newspapers', tier: 'Free PR Portal', domain: 'openpr.com', desc: 'Open PR platform distributing releases to international search engines.', url: 'https://www.openpr.com/', pingable: false },
+  { id: 'np_medium', name: 'Medium Official Publications', cat: 'newspapers', tier: 'Thought Leadership', domain: 'medium.com', desc: 'Global publishing platform with high search domain authority for articles.', url: 'https://medium.com/', pingable: false },
+  { id: 'np_substack', name: 'Substack Network', cat: 'newspapers', tier: 'Direct Journalism', domain: 'substack.com', desc: 'Direct publishing platform for newsletter syndication and recovery writing.', url: 'https://substack.com/', pingable: false },
+  { id: 'np_linkedin_pulse', name: 'LinkedIn Pulse Press', cat: 'newspapers', tier: 'B2B & Executive', domain: 'linkedin.com', desc: 'Professional content syndication reaching 1 Billion+ global business leaders.', url: 'https://www.linkedin.com/pulse/', pingable: false },
+
+  // ── HIGH-PLACED INDUSTRY BOARDS, FILM HUBS & DIRECTORIES (32) ─────────────
+  { id: 'cb_spotlight', name: 'Spotlight UK Directory', cat: 'community_boards', tier: 'Actor Directory #1', domain: 'spotlight.com', desc: 'Steve’s official verified Spotlight profile (PIN: 9339-8945-6183) for UK casting.', url: 'https://app.spotlight.com/9339-8945-6183', pingable: false },
+  { id: 'cb_imdbpro', name: 'IMDbPro Casting Directory', cat: 'community_boards', tier: 'Global Film DB', domain: 'pro.imdb.com', desc: 'Global industry standard database for screen credits, agent reps, and filmography.', url: 'https://pro.imdb.com/', pingable: false },
+  { id: 'cb_mandy', name: 'Mandy.com Actors & Crew', cat: 'community_boards', tier: 'Actor Community', domain: 'mandy.com', desc: 'UK and international casting, auditions, and filmmaker collaboration board.', url: 'https://www.mandy.com/', pingable: false },
+  { id: 'cb_starnow', name: 'StarNow UK Casting', cat: 'community_boards', tier: 'Talent Network', domain: 'starnow.com', desc: 'Major UK talent discovery network for commercial, film, and TV casting.', url: 'https://www.starnow.com/', pingable: false },
+  { id: 'cb_equity', name: 'Equity UK Union Directory', cat: 'community_boards', tier: 'British Actors Union', domain: 'equity.org.uk', desc: 'The official trade union representing 47,000+ UK performers and creative workers.', url: 'https://www.equity.org.uk/', pingable: false },
+  { id: 'cb_bafta', name: 'BAFTA Members & Directory', cat: 'community_boards', tier: 'British Academy', domain: 'bafta.org', desc: 'British Academy of Film and Television Arts talent network and events.', url: 'https://www.bafta.org/', pingable: false },
+  { id: 'cb_filmlondon', name: 'Film London Directory', cat: 'community_boards', tier: 'London Film Office', domain: 'filmlondon.org.uk', desc: 'Strategic agency for London film, TV, animation, and creative crews.', url: 'https://filmlondon.org.uk/', pingable: false },
+  { id: 'cb_bfi', name: 'British Film Institute (BFI)', cat: 'community_boards', tier: 'UK Film Heritage', domain: 'bfi.org.uk', desc: 'The lead organization for film in the UK supporting British talent and cinema.', url: 'https://www.bfi.org.uk/', pingable: false },
+  { id: 'cb_reddit_acting', name: 'Reddit r/acting Community', cat: 'community_boards', tier: 'Actor Forum (250k+)', domain: 'reddit.com/r/acting', desc: 'Largest international peer community for professional actors and casting advice.', url: 'https://www.reddit.com/r/acting/', pingable: false },
+  { id: 'cb_reddit_filmmakers', name: 'Reddit r/Filmmakers', cat: 'community_boards', tier: 'Filmmaker Hub (3M+)', domain: 'reddit.com/r/Filmmakers', desc: 'Major community for directors, cinematographers, stunt performers & crew.', url: 'https://www.reddit.com/r/Filmmakers/', pingable: false },
+  { id: 'cb_reddit_london', name: 'Reddit r/london Community', cat: 'community_boards', tier: 'Capital Hub (1M+)', domain: 'reddit.com/r/london', desc: 'Active London community for creative networking and arts events.', url: 'https://www.reddit.com/r/london/', pingable: false },
+  { id: 'cb_reddit_leicester', name: 'Reddit r/leicester Board', cat: 'community_boards', tier: 'Hometown Board', domain: 'reddit.com/r/leicester', desc: 'Leicester regional community board for Midlands arts, theatre, and culture.', url: 'https://www.reddit.com/r/leicester/', pingable: false },
+  { id: 'cb_stage32', name: 'Stage 32 Industry Network', cat: 'community_boards', tier: 'Global Network (1M+)', domain: 'stage32.com', desc: 'The largest online network connecting entertainment industry professionals.', url: 'https://www.stage32.com/', pingable: false },
+  { id: 'cb_productionbase', name: 'ProductionBase UK', cat: 'community_boards', tier: 'UK Crew & Talent', domain: 'productionbase.co.uk', desc: 'The UK’s premier network for TV, film, and commercial production talent.', url: 'https://www.productionbase.co.uk/', pingable: false },
+  { id: 'cb_shootingpeople', name: 'Shooting People Film Hub', cat: 'community_boards', tier: 'Indie Cinema Hub', domain: 'shootingpeople.org', desc: 'Legendary independent filmmakers network connecting 45,000+ creatives.', url: 'https://shootingpeople.org/', pingable: false },
+  { id: 'cb_thedots', name: 'The Dots Creative Community', cat: 'community_boards', tier: 'Creative Professional', domain: 'the-dots.com', desc: 'The professional network for the creative sector, branding, and entertainment.', url: 'https://the-dots.com/', pingable: false },
+  { id: 'cb_castingworkbook', name: 'Casting Workbook Network', cat: 'community_boards', tier: 'International Casting', domain: 'castingworkbook.com', desc: 'Global actor submission software used by major international casting directors.', url: 'https://www.castingworkbook.com/', pingable: false },
+  { id: 'cb_pggb', name: 'Production Guild of Great Britain', cat: 'community_boards', tier: 'Film Guild UK', domain: 'productionguild.com', desc: 'The UK’s leading membership organization for film and TV production management.', url: 'https://productionguild.com/', pingable: false },
+  { id: 'cb_cdg', name: 'Casting Directors’ Guild (CDG)', cat: 'community_boards', tier: 'Casting Guild', domain: 'thecdg.co.uk', desc: 'Professional association of casting directors in the UK and Ireland.', url: 'https://www.thecdg.co.uk/', pingable: false },
+  { id: 'cb_creativeengland', name: 'Creative England Film Office', cat: 'community_boards', tier: 'National Film Office', domain: 'creativeengland.co.uk', desc: 'Dedicated to growing the creative industries and supporting regional filming.', url: 'https://www.creativeengland.co.uk/', pingable: false },
+  { id: 'cb_londonfilmnetwork', name: 'London Film Network', cat: 'community_boards', tier: 'Capital Indie Network', domain: 'londonfilmnetwork.co.uk', desc: 'Community directory for filmmakers, actors, and production companies in London.', url: 'https://www.londonfilmnetwork.co.uk/', pingable: false },
+  { id: 'cb_googlebusiness', name: 'Google Business Profile', cat: 'community_boards', tier: 'Google Verified Entity', domain: 'business.google.com', desc: 'Official Knowledge Panel and local presence indexing on Google Maps and Search.', url: 'https://business.google.com/', pingable: false },
+  { id: 'cb_applebusiness', name: 'Apple Business Connect', cat: 'community_boards', tier: 'Apple Ecosystem', domain: 'businessconnect.apple.com', desc: 'Verified presence on Apple Maps, Siri, Spotlight search, and Safari.', url: 'https://businessconnect.apple.com/', pingable: false },
+  { id: 'cb_bingplaces', name: 'Bing Places for Business', cat: 'community_boards', tier: 'Microsoft Ecosystem', domain: 'bingplaces.com', desc: 'Official listing on Bing Maps and Windows desktop Cortana search.', url: 'https://www.bingplaces.com/', pingable: false },
+  { id: 'cb_trustpilot', name: 'Trustpilot Directory', cat: 'community_boards', tier: 'Verified Reviews', domain: 'trustpilot.com', desc: 'Global consumer review and reputation management community.', url: 'https://www.trustpilot.com/', pingable: false },
+  { id: 'cb_producthunt', name: 'Product Hunt Community', cat: 'community_boards', tier: 'Tech Launch #1', domain: 'producthunt.com', desc: 'Major tech community for discovering new platforms, tools, and digital ventures.', url: 'https://www.producthunt.com/', pingable: false },
+  { id: 'cb_crunchbase', name: 'Crunchbase Enterprise Profile', cat: 'community_boards', tier: 'B2B & Venture', domain: 'crunchbase.com', desc: 'Leading directory of business leaders, founders, and enterprise architects.', url: 'https://www.crunchbase.com/', pingable: false },
+  { id: 'cb_yell', name: 'Yell.com UK Business Directory', cat: 'community_boards', tier: 'UK Yellow Pages', domain: 'yell.com', desc: 'The UK’s leading online business and professional directory.', url: 'https://www.yell.com/', pingable: false },
+  { id: 'cb_scoot', name: 'Scoot UK National Directory', cat: 'community_boards', tier: 'UK Directory', domain: 'scoot.co.uk', desc: 'Comprehensive UK commercial and professional business network.', url: 'https://www.scoot.co.uk/', pingable: false },
+  { id: 'cb_freeindex', name: 'FreeIndex UK Rated Directory', cat: 'community_boards', tier: 'UK Rated Network', domain: 'freeindex.co.uk', desc: 'UK business directory with customer ratings and direct search visibility.', url: 'https://www.freeindex.co.uk/', pingable: false },
+  { id: 'cb_aa_uk', name: 'Alcoholics Anonymous UK Community', cat: 'community_boards', tier: 'Recovery Network', domain: 'alcoholics-anonymous.org.uk', desc: 'National fellowship directory and support hub for recovery outreach (KMST).', url: 'https://www.alcoholics-anonymous.org.uk/', pingable: false },
+  { id: 'cb_ukat', name: 'UK Addiction Treatment (UKAT) Hub', cat: 'community_boards', tier: 'Sobriety Portal', domain: 'ukat.co.uk', desc: 'Leading addiction recovery network and directory for KEEP ME SOBER TOO.', url: 'https://www.ukat.co.uk/', pingable: false }
+];
+
+let activeSubmissionFilter = 'all';
+let activeSubmissionQuery = '';
+
+function renderSubmissionDirectory() {
+  const container = document.getElementById('submissionsGridContainer');
+  if (!container) return;
+
+  let filtered = SUBMISSION_OUTLETS;
+
+  if (activeSubmissionFilter !== 'all') {
+    filtered = filtered.filter(item => item.cat === activeSubmissionFilter);
+  }
+
+  if (activeSubmissionQuery.trim()) {
+    const q = activeSubmissionQuery.toLowerCase().trim();
+    filtered = filtered.filter(item => 
+      item.name.toLowerCase().includes(q) || 
+      item.domain.toLowerCase().includes(q) || 
+      item.desc.toLowerCase().includes(q) || 
+      item.tier.toLowerCase().includes(q)
+    );
+  }
+
+  if (filtered.length === 0) {
+    container.innerHTML = `
+      <div class="col-span-full py-12 text-center text-xs text-slate-400 italic">
+        No submission outlets matched "${escapeHtml(activeSubmissionQuery)}".
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = filtered.map(item => {
+    let catBadgeColor = 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30';
+    let catIcon = 'globe';
+    if (item.cat === 'newspapers') {
+      catBadgeColor = 'bg-purple-500/20 text-purple-300 border-purple-500/30';
+      catIcon = 'newspaper';
+    } else if (item.cat === 'community_boards') {
+      catBadgeColor = 'bg-amber-500/20 text-amber-400 border-amber-500/30';
+      catIcon = 'landmark';
+    }
+
+    return `
+      <div class="p-3.5 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-amber-400/60 transition-all flex flex-col justify-between gap-2.5 text-xs shadow">
+        <div class="space-y-1.5">
+          <div class="flex items-center justify-between gap-2">
+            <span class="px-2 py-0.5 rounded-md border text-[10px] font-mono-code font-bold ${catBadgeColor} flex items-center gap-1">
+              <i data-lucide="${catIcon}" class="w-3 h-3"></i> ${escapeHtml(item.tier)}
+            </span>
+            <span class="text-[10px] font-mono-code text-slate-400 font-bold truncate">${escapeHtml(item.domain)}</span>
+          </div>
+
+          <h5 class="font-bold text-white text-xs font-cinzel tracking-wide line-clamp-1">${escapeHtml(item.name)}</h5>
+          <p class="text-[11px] text-slate-300 line-clamp-2 leading-relaxed">${escapeHtml(item.desc)}</p>
+        </div>
+
+        <div class="pt-2 border-t border-slate-800/80 flex items-center justify-between gap-2">
+          ${item.pingable ? `
+            <span class="text-[10px] font-mono-code text-emerald-400 font-bold flex items-center gap-1">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Auto-Pinger
+            </span>
+          ` : `
+            <span class="text-[10px] font-mono-code text-slate-400">Direct Submission</span>
+          `}
+          
+          <a href="${item.url}" target="_blank" class="px-3 py-1 rounded-xl bg-slate-950 hover:bg-amber-500 hover:text-slate-950 text-amber-400 border border-slate-700 font-bold text-[11px] flex items-center gap-1 transition shadow">
+            <span>Open Portal</span>
+            <i data-lucide="external-link" class="w-3 h-3"></i>
+          </a>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  if (window.lucide) lucide.createIcons();
+}
+
+function filterSubmissions(cat) {
+  activeSubmissionFilter = cat;
+  document.querySelectorAll('.sub-filter-btn').forEach(btn => {
+    btn.className = 'sub-filter-btn px-3.5 py-1.5 rounded-xl bg-slate-900 text-slate-300 hover:text-white border border-slate-800 transition text-xs font-bold';
+  });
+  const activeBtn = document.getElementById(`subFilter-${cat}`);
+  if (activeBtn) {
+    activeBtn.className = 'sub-filter-btn px-3.5 py-1.5 rounded-xl bg-amber-500 text-slate-950 font-black shadow transition text-xs';
+  }
+  renderSubmissionDirectory();
+}
+
+function searchSubmissions(val) {
+  activeSubmissionQuery = val || '';
+  renderSubmissionDirectory();
+}
+
+async function pingAllSearchEngines() {
+  const btn = document.getElementById('pingAllEnginesBtn');
+  const banner = document.getElementById('pingerStatusBanner');
+  const statusText = document.getElementById('pingerStatusText');
+  const badge = document.getElementById('pingerProgressBadge');
+
   if (btn) btn.disabled = true;
-  if (statusEl) statusEl.textContent = 'Pinging Google, Bing, Yandex & DuckDuckGo...';
+  if (banner) banner.classList.remove('hidden');
+  if (statusText) statusText.innerHTML = `<i data-lucide="loader" class="w-4 h-4 animate-spin text-emerald-400"></i> Pinging Google, Bing, Yandex, DuckDuckGo IndexNow, Seznam & Archive.org...`;
+  if (badge) {
+    badge.textContent = 'Pinging...';
+    badge.className = 'px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-400 font-mono-code text-[11px] font-extrabold';
+  }
+  if (window.lucide) lucide.createIcons();
 
   try {
     const res = await fetch('/api/seo/submit-sitemap', { method: 'POST' });
     const json = await res.json();
     if (json.success) {
-      if (statusEl) statusEl.textContent = 'Submitted to all 4 Search Engines! 🟢';
-      alert('Sitemap successfully submitted to Google Search Console, Bing Webmaster, Yandex & DuckDuckGo IndexNow!');
+      if (statusText) statusText.innerHTML = `<i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400"></i> ${json.message} (${json.timestamp || 'Live'})`;
+      if (badge) {
+        badge.textContent = 'Success 🟢';
+        badge.className = 'px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-400 font-mono-code text-[11px] font-extrabold';
+      }
+      alert(`✅ ${json.message}\n\nAll primary search engines and the Wayback Machine have been notified!`);
     } else {
-      if (statusEl) statusEl.textContent = 'Submission error.';
+      if (statusText) statusText.textContent = 'Error sending ping notifications.';
     }
-  } catch (e) {
-    if (statusEl) statusEl.textContent = 'Error connecting to search engine ping API.';
+  } catch (err) {
+    if (statusText) statusText.textContent = 'Network error contacting submission API.';
   } finally {
     if (btn) btn.disabled = false;
+    if (window.lucide) lucide.createIcons();
   }
 }
 
+function copySitemapUrl() {
+  const sitemapUrl = `${window.location.origin}/sitemap.xml`;
+  navigator.clipboard.writeText(sitemapUrl).then(() => {
+    alert(`📋 Copied Sitemap URL to Clipboard:\n${sitemapUrl}`);
+  }).catch(() => {
+    prompt('Copy Sitemap URL:', sitemapUrl);
+  });
+}
+
+function copyPressKitBio() {
+  const bioText = `STEVE PEREIRA — OFFICIAL CASTING & PRESS SYNDICATION KIT
+======================================================
+• Name: Steve Pereira
+• Profession: Professional British Indian Actor & 34-Year Senior Enterprise IT Architect
+• Spotlight PIN: 9339-8945-6183 (Verify: https://app.spotlight.com/9339-8945-6183)
+• Key Attributes: 5'6.5", Bald, Dark Brown Eyes, Phoenix Tattoo, Playing Age 38-53
+• Background: Leicester-born actor, Haymarket Theatre alumnus, cardiac arrest survivor, sober since 2013, founder of KEEP ME SOBER TOO (KMST).
+• Notable Screen Roles: Snickers Commercial (Lead Double), Ted Lasso (Locker Room Tech), The Central Line (Supervisor), Bloodline (Paramedic Lead).
+• Representation:
+  - Acting Agent: Top Hat Management (01234 567890 | tophatmanagement.co.uk)
+  - Commercial & Model Agent: Face Management (0113 245 8667 | facemanagement.co.uk)
+• Portfolio Website: ${window.location.origin}
+• Sitemap: ${window.location.origin}/sitemap.xml
+• Contact & Bookings: info@stevepereira.pro`;
+
+  navigator.clipboard.writeText(bioText).then(() => {
+    alert('📰 Official Press Kit & Actor Bio Pitch copied to clipboard!');
+  }).catch(() => {
+    prompt('Press Kit Text:', bioText);
+  });
+}
+
+function exportSubmissionsCSV() {
+  const headers = ['ID', 'Outlet Name', 'Category', 'Tier / Authority', 'Domain', 'Submission URL', 'Description', 'Direct Pinger'];
+  const rows = SUBMISSION_OUTLETS.map(item => [
+    `"${item.id}"`,
+    `"${item.name.replace(/"/g, '""')}"`,
+    `"${item.cat}"`,
+    `"${item.tier.replace(/"/g, '""')}"`,
+    `"${item.domain}"`,
+    `"${item.url}"`,
+    `"${item.desc.replace(/"/g, '""')}"`,
+    item.pingable ? '"Yes (Auto-Pinger)"' : '"Manual Submission Portal"'
+  ]);
+
+  const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+  const encodedUri = encodeURI(csvContent);
+  const link = document.createElement('a');
+  link.setAttribute('href', encodedUri);
+  link.setAttribute('download', `steve_pereira_92_submission_directory_${Date.now()}.csv`);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+
 // ── Live Agent Hero Updater ──────────────────────────────────────────────────
-// Called onchange from each admin agent field — updates the hero box in real-time
 function updateAgentHero() {
   const a1Name  = document.getElementById('editAgent1Name');
   const a1Type  = document.getElementById('editAgent1Type');
@@ -2730,3 +5430,10 @@ function updateAgentHero() {
 }
 
 window.updateAgentHero = updateAgentHero;
+window.renderSubmissionDirectory = renderSubmissionDirectory;
+window.filterSubmissions = filterSubmissions;
+window.searchSubmissions = searchSubmissions;
+window.pingAllSearchEngines = pingAllSearchEngines;
+window.copySitemapUrl = copySitemapUrl;
+window.copyPressKitBio = copyPressKitBio;
+window.exportSubmissionsCSV = exportSubmissionsCSV;

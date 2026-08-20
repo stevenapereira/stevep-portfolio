@@ -5,10 +5,140 @@
 /* Google Fonts Import */
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=Cinzel:wght@600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap');
 
-/* Default Theme Tokens: Noir Tattoo & Drama */
-:root {
+/* ==========================================================================
+   8 BOLD & DISTINCT THEME DEFINITIONS
+   ========================================================================== */
+
+/* 1. EDITORIAL STUDIO LIGHT (User Favorite: Crisp Day Gallery) */
+[data-theme="editorial-light"] {
+  --bg-main: #f8fafc;
+  --bg-nav: rgba(255, 255, 255, 0.92);
+  --bg-card: rgba(255, 255, 255, 0.85);
+  --border-card: rgba(15, 23, 42, 0.12);
+  --text-main: #0f172a;
+  --text-muted: #334155;
+  --accent-gold: #d97706;
+  --accent-spotlight: #eab308;
+  --accent-rose: #be123c;
+  --accent-emerald: #059669;
+  --accent-glow: rgba(217, 119, 6, 0.3);
+  --font-heading: 'Cinzel', serif;
+  --font-body: 'Plus Jakarta Sans', sans-serif;
+  --bg-overlay: linear-gradient(to bottom, rgba(248, 250, 252, 0.65), rgba(248, 250, 252, 0.88));
+}
+
+/* 2. WARM LINEN & TERRACOTTA (Vogue Luxury / Sand Beige) */
+[data-theme="warm-linen"] {
+  --bg-main: #f5ede0;
+  --bg-nav: rgba(245, 237, 224, 0.94);
+  --bg-card: rgba(254, 250, 243, 0.88);
+  --border-card: rgba(194, 65, 12, 0.2);
+  --text-main: #271810;
+  --text-muted: #573a2e;
+  --accent-gold: #c2410c;
+  --accent-spotlight: #d97706;
+  --accent-rose: #9f1239;
+  --accent-emerald: #15803d;
+  --accent-glow: rgba(194, 65, 12, 0.35);
+  --font-heading: 'Cinzel', serif;
+  --font-body: 'Plus Jakarta Sans', sans-serif;
+  --bg-overlay: linear-gradient(to bottom, rgba(245, 237, 224, 0.65), rgba(245, 237, 224, 0.88));
+}
+
+/* 3. NORDIC GLACIER & ARCTIC TEAL (Ice Blue / Crisp Modern) */
+[data-theme="nordic-frost"] {
+  --bg-main: #eef6fb;
+  --bg-nav: rgba(238, 246, 251, 0.94);
+  --bg-card: rgba(255, 255, 255, 0.88);
+  --border-card: rgba(2, 132, 199, 0.22);
+  --text-main: #082f49;
+  --text-muted: #1e4f73;
+  --accent-gold: #0284c7;
+  --accent-spotlight: #0ea5e9;
+  --accent-rose: #e11d48;
+  --accent-emerald: #0d9488;
+  --accent-glow: rgba(2, 132, 199, 0.35);
+  --font-heading: 'Plus Jakarta Sans', sans-serif;
+  --font-body: 'Plus Jakarta Sans', sans-serif;
+  --bg-overlay: linear-gradient(to bottom, rgba(238, 246, 251, 0.65), rgba(238, 246, 251, 0.90));
+}
+
+/* 4. MIAMI NEON SUNSET (Synthwave / Electric Magenta & Cyan) */
+[data-theme="neon-sunset"] {
+  --bg-main: #0d041c;
+  --bg-nav: rgba(13, 4, 28, 0.82);
+  --bg-card: rgba(28, 10, 56, 0.58);
+  --border-card: rgba(244, 63, 94, 0.45);
+  --text-main: #ffffff;
+  --text-muted: #fed7aa;
+  --accent-gold: #f97316;
+  --accent-spotlight: #f43f5e;
+  --accent-rose: #ec4899;
+  --accent-emerald: #06b6d4;
+  --accent-glow: rgba(244, 63, 94, 0.55);
+  --font-heading: 'Plus Jakarta Sans', sans-serif;
+  --font-body: 'Plus Jakarta Sans', sans-serif;
+  --bg-overlay: linear-gradient(to bottom, rgba(13, 4, 28, 0.45), rgba(13, 4, 28, 0.75));
+}
+
+/* 5. OXFORD ROYAL NAVY & CHAMPAGNE GOLD (Executive Prestige) */
+[data-theme="royal-navy"] {
+  --bg-main: #071426;
+  --bg-nav: rgba(7, 20, 38, 0.85);
+  --bg-card: rgba(15, 32, 58, 0.62);
+  --border-card: rgba(251, 191, 36, 0.35);
+  --text-main: #ffffff;
+  --text-muted: #cbd5e1;
+  --accent-gold: #fbbf24;
+  --accent-spotlight: #f59e0b;
+  --accent-rose: #f43f5e;
+  --accent-emerald: #38bdf8;
+  --accent-glow: rgba(251, 191, 36, 0.45);
+  --font-heading: 'Cinzel', serif;
+  --font-body: 'Plus Jakarta Sans', sans-serif;
+  --bg-overlay: linear-gradient(to bottom, rgba(7, 20, 38, 0.45), rgba(7, 20, 38, 0.75));
+}
+
+/* 6. CYBER MATRIX EMERALD (Pitch Black & Electric Matrix Lime) */
+[data-theme="emerald-matrix"] {
+  --bg-main: #010d06;
+  --bg-nav: rgba(1, 13, 6, 0.85);
+  --bg-card: rgba(2, 28, 14, 0.65);
+  --border-card: rgba(0, 255, 102, 0.4);
+  --text-main: #ffffff;
+  --text-muted: #a7f3d0;
+  --accent-gold: #00ff66;
+  --accent-spotlight: #10b981;
+  --accent-rose: #f43f5e;
+  --accent-emerald: #4ade80;
+  --accent-glow: rgba(0, 255, 102, 0.5);
+  --font-heading: 'JetBrains Mono', monospace;
+  --font-body: 'Plus Jakarta Sans', sans-serif;
+  --bg-overlay: linear-gradient(to bottom, rgba(1, 13, 6, 0.45), rgba(1, 13, 6, 0.75));
+}
+
+/* 7. HOLLYWOOD CRIMSON VELVET (Dramatic Theatre & Ruby Embers) */
+[data-theme="crimson-stage"] {
+  --bg-main: #1c0409;
+  --bg-nav: rgba(28, 4, 9, 0.85);
+  --bg-card: rgba(45, 8, 16, 0.65);
+  --border-card: rgba(225, 29, 72, 0.45);
+  --text-main: #ffffff;
+  --text-muted: #fecdd3;
+  --accent-gold: #f43f5e;
+  --accent-spotlight: #fbbf24;
+  --accent-rose: #e11d48;
+  --accent-emerald: #10b981;
+  --accent-glow: rgba(225, 29, 72, 0.55);
+  --font-heading: 'Cinzel', serif;
+  --font-body: 'Plus Jakarta Sans', sans-serif;
+  --bg-overlay: linear-gradient(to bottom, rgba(28, 4, 9, 0.45), rgba(28, 4, 9, 0.75));
+}
+
+/* 8. PURE CINEMA NOIR (Signature Obsidian & Amber Gold - Default) */
+:root, [data-theme="noir"] {
   --bg-main: #030712;
-  --bg-nav: rgba(3, 7, 18, 0.65);
+  --bg-nav: rgba(3, 7, 18, 0.72);
   --bg-card: rgba(10, 15, 28, 0.48);
   --border-card: rgba(255, 255, 255, 0.18);
   --text-main: #ffffff;
@@ -17,7 +147,7 @@
   --accent-spotlight: #ffcc00;
   --accent-rose: #e11d48;
   --accent-emerald: #10b981;
-  --accent-glow: rgba(245, 158, 11, 0.3);
+  --accent-glow: rgba(245, 158, 11, 0.35);
   --font-heading: 'Plus Jakarta Sans', sans-serif;
   --font-body: 'Plus Jakarta Sans', sans-serif;
   --font-serif: 'Cinzel', serif;
@@ -25,58 +155,55 @@
   --bg-overlay: linear-gradient(to bottom, rgba(3, 7, 18, 0.45), rgba(3, 7, 18, 0.68));
 }
 
-/* Theme 2: Spotlight Gold & Actor Glamour */
-[data-theme="spotlight"] {
-  --bg-main: #0a0a0c;
-  --bg-nav: rgba(10, 10, 12, 0.72);
-  --bg-card: rgba(18, 18, 22, 0.52);
-  --border-card: rgba(255, 204, 0, 0.3);
-  --text-main: #ffffff;
-  --text-muted: #e2e8f0;
-  --accent-gold: #ffcc00;
-  --accent-spotlight: #ffe066;
-  --accent-rose: #f43f5e;
-  --accent-emerald: #34d399;
-  --accent-glow: rgba(255, 204, 0, 0.4);
-  --font-heading: 'Cinzel', serif;
-  --font-body: 'Plus Jakarta Sans', sans-serif;
-  --bg-overlay: linear-gradient(to bottom, rgba(10, 10, 12, 0.4), rgba(10, 10, 12, 0.65));
+/* ==========================================================================
+   LIGHT MODE CONTRAST & TYPOGRAPHY OVERRIDES
+   ========================================================================== */
+[data-theme="editorial-light"] .glass-card,
+[data-theme="warm-linen"] .glass-card,
+[data-theme="nordic-frost"] .glass-card {
+  background: var(--bg-card) !important;
+  border-color: var(--border-card) !important;
+  box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.08) !important;
 }
 
-/* Theme 3: Cyber Architecture & IT Architect */
-[data-theme="cyber"] {
-  --bg-main: #050b14;
-  --bg-nav: rgba(5, 11, 20, 0.7);
-  --bg-card: rgba(8, 18, 38, 0.5);
-  --border-card: rgba(6, 182, 212, 0.3);
-  --text-main: #ffffff;
-  --text-muted: #94a3b8;
-  --accent-gold: #06b6d4;
-  --accent-spotlight: #38bdf8;
-  --accent-rose: #818cf8;
-  --accent-emerald: #10b981;
-  --accent-glow: rgba(6, 182, 212, 0.4);
-  --font-heading: 'JetBrains Mono', monospace;
-  --font-body: 'Plus Jakarta Sans', sans-serif;
-  --bg-overlay: linear-gradient(to bottom, rgba(5, 11, 20, 0.42), rgba(5, 11, 20, 0.68));
+[data-theme="editorial-light"] .text-white,
+[data-theme="warm-linen"] .text-white,
+[data-theme="nordic-frost"] .text-white {
+  color: var(--text-main) !important;
 }
 
-/* Theme 4: Editorial Studio Light */
-[data-theme="editorial-light"] {
-  --bg-main: #f8fafc;
-  --bg-nav: rgba(255, 255, 255, 0.75);
-  --bg-card: rgba(255, 255, 255, 0.65);
-  --border-card: rgba(0, 0, 0, 0.15);
-  --text-main: #0f172a;
-  --text-muted: #334155;
-  --accent-gold: #d97706;
-  --accent-spotlight: #eab308;
-  --accent-rose: #be123c;
-  --accent-emerald: #059669;
-  --accent-glow: rgba(217, 119, 6, 0.2);
-  --font-heading: 'Cinzel', serif;
-  --font-body: 'Plus Jakarta Sans', sans-serif;
-  --bg-overlay: linear-gradient(to bottom, rgba(248, 250, 252, 0.5), rgba(248, 250, 252, 0.75));
+[data-theme="editorial-light"] .text-slate-200,
+[data-theme="editorial-light"] .text-slate-300,
+[data-theme="editorial-light"] .text-slate-400,
+[data-theme="warm-linen"] .text-slate-200,
+[data-theme="warm-linen"] .text-slate-300,
+[data-theme="warm-linen"] .text-slate-400,
+[data-theme="nordic-frost"] .text-slate-200,
+[data-theme="nordic-frost"] .text-slate-300,
+[data-theme="nordic-frost"] .text-slate-400 {
+  color: var(--text-muted) !important;
+}
+
+[data-theme="editorial-light"] p, [data-theme="editorial-light"] h1, [data-theme="editorial-light"] h2, [data-theme="editorial-light"] h3, [data-theme="editorial-light"] h4, [data-theme="editorial-light"] span,
+[data-theme="warm-linen"] p, [data-theme="warm-linen"] h1, [data-theme="warm-linen"] h2, [data-theme="warm-linen"] h3, [data-theme="warm-linen"] h4, [data-theme="warm-linen"] span,
+[data-theme="nordic-frost"] p, [data-theme="nordic-frost"] h1, [data-theme="nordic-frost"] h2, [data-theme="nordic-frost"] h3, [data-theme="nordic-frost"] h4, [data-theme="nordic-frost"] span {
+  text-shadow: none !important;
+}
+
+[data-theme="editorial-light"] .nav-btn,
+[data-theme="warm-linen"] .nav-btn,
+[data-theme="nordic-frost"] .nav-btn {
+  background: var(--bg-card) !important;
+  border-color: var(--border-card) !important;
+  color: var(--text-main) !important;
+}
+
+[data-theme="editorial-light"] .nav-btn.active,
+[data-theme="warm-linen"] .nav-btn.active,
+[data-theme="nordic-frost"] .nav-btn.active {
+  border-color: var(--accent-gold) !important;
+  background: rgba(217, 119, 6, 0.12) !important;
+  color: var(--accent-gold) !important;
 }
 
 /* Base Styles */
@@ -134,40 +261,164 @@ body {
 
 /* === METALLIC PIN SVG ICON WRAPPERS (self-contained SVG files) === */
 .social-pin-btn {
-  display: inline-flex;
+  display: inline-flex !important;
   align-items: center;
   justify-content: center;
   background: transparent;
   border: none;
   padding: 0;
+  width: 38px;
+  height: 38px;
+  min-width: 38px;
+  min-height: 38px;
+  flex-shrink: 0 !important;
   cursor: pointer;
   text-decoration: none;
   transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .social-pin-btn img {
-  width: 40px;
-  height: 40px;
-  display: block;
+  width: 38px !important;
+  height: 38px !important;
+  min-width: 38px !important;
+  min-height: 38px !important;
+  display: block !important;
+  object-fit: contain;
   transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), filter 0.3s ease;
-  filter: drop-shadow(0 3px 6px rgba(0,0,0,0.55));
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.65));
 }
 
 .social-pin-btn:hover img {
-  transform: translateY(-4px) scale(1.15);
+  transform: translateY(-5px) scale(1.22);
 }
 
 .social-pin-btn.instagram:hover img {
-  filter: drop-shadow(0 0 12px rgba(228,64,95,0.90)) drop-shadow(0 5px 10px rgba(0,0,0,0.5));
+  filter: drop-shadow(0 0 16px rgba(228,64,95,1)) drop-shadow(0 6px 12px rgba(0,0,0,0.6));
 }
 .social-pin-btn.twitter:hover img {
-  filter: drop-shadow(0 0 12px rgba(29,161,242,0.90)) drop-shadow(0 5px 10px rgba(0,0,0,0.5));
+  filter: drop-shadow(0 0 16px rgba(29,161,242,1)) drop-shadow(0 6px 12px rgba(0,0,0,0.6));
 }
 .social-pin-btn.facebook:hover img {
-  filter: drop-shadow(0 0 12px rgba(24,119,242,0.90)) drop-shadow(0 5px 10px rgba(0,0,0,0.5));
+  filter: drop-shadow(0 0 16px rgba(24,119,242,1)) drop-shadow(0 6px 12px rgba(0,0,0,0.6));
 }
 .social-pin-btn.spotlight:hover img {
-  filter: drop-shadow(0 0 12px rgba(245,158,11,0.90)) drop-shadow(0 5px 10px rgba(0,0,0,0.5));
+  filter: drop-shadow(0 0 16px rgba(245,158,11,1)) drop-shadow(0 6px 12px rgba(0,0,0,0.6));
+}
+
+/* === NAV BUTTON DOUBLE-LINE SIZING & VIVID GLOW HOVER === */
+.nav-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 0.5rem !important;
+  padding: 0.45rem 0.75rem !important;
+  border-radius: 0.75rem !important;
+  font-size: 0.70rem !important;
+  line-height: 1.18 !important;
+  font-weight: 800 !important;
+  white-space: normal !important;
+  text-align: left !important;
+  position: relative !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+  flex-shrink: 0 !important;
+  border: 1px solid rgba(148, 163, 184, 0.22) !important;
+  background: rgba(15, 23, 42, 0.70) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  color: #cbd5e1 !important;
+  transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+}
+
+.nav-btn span {
+  display: inline-block !important;
+  line-height: 1.18 !important;
+  text-align: left !important;
+}
+
+.nav-btn i[data-lucide],
+.nav-btn svg {
+  width: 1.25rem !important;
+  height: 1.25rem !important;
+  flex-shrink: 0 !important;
+  transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275), filter 0.25s ease !important;
+}
+
+/* Active State */
+.nav-btn.active,
+.nav-btn[data-active="true"] {
+  border-color: #f59e0b !important;
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.24) 0%, rgba(225, 29, 72, 0.18) 100%) !important;
+  color: #fbbf24 !important;
+  box-shadow: 0 0 16px rgba(245, 158, 11, 0.4), 0 3px 10px rgba(0,0,0,0.5), inset 0 1px 2px rgba(255, 255, 255, 0.2) !important;
+}
+
+.nav-btn.active i[data-lucide],
+.nav-btn.active svg {
+  filter: drop-shadow(0 0 8px #f59e0b) !important;
+}
+
+/* Vivid, High-Contrast Glow Hover State */
+.nav-btn:hover {
+  transform: translateY(-2.5px) scale(1.03) !important;
+  border-color: #f59e0b !important;
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.38) 0%, rgba(99, 102, 241, 0.38) 100%) !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 22px rgba(245, 158, 11, 0.65), 0 8px 24px rgba(0, 0, 0, 0.7), inset 0 1px 2px rgba(255, 255, 255, 0.4) !important;
+  text-shadow: 0 0 8px rgba(255, 255, 255, 0.8);
+}
+
+.nav-btn:hover i[data-lucide],
+.nav-btn:hover svg {
+  transform: scale(1.22) rotate(-4deg) !important;
+  filter: drop-shadow(0 0 12px #f59e0b) drop-shadow(0 0 18px currentColor) !important;
+}
+
+.nav-btn:active {
+  transform: translateY(0px) scale(0.98) !important;
+}
+
+/* ==========================================================================
+   SSB PILL ("Steve's Spotlight Badge" / SSB Pill)
+   Reusable Spotlight Badge Component with Menu-Grade Vivid Glow Hover
+   ========================================================================== */
+.ssb-pill {
+  display: inline-flex !important;
+  align-items: center;
+  gap: 0.625rem;
+  background: rgba(0, 0, 0, 0.65) !important;
+  border: 1px solid rgba(245, 158, 11, 0.65) !important;
+  color: #ffffff !important;
+  border-radius: 0.75rem !important;
+  text-decoration: none !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.15) !important;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+  cursor: pointer;
+}
+
+.ssb-pill:hover {
+  transform: translateY(-2.5px) scale(1.03) !important;
+  border-color: #f59e0b !important;
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.4) 0%, rgba(99, 102, 241, 0.4) 100%) !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 24px rgba(245, 158, 11, 0.75), 0 8px 24px rgba(0, 0, 0, 0.7), inset 0 1px 2px rgba(255, 255, 255, 0.4) !important;
+  text-shadow: 0 0 8px rgba(255, 255, 255, 0.8);
+}
+
+.ssb-pill:hover img {
+  transform: scale(1.08);
+  filter: drop-shadow(0 0 10px rgba(245, 158, 11, 0.85)) !important;
+}
+
+.ssb-pill:hover i[data-lucide],
+.ssb-pill:hover svg {
+  transform: scale(1.2) rotate(-4deg) !important;
+  filter: drop-shadow(0 0 12px #f59e0b) !important;
+}
+
+.ssb-pill:active {
+  transform: translateY(0px) scale(0.98) !important;
 }
 
 /* Legacy .social-icon-btn fallback (for any remaining uses) */
@@ -283,4 +534,177 @@ p, h1, h2, h3, h4, span, td, th {
   .print-only {
     display: block !important;
   }
+}
+
+/* =========================================================
+   PREMIUM ADMIN INPUTS & FORM STYLING
+   ========================================================= */
+.admin-input,
+.admin-textarea,
+.admin-select {
+  width: 100%;
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1.5px solid rgba(148, 163, 184, 0.22);
+  border-radius: 0.85rem;
+  padding: 0.65rem 1rem;
+  color: #f8fafc;
+  font-size: 0.8125rem;
+  line-height: 1.35;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.35);
+}
+
+.admin-input::placeholder,
+.admin-textarea::placeholder {
+  color: #64748b;
+}
+
+.admin-input:hover,
+.admin-textarea:hover,
+.admin-select:hover {
+  border-color: rgba(245, 158, 11, 0.45);
+  background: rgba(15, 23, 42, 0.95);
+  box-shadow: 0 0 12px rgba(245, 158, 11, 0.12), inset 0 2px 4px rgba(0, 0, 0, 0.35);
+}
+
+.admin-input:focus,
+.admin-textarea:focus,
+.admin-select:focus {
+  outline: none;
+  border-color: #f59e0b;
+  background: rgba(10, 15, 30, 0.98);
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.25), 0 0 20px rgba(245, 158, 11, 0.2);
+  color: #ffffff;
+}
+
+/* =========================================================
+   SITE-WIDE HOVER & MICRO-INTERACTION REFINEMENTS
+   ========================================================= */
+/* Credits & Filmography hover */
+.credit-row, 
+#castingWorksGrid > div,
+#adminCreditsTableBody tr {
+  transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+#castingWorksGrid > div:hover {
+  transform: translateY(-4px) scale(1.015);
+  border-color: rgba(245, 158, 11, 0.6) !important;
+  box-shadow: 0 12px 28px -5px rgba(0, 0, 0, 0.75), 0 0 20px rgba(245, 158, 11, 0.25);
+}
+
+/* Timeline Cards Hover */
+#aboutTimelineGrid > div .glass-card,
+#itTimelineContainer > div .glass-card {
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+#aboutTimelineGrid > div .glass-card:hover,
+#itTimelineContainer > div .glass-card:hover {
+  transform: translateY(-4px) scale(1.02);
+  border-color: rgba(245, 158, 11, 0.7) !important;
+  box-shadow: 0 16px 36px -8px rgba(0, 0, 0, 0.8), 0 0 24px rgba(245, 158, 11, 0.3) !important;
+  background: rgba(15, 23, 42, 0.85);
+}
+
+#aboutTimelineGrid > div:hover .rounded-full,
+#itTimelineContainer > div:hover .rounded-full {
+  transform: scale(1.22);
+  border-color: #f59e0b !important;
+  box-shadow: 0 0 18px rgba(245, 158, 11, 0.65);
+}
+
+/* General Interactive Glass Cards Hover */
+.glass-card-interactive {
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.glass-card-interactive:hover {
+  transform: translateY(-3px);
+  border-color: rgba(245, 158, 11, 0.5);
+  box-shadow: 0 14px 32px -6px rgba(0, 0, 0, 0.7), 0 0 16px rgba(245, 158, 11, 0.18);
+}
+
+/* ==========================================================================
+   BRIEF CASTING SHEET BUTTON — LUXURY BESPOKE HERO STYLING & SHIMMER HOVER
+   ========================================================================== */
+.brief-casting-btn {
+  position: relative;
+  display: block;
+  width: 100%;
+  border-radius: 14px;
+  padding: 1.5px;
+  background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 35%, #d97706 70%, #fef08a 100%);
+  background-size: 250% 250%;
+  animation: gradientShift 6s ease infinite;
+  box-shadow: 0 4px 20px -2px rgba(245, 158, 11, 0.25), 0 0 12px rgba(217, 119, 6, 0.15);
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.brief-casting-btn:hover {
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 12px 32px -4px rgba(245, 158, 11, 0.5), 0 0 28px rgba(251, 191, 36, 0.4);
+}
+
+.brief-casting-btn:active {
+  transform: translateY(0.5px) scale(0.985);
+}
+
+.brief-casting-btn-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 12.5px;
+  background: linear-gradient(180deg, rgba(15, 23, 42, 0.96) 0%, rgba(8, 12, 22, 0.98) 100%);
+  padding: 11px 15px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  overflow: hidden;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.brief-casting-btn:hover .brief-casting-btn-inner {
+  background: linear-gradient(180deg, rgba(24, 34, 58, 0.92) 0%, rgba(12, 18, 34, 0.96) 100%);
+}
+
+.brief-casting-btn-shine {
+  position: absolute;
+  top: 0;
+  left: -120%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), rgba(251, 191, 36, 0.28), transparent);
+  transform: skewX(-25deg);
+  transition: none;
+  pointer-events: none;
+}
+
+.brief-casting-btn:hover .brief-casting-btn-shine {
+  left: 200%;
+  transition: left 0.85s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+
+
+/* Enterprise Backup — Password Hide/Reveal Toggle */
+.backup-pw-hidden {
+  color: transparent !important;
+  text-shadow: 0 0 6px rgba(251, 191, 36, 0.5);
+  user-select: none;
+}
+.backup-pw-hidden:hover {
+  text-shadow: 0 0 8px rgba(251, 191, 36, 0.7);
 }

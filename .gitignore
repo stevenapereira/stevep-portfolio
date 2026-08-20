@@ -3,3 +3,7 @@ node_modules/
 .DS_Store
 *.MOV
 Steve Pereira - Supervisor - The Central Line.MOV
+data/backups/
+Backups/
+*.zip
+scratch_photos/
