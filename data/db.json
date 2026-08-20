@@ -592,12 +592,33 @@
     "keywords": "Steve Pereira, British Indian Actor, Actor, Leicester, London, Spotlight Actor, IT Nerd, IT Expert, Survival, Unique Story, Alcoholism, Sober , Edge of Life, near death experience,"
   },
   "analytics": {
-    "pageViews": 1826,
+    "pageViews": 1827,
     "spotlightClicks": 321,
     "cvDownloads": 190,
     "showreelPlays": 510,
     "bookingEnquiries": 30,
     "recentEvents": [
+      {
+        "type": "page_view",
+        "label": "",
+        "timestamp": "2026-08-20T02:38:20.227Z",
+        "source": "Other Referral",
+        "medium": "referral",
+        "referrerRaw": "http://localhost:3000/",
+        "browser": "Chrome",
+        "os": "macOS",
+        "device": "Desktop",
+        "country": "Local / Dev",
+        "countryCode": "XX",
+        "city": "Localhost",
+        "region": "",
+        "isp": "Local Network",
+        "page": "Steve Pereira | British Indian Actor | IT Expert Since 1992 | Cardiac Arrest Survivor | Sober Since 2013",
+        "url": "",
+        "hackId": "",
+        "duration": 0,
+        "details": {}
+      },
       {
         "type": "page_view",
         "label": "",
