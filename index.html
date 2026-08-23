@@ -68,8 +68,9 @@
 </head>
 <body class="min-h-screen relative transition-colors duration-400">
 
-  <!-- ================= GLOBAL DYNAMIC BACKGROUND LAYER (DOWNWARD SCROLL MOTION) ================= -->
+  <!-- ================= GLOBAL DYNAMIC BACKGROUND & COLOR LAYERS (GPU PARALLAX) ================= -->
   <div id="globalBgLayer" class="fixed inset-0 z-0 bw-dynamic-bg pointer-events-none" style="background-image: url('assets/steve_bw_stitched_bg.jpg');"></div>
+  <div id="globalBgColorLayer" class="bg-color-layer fixed inset-0 z-0 pointer-events-none hidden"></div>
   <div id="globalBgOverlay" class="fixed inset-0 z-0 pointer-events-none" style="background: var(--bg-overlay);"></div>
 
   <div class="relative z-10">
@@ -2713,62 +2714,224 @@
               </div>
             </div>
 
-            <!-- Cinematic Background Backdrop Selector -->
-            <div class="glass-card rounded-2xl border border-slate-800 p-5 space-y-3">
-              <div class="flex items-center justify-between">
-                <h4 class="text-xs font-black text-amber-400 uppercase tracking-wider font-mono-code flex items-center gap-1.5">
-                  <i data-lucide="image" class="w-3.5 h-3.5 text-amber-400"></i> Global Atmospheric Background Image
-                </h4>
-              </div>
-              <p class="text-xs text-slate-400">Choose between the new 7-Photo Stitched B&amp;W Panorama or the Signature Tattoo Hero portrait.</p>
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
-                <div id="bgOption-stitched" onclick="setActiveBackground('assets/steve_bw_stitched_bg.jpg')" class="p-3.5 rounded-xl border cursor-pointer transition space-y-2 bg-slate-900 border-amber-500/60 shadow-lg">
-                  <div class="h-24 w-full rounded-lg overflow-hidden border border-slate-800 relative">
-                    <img src="assets/steve_bw_stitched_bg.jpg" alt="Stitched B&W Background" class="w-full h-full object-cover">
-                    <span id="badge-bg-stitched" class="absolute bottom-1.5 right-1.5 px-2 py-0.5 rounded bg-slate-950/90 text-amber-300 font-mono-code font-bold text-[9px]">ACTIVE</span>
-                  </div>
-                  <strong class="text-xs font-bold text-white block">1. Stitched B&amp;W Cinematic Panorama (7-Photo Fusion)</strong>
-                  <p class="text-[11px] text-slate-400">Seamless blend of 7 dramatic B&amp;W headshots &amp; location stills with edge vignetting.</p>
+            <!-- ================= DYNAMIC BACKGROUND & ATMOSPHERIC ARTISTRY SUITE ================= -->
+            <div class="glass-card rounded-2xl border border-slate-800 p-6 space-y-6">
+              
+              <!-- Title & Mode Selector Bar -->
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800/80 pb-4">
+                <div>
+                  <h4 class="text-sm font-black text-amber-400 uppercase tracking-wider font-mono-code flex items-center gap-2">
+                    <i data-lucide="image" class="w-4 h-4 text-amber-400"></i> Global Atmospheric Background &amp; Artistry Studio
+                  </h4>
+                  <p class="text-xs text-slate-400 pt-0.5">Customize live background photos, plain solid colors, smooth reverse parallax scroll, and lighting filters.</p>
                 </div>
 
-                <div id="bgOption-tattoo" onclick="setActiveBackground('assets/steve_signature_tattoo_bg.jpg')" class="p-3.5 rounded-xl border cursor-pointer transition space-y-2 bg-slate-900/60 border-slate-800 hover:border-slate-700">
-                  <div class="h-24 w-full rounded-lg overflow-hidden border border-slate-800 relative">
-                    <img src="assets/steve_signature_tattoo_bg.jpg" alt="Signature Tattoo Background" class="w-full h-full object-cover">
-                    <span id="badge-bg-tattoo" class="absolute bottom-1.5 right-1.5 px-2 py-0.5 rounded bg-slate-950/90 text-amber-300 font-mono-code font-bold text-[9px] hidden">ACTIVE</span>
-                  </div>
-                  <strong class="text-xs font-bold text-white block">2. Signature Single Tattoo Hero Portrait</strong>
-                  <p class="text-[11px] text-slate-400">Classic single-subject dramatic tattoo portrait.</p>
+                <!-- Mode Switcher Pills -->
+                <div class="inline-flex rounded-xl bg-slate-950 p-1 border border-slate-800">
+                  <button type="button" id="bgModeBtn-image" onclick="setBgMode('image')" class="px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 bg-amber-500 text-slate-950 shadow">
+                    <i data-lucide="image" class="w-3.5 h-3.5"></i> Photo Wallpaper
+                  </button>
+                  <button type="button" id="bgModeBtn-plain" onclick="setBgMode('plain')" class="px-3 py-1.5 rounded-lg text-xs font-bold text-slate-400 hover:text-white transition flex items-center gap-1.5">
+                    <i data-lucide="palette" class="w-3.5 h-3.5"></i> Plain Color
+                  </button>
+                  <button type="button" id="bgModeBtn-off" onclick="setBgMode('off')" class="px-3 py-1.5 rounded-lg text-xs font-bold text-slate-400 hover:text-white transition flex items-center gap-1.5">
+                    <i data-lucide="eye-off" class="w-3.5 h-3.5"></i> Off (Theme Default)
+                  </button>
                 </div>
               </div>
-            </div>
 
-            <!-- Glassmorphism & Visual Transparency Studio -->
-            <div class="glass-card rounded-2xl border border-slate-800 p-5 space-y-4">
-              <h4 class="text-xs font-black text-amber-400 uppercase tracking-wider font-mono-code flex items-center gap-1.5">
-                <i data-lucide="sliders" class="w-3.5 h-3.5 text-amber-400"></i> Glass Transparency &amp; Ambient Lighting
-              </h4>
+              <!-- PHOTO WALLPAPER CONTROLS (Active in 'image' mode) -->
+              <div id="bgPhotoSection" class="space-y-4">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-black text-slate-200 uppercase tracking-wider font-mono-code flex items-center gap-1.5">
+                    <i data-lucide="sparkles" class="w-3.5 h-3.5 text-amber-400"></i> Select Background Image Source
+                  </span>
 
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
-                <!-- Glass Box Opacity -->
-                <div class="space-y-2">
-                  <div class="flex items-center justify-between text-xs">
-                    <label class="font-bold text-slate-300">Glass Cards Transparency:</label>
-                    <span id="glassOpacityVal" class="font-mono-code font-bold text-amber-400">48%</span>
+                  <!-- Action Buttons: Media Bank & Upload -->
+                  <div class="flex items-center gap-2">
+                    <button type="button" onclick="openBgMediaPickerModal()" class="px-3 py-1.5 rounded-xl bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 border border-indigo-500/40 text-xs font-bold flex items-center gap-1.5 transition">
+                      <i data-lucide="images" class="w-3.5 h-3.5"></i> Pick from Media Bank
+                    </button>
+                    <label class="px-3 py-1.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 text-xs font-bold flex items-center gap-1.5 cursor-pointer transition">
+                      <i data-lucide="upload" class="w-3.5 h-3.5"></i> Upload New Photo
+                      <input type="file" id="bgCustomFileInput" accept="image/*" class="hidden" onchange="handleBgFileUpload(event)">
+                    </label>
                   </div>
-                  <input type="range" id="adminGlassOpacitySlider" min="10" max="90" value="48" oninput="updateGlassOpacity(this.value)" class="w-full accent-amber-400 cursor-pointer">
-                  <p class="text-[11px] text-slate-400">Controls the see-through opacity of glassmorphic cards and containers site-wide.</p>
                 </div>
 
-                <!-- Background Darkness / Contrast -->
-                <div class="space-y-2">
-                  <div class="flex items-center justify-between text-xs">
-                    <label class="font-bold text-slate-300">Background Image Darkness / Brightness:</label>
-                    <span id="bgBrightnessVal" class="font-mono-code font-bold text-cyan-400">48%</span>
+                <!-- Presets & Current Active Card Grid -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-1">
+                  <!-- Preset 1: 35-Photo Wallpaper Mosaic -->
+                  <div id="bgOption-stitched" onclick="setActiveBackground('assets/steve_bw_stitched_bg.jpg')" class="p-3.5 rounded-xl border cursor-pointer transition space-y-2 bg-slate-900 border-amber-500/60 shadow-lg">
+                    <div class="h-24 w-full rounded-lg overflow-hidden border border-slate-800 relative">
+                      <img src="assets/steve_bw_stitched_bg.jpg" alt="35-Photo Wallpaper" class="w-full h-full object-cover">
+                      <span id="badge-bg-stitched" class="absolute bottom-1.5 right-1.5 px-2 py-0.5 rounded bg-slate-950/90 text-amber-300 font-mono-code font-bold text-[9px]">ACTIVE</span>
+                    </div>
+                    <strong class="text-xs font-bold text-white block">1. 35-Photo B&amp;W Contact Mosaic</strong>
+                    <p class="text-[11px] text-slate-400">Dense film-strip wallpaper featuring 35 distinct headshots, film stills &amp; combat slates.</p>
                   </div>
-                  <input type="range" id="adminBgBrightnessSlider" min="10" max="90" value="48" oninput="updateBgBrightness(this.value)" class="w-full accent-cyan-400 cursor-pointer">
-                  <p class="text-[11px] text-slate-400">Adjust the depth and illumination of the dynamic background portrait stills.</p>
+
+                  <!-- Preset 2: Signature Single Tattoo Hero Portrait -->
+                  <div id="bgOption-tattoo" onclick="setActiveBackground('assets/steve_signature_tattoo_bg.jpg')" class="p-3.5 rounded-xl border cursor-pointer transition space-y-2 bg-slate-900/60 border-slate-800 hover:border-slate-700">
+                    <div class="h-24 w-full rounded-lg overflow-hidden border border-slate-800 relative">
+                      <img src="assets/steve_signature_tattoo_bg.jpg" alt="Signature Tattoo Background" class="w-full h-full object-cover">
+                      <span id="badge-bg-tattoo" class="absolute bottom-1.5 right-1.5 px-2 py-0.5 rounded bg-slate-950/90 text-amber-300 font-mono-code font-bold text-[9px] hidden">ACTIVE</span>
+                    </div>
+                    <strong class="text-xs font-bold text-white block">2. Single Tattoo Hero Portrait</strong>
+                    <p class="text-[11px] text-slate-400">Dramatic single-subject tattoo hero portrait with low-key studio lighting.</p>
+                  </div>
+
+                  <!-- Preset 3: Custom Active Photo -->
+                  <div id="bgOption-custom" class="p-3.5 rounded-xl border transition space-y-2 bg-slate-900/60 border-slate-800">
+                    <div class="h-24 w-full rounded-lg overflow-hidden border border-slate-800 relative bg-slate-950 flex items-center justify-center">
+                      <img id="bgCustomPreviewImg" src="assets/steves_spotlight_badge.png" alt="Custom Background Preview" class="w-full h-full object-cover hidden">
+                      <div id="bgCustomEmptyText" class="text-center p-2 text-[11px] text-slate-500 italic">
+                        <i data-lucide="image-plus" class="w-5 h-5 mx-auto mb-1 text-slate-600"></i> No custom photo picked
+                      </div>
+                      <span id="badge-bg-custom" class="absolute bottom-1.5 right-1.5 px-2 py-0.5 rounded bg-slate-950/90 text-amber-300 font-mono-code font-bold text-[9px] hidden">ACTIVE</span>
+                    </div>
+                    <strong id="bgCustomTitle" class="text-xs font-bold text-slate-300 block">3. Custom / Uploaded Photo</strong>
+                    <p id="bgCustomDesc" class="text-[11px] text-slate-400">Pick any photo from the media bank or upload your own.</p>
+                  </div>
                 </div>
               </div>
+
+              <!-- PLAIN SOLID & GRADIENT COLOR CONTROLS (Active in 'plain' mode) -->
+              <div id="bgPlainSection" class="space-y-4 hidden border border-slate-800 rounded-xl p-4 bg-slate-950/60">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-black text-amber-400 uppercase tracking-wider font-mono-code flex items-center gap-1.5">
+                    <i data-lucide="palette" class="w-3.5 h-3.5 text-amber-400"></i> Plain Background Colors &amp; Gradients
+                  </span>
+                  <div class="flex items-center gap-2">
+                    <label class="text-xs text-slate-300 font-bold">Custom HEX:</label>
+                    <input type="color" id="adminBgColorPicker" value="#030712" oninput="setBgPlainColor(this.value)" class="w-8 h-8 rounded-lg cursor-pointer bg-transparent border border-slate-700">
+                  </div>
+                </div>
+
+                <!-- Color Palette Swatches Grid -->
+                <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-8 gap-2 pt-1">
+                  <button type="button" onclick="setBgPlainColor('#030712')" class="p-2.5 rounded-xl border border-slate-800 hover:border-amber-400 transition text-center space-y-1.5 bg-slate-900 group">
+                    <span class="w-full h-8 rounded-lg block border border-white/10" style="background-color: #030712;"></span>
+                    <span class="text-[10px] font-mono-code text-slate-300 block">Obsidian</span>
+                  </button>
+                  <button type="button" onclick="setBgPlainColor('#071426')" class="p-2.5 rounded-xl border border-slate-800 hover:border-amber-400 transition text-center space-y-1.5 bg-slate-900 group">
+                    <span class="w-full h-8 rounded-lg block border border-white/10" style="background-color: #071426;"></span>
+                    <span class="text-[10px] font-mono-code text-slate-300 block">Navy Blue</span>
+                  </button>
+                  <button type="button" onclick="setBgPlainColor('#0f172a')" class="p-2.5 rounded-xl border border-slate-800 hover:border-amber-400 transition text-center space-y-1.5 bg-slate-900 group">
+                    <span class="w-full h-8 rounded-lg block border border-white/10" style="background-color: #0f172a;"></span>
+                    <span class="text-[10px] font-mono-code text-slate-300 block">Slate Dark</span>
+                  </button>
+                  <button type="button" onclick="setBgPlainColor('#1c0409')" class="p-2.5 rounded-xl border border-slate-800 hover:border-amber-400 transition text-center space-y-1.5 bg-slate-900 group">
+                    <span class="w-full h-8 rounded-lg block border border-white/10" style="background-color: #1c0409;"></span>
+                    <span class="text-[10px] font-mono-code text-slate-300 block">Burgundy</span>
+                  </button>
+                  <button type="button" onclick="setBgPlainColor('#010d06')" class="p-2.5 rounded-xl border border-slate-800 hover:border-amber-400 transition text-center space-y-1.5 bg-slate-900 group">
+                    <span class="w-full h-8 rounded-lg block border border-white/10" style="background-color: #010d06;"></span>
+                    <span class="text-[10px] font-mono-code text-slate-300 block">Matrix Green</span>
+                  </button>
+                  <button type="button" onclick="setBgPlainColor('#0c102b')" class="p-2.5 rounded-xl border border-slate-800 hover:border-amber-400 transition text-center space-y-1.5 bg-slate-900 group">
+                    <span class="w-full h-8 rounded-lg block border border-white/10" style="background-color: #0c102b;"></span>
+                    <span class="text-[10px] font-mono-code text-slate-300 block">Deep Indigo</span>
+                  </button>
+                  <button type="button" onclick="setBgPlainColor('#f8fafc')" class="p-2.5 rounded-xl border border-slate-800 hover:border-amber-400 transition text-center space-y-1.5 bg-slate-900 group">
+                    <span class="w-full h-8 rounded-lg block border border-white/10" style="background-color: #f8fafc;"></span>
+                    <span class="text-[10px] font-mono-code text-slate-300 block">Studio Light</span>
+                  </button>
+                  <button type="button" onclick="setBgPlainColor('#f5ede0')" class="p-2.5 rounded-xl border border-slate-800 hover:border-amber-400 transition text-center space-y-1.5 bg-slate-900 group">
+                    <span class="w-full h-8 rounded-lg block border border-white/10" style="background-color: #f5ede0;"></span>
+                    <span class="text-[10px] font-mono-code text-slate-300 block">Warm Sand</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- LIGHTING, BRIGHTNESS, CONTRAST & TRANSPARENCY CONTROLS -->
+              <div class="border-t border-slate-800/80 pt-4 space-y-4">
+                <h5 class="text-xs font-black text-amber-400 uppercase tracking-wider font-mono-code flex items-center gap-1.5">
+                  <i data-lucide="sliders" class="w-3.5 h-3.5 text-amber-400"></i> Lighting, Brightness &amp; Glass Transparency
+                </h5>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-5">
+                  <!-- Background Brightness -->
+                  <div class="space-y-1.5">
+                    <div class="flex items-center justify-between text-xs">
+                      <label class="font-bold text-slate-300">Background Brightness:</label>
+                      <span id="bgBrightnessVal" class="font-mono-code font-bold text-amber-400">85%</span>
+                    </div>
+                    <input type="range" id="adminBgBrightnessSlider" min="10" max="150" value="85" oninput="updateBgBrightness(this.value)" class="w-full accent-amber-400 cursor-pointer">
+                    <p class="text-[10px] text-slate-400">Brighten or darken background image.</p>
+                  </div>
+
+                  <!-- Background Contrast -->
+                  <div class="space-y-1.5">
+                    <div class="flex items-center justify-between text-xs">
+                      <label class="font-bold text-slate-300">Background Contrast:</label>
+                      <span id="bgContrastVal" class="font-mono-code font-bold text-cyan-400">115%</span>
+                    </div>
+                    <input type="range" id="adminBgContrastSlider" min="50" max="180" value="115" oninput="updateBgContrast(this.value)" class="w-full accent-cyan-400 cursor-pointer">
+                    <p class="text-[10px] text-slate-400">Punch up or soften black/white contrast.</p>
+                  </div>
+
+                  <!-- Vignette / Dark Overlay Density -->
+                  <div class="space-y-1.5">
+                    <div class="flex items-center justify-between text-xs">
+                      <label class="font-bold text-slate-300">Dark Vignette Density:</label>
+                      <span id="bgOverlayVal" class="font-mono-code font-bold text-rose-400">35%</span>
+                    </div>
+                    <input type="range" id="adminBgOverlaySlider" min="0" max="90" value="35" oninput="updateBgOverlayDensity(this.value)" class="w-full accent-rose-400 cursor-pointer">
+                    <p class="text-[10px] text-slate-400">Adjust dark atmospheric cinema overlay.</p>
+                  </div>
+
+                  <!-- Glass Cards Transparency -->
+                  <div class="space-y-1.5">
+                    <div class="flex items-center justify-between text-xs">
+                      <label class="font-bold text-slate-300">Glass Cards Opacity:</label>
+                      <span id="glassOpacityVal" class="font-mono-code font-bold text-emerald-400">48%</span>
+                    </div>
+                    <input type="range" id="adminGlassOpacitySlider" min="10" max="90" value="48" oninput="updateGlassOpacity(this.value)" class="w-full accent-emerald-400 cursor-pointer">
+                    <p class="text-[10px] text-slate-400">Controls see-through opacity of content cards.</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- SILKY GPU PARALLAX MOTION ENGINE CONTROLS -->
+              <div class="border-t border-slate-800/80 pt-4 space-y-4">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                  <h5 class="text-xs font-black text-amber-400 uppercase tracking-wider font-mono-code flex items-center gap-1.5">
+                    <i data-lucide="move" class="w-3.5 h-3.5 text-amber-400"></i> Silky GPU Parallax Motion Engine (60/120fps Lerp)
+                  </h5>
+                  <div class="flex items-center gap-3">
+                    <label class="inline-flex items-center gap-2 text-xs font-bold text-slate-300 cursor-pointer">
+                      <input type="checkbox" id="adminBgParallaxToggle" checked onchange="toggleBgParallax(this.checked)" class="rounded accent-amber-400">
+                      <span>Enable Scroll Motion</span>
+                    </label>
+                  </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <!-- Flow Direction Selector -->
+                  <div class="space-y-1.5">
+                    <label class="font-bold text-slate-300 text-xs">Scroll Flow Direction:</label>
+                    <select id="adminBgParallaxDirection" onchange="setBgParallaxDirection(this.value)" class="admin-select text-xs font-bold bg-slate-900 border border-slate-700 text-slate-200">
+                      <option value="opposite">⚡ Inverse Flow (Smooth Opposite) — [Recommended]</option>
+                      <option value="classic">🌊 Classic Parallax (Same Direction)</option>
+                      <option value="fixed">🔒 Fixed Static (No Movement)</option>
+                    </select>
+                    <p class="text-[10px] text-slate-400">Inverse Flow moves opposite to scrolling for buttery-smooth depth.</p>
+                  </div>
+
+                  <!-- Motion Speed / Sensitivity Slider -->
+                  <div class="space-y-1.5">
+                    <div class="flex items-center justify-between text-xs">
+                      <label class="font-bold text-slate-300">Motion Responsiveness / Speed:</label>
+                      <span id="bgSpeedVal" class="font-mono-code font-bold text-indigo-400">16%</span>
+                    </div>
+                    <input type="range" id="adminBgSpeedSlider" min="5" max="40" value="16" oninput="updateBgParallaxSpeed(this.value)" class="w-full accent-indigo-400 cursor-pointer">
+                    <p class="text-[10px] text-slate-400">Adjust the subtle speed ratio of the background parallax drift.</p>
+                  </div>
+                </div>
+              </div>
+
             </div>
           </div>
 
@@ -3922,6 +4085,48 @@
           </button>
         </div>
       </form>
+
+    </div>
+  </div>
+
+  <!-- ================= MEDIA BANK BACKGROUND SELECTOR MODAL ================= -->
+  <div id="bgMediaPickerModal" class="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md hidden flex items-center justify-center p-4">
+    <div class="glass-card rounded-3xl border border-slate-700/80 max-w-4xl w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden animate-fadeIn">
+      
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between border-b border-slate-800 p-5 bg-slate-900/50">
+        <div>
+          <h4 class="text-base font-black text-white font-cinzel flex items-center gap-2">
+            <i data-lucide="images" class="w-5 h-5 text-amber-400"></i> Pick Background from Media Bank
+          </h4>
+          <p class="text-xs text-slate-400">Choose any photo from your portfolio. A dedicated separate copy will be created without modifying the media bank.</p>
+        </div>
+        <button onclick="closeBgMediaPickerModal()" class="p-2 rounded-full bg-slate-900 text-slate-400 hover:text-white border border-slate-800 transition">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Filter Categories Bar -->
+      <div id="bgMediaFilterTabs" class="px-5 py-3 border-b border-slate-800/80 bg-slate-950/40 flex items-center gap-2 overflow-x-auto">
+        <button type="button" onclick="filterBgMediaPicker('ALL')" class="bg-filter-btn px-3 py-1 rounded-lg text-xs font-bold bg-amber-500 text-slate-950 shadow whitespace-nowrap">All Photos</button>
+        <button type="button" onclick="filterBgMediaPicker('Headshots')" class="bg-filter-btn px-3 py-1 rounded-lg text-xs font-bold text-slate-400 hover:text-white hover:bg-slate-800 whitespace-nowrap">Headshots</button>
+        <button type="button" onclick="filterBgMediaPicker('Stills')" class="bg-filter-btn px-3 py-1 rounded-lg text-xs font-bold text-slate-400 hover:text-white hover:bg-slate-800 whitespace-nowrap">Film Stills</button>
+        <button type="button" onclick="filterBgMediaPicker('ECSPC Stage Combat')" class="bg-filter-btn px-3 py-1 rounded-lg text-xs font-bold text-slate-400 hover:text-white hover:bg-slate-800 whitespace-nowrap">Stage Combat &amp; Tactical</button>
+        <button type="button" onclick="filterBgMediaPicker('Behind the Scenes')" class="bg-filter-btn px-3 py-1 rounded-lg text-xs font-bold text-slate-400 hover:text-white hover:bg-slate-800 whitespace-nowrap">Behind the Scenes</button>
+      </div>
+
+      <!-- Photos Grid Container -->
+      <div id="bgMediaPickerGrid" class="p-5 overflow-y-auto flex-1 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3.5 min-h-[300px] max-h-[55vh]">
+        <!-- Rendered dynamically -->
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="flex items-center justify-between border-t border-slate-800 p-4 bg-slate-900/50 text-xs">
+        <span class="text-slate-400 font-mono-code text-[11px]">Clicking any photo creates an isolated background asset.</span>
+        <button type="button" onclick="closeBgMediaPickerModal()" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold transition">
+          Close
+        </button>
+      </div>
 
     </div>
   </div>

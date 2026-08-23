@@ -869,6 +869,84 @@ const server = http.createServer(async (req, res) => {
     return sendJSON(res, { success: true, message: 'Backup deleted.' });
   }
 
+  // ═══════════════════════════════════════════════════════════════════════════
+  // DYNAMIC BACKGROUND & ARTISTRY ASSET MANAGEMENT APIS
+  // ═══════════════════════════════════════════════════════════════════════════
+  if (reqPath === '/api/background/upload' && req.method === 'POST') {
+    try {
+      const body = await parseJSON(req);
+      if (!body.dataUrl) return sendJSON(res, { success: false, message: 'dataUrl is required' }, 400);
+
+      const base64Data = body.dataUrl.replace(/^data:image\/\w+;base64,/, '');
+      const buffer = Buffer.from(base64Data, 'base64');
+      const timestamp = Date.now();
+      const ext = body.dataUrl.includes('image/png') ? 'png' : 'jpg';
+      const filename = `custom_bg_${timestamp}.${ext}`;
+
+      const p1 = path.join(__dirname, 'assets', filename);
+      const p2 = path.join(__dirname, 'public', 'assets', filename);
+      fs.writeFileSync(p1, buffer);
+      fs.writeFileSync(p2, buffer);
+
+      const relativeUrl = `assets/${filename}`;
+      const db = readDB();
+      db.activeBgImage = relativeUrl;
+      db.bgConfig = db.bgConfig || {};
+      db.bgConfig.activeImage = relativeUrl;
+      db.bgConfig.mode = 'image';
+      writeDB(db);
+
+      return sendJSON(res, { success: true, url: relativeUrl, message: 'Custom background uploaded and saved as isolated asset!' });
+    } catch (e) {
+      return sendJSON(res, { success: false, message: e.message }, 500);
+    }
+  }
+
+  if (reqPath === '/api/background/copy-from-media' && req.method === 'POST') {
+    try {
+      const body = await parseJSON(req);
+      const mediaUrl = (body.mediaUrl || '').trim();
+      if (!mediaUrl) return sendJSON(res, { success: false, message: 'mediaUrl is required' }, 400);
+
+      const timestamp = Date.now();
+      const filename = `custom_bg_${timestamp}.jpg`;
+      const p1 = path.join(__dirname, 'assets', filename);
+      const p2 = path.join(__dirname, 'public', 'assets', filename);
+
+      if (mediaUrl.startsWith('data:image/')) {
+        const base64Data = mediaUrl.replace(/^data:image\/\w+;base64,/, '');
+        const buffer = Buffer.from(base64Data, 'base64');
+        fs.writeFileSync(p1, buffer);
+        fs.writeFileSync(p2, buffer);
+      } else {
+        const cleanPath = mediaUrl.replace(/^\/?(public\/)?/, '');
+        const srcPath = path.join(__dirname, cleanPath);
+        if (fs.existsSync(srcPath)) {
+          fs.copyFileSync(srcPath, p1);
+          fs.copyFileSync(srcPath, p2);
+        } else {
+          const fallbackPath = path.join(__dirname, 'public', cleanPath);
+          if (fs.existsSync(fallbackPath)) {
+            fs.copyFileSync(fallbackPath, p1);
+            fs.copyFileSync(fallbackPath, p2);
+          }
+        }
+      }
+
+      const relativeUrl = `assets/${filename}`;
+      const db = readDB();
+      db.activeBgImage = relativeUrl;
+      db.bgConfig = db.bgConfig || {};
+      db.bgConfig.activeImage = relativeUrl;
+      db.bgConfig.mode = 'image';
+      writeDB(db);
+
+      return sendJSON(res, { success: true, url: relativeUrl, message: 'Media photo isolated as background copy!' });
+    } catch (e) {
+      return sendJSON(res, { success: false, message: e.message }, 500);
+    }
+  }
+
   // POST /api/backup/restore — Restore from uploaded JSON data
   if (reqPath === '/api/backup/restore' && req.method === 'POST') {
     const body = await parseJSON(req);

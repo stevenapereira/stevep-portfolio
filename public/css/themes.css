@@ -222,27 +222,38 @@ body {
   font-family: var(--font-code);
 }
 
-/* Dynamic High-Contrast B&W Background Layer with Continuous Parallax Motion */
+/* Dynamic High-Contrast B&W Background Layer with Silky GPU Parallax Motion */
 .bw-dynamic-bg {
   position: fixed;
-  top: 0;
+  top: -25vh;
   left: 0;
   right: 0;
-  bottom: 0;
   width: 100vw;
-  height: 100vh;
-  background-size: 100% auto;
-  background-position: center top;
+  height: 150vh;
+  background-size: cover;
+  background-position: center center;
   background-repeat: repeat-y;
-  filter: grayscale(100%) contrast(115%) brightness(0.85);
-  transition: background-image 0.6s ease-in-out, filter 0.4s ease;
-  will-change: background-position;
+  filter: grayscale(100%) contrast(var(--bg-contrast, 115%)) brightness(var(--bg-brightness, 0.85));
+  will-change: transform;
   pointer-events: none;
+  transform: translate3d(0, 0, 0);
+  transition: background-image 0.5s ease-in-out, filter 0.2s ease, opacity 0.3s ease;
+}
+
+.bg-color-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  transition: background 0.4s ease, opacity 0.3s ease;
 }
 
 /* Glassmorphic Card Transparency Controller */
 :root {
   --glass-opacity: 0.48;
+  --bg-brightness: 0.85;
+  --bg-contrast: 115%;
+  --bg-overlay-opacity: 0.35;
 }
 
 /* High Translucency See-Through Glassmorphism Cards */

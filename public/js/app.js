@@ -65,19 +65,32 @@ window.addEventListener('DOMContentLoaded', () => {
   trackEvent('page_view');
 });
 
-// Silky-Smooth Continuous Parallax Motion for Background Wallpaper on Page Scroll
-let _lastScrollY = -1;
+// Silky-Smooth Hardware-Accelerated GPU Parallax Engine with Lerp Interpolation
+let _currentBgY = 0;
+let _targetBgY = 0;
+
 function updateBgParallax() {
-  const scrollY = window.scrollY || window.pageYOffset || 0;
-  if (scrollY !== _lastScrollY) {
-    _lastScrollY = scrollY;
-    const bgLayer = document.getElementById('globalBgLayer');
-    if (bgLayer) {
-      // Moves wallpaper organically at a smooth 0.32 ratio without bottom clipping
-      const yOffset = scrollY * 0.32;
-      bgLayer.style.backgroundPosition = `center -${yOffset}px`;
-    }
+  const bgConfig = (appData && appData.bgConfig) || {};
+  const isEnabled = bgConfig.parallaxEnabled !== false;
+  const mode = bgConfig.mode || 'image';
+  const bgLayer = document.getElementById('globalBgLayer');
+
+  if (bgLayer && isEnabled && mode === 'image') {
+    const scrollY = window.scrollY || window.pageYOffset || 0;
+    // Direction: 'opposite' (default: smooth inverse flow), 'classic' (down with scroll), 'fixed' (static)
+    const dir = bgConfig.direction || 'opposite';
+    const mult = dir === 'classic' ? -1 : (dir === 'fixed' ? 0 : 1);
+    const speedRatio = typeof bgConfig.speed === 'number' ? bgConfig.speed : 0.16;
+
+    _targetBgY = scrollY * speedRatio * mult;
+    // Smooth lerp damping (12% per frame) eliminates all jerking, mouse-wheel skips & jitter
+    _currentBgY += (_targetBgY - _currentBgY) * 0.12;
+
+    bgLayer.style.transform = `translate3d(0, ${_currentBgY.toFixed(2)}px, 0)`;
+  } else if (bgLayer) {
+    bgLayer.style.transform = `translate3d(0, 0, 0)`;
   }
+
   requestAnimationFrame(updateBgParallax);
 }
 requestAnimationFrame(updateBgParallax);
@@ -110,11 +123,8 @@ function renderAll() {
   if (appData.activeTheme) {
     document.documentElement.setAttribute('data-theme', appData.activeTheme);
   }
-  const bgLayer = document.getElementById('globalBgLayer');
-  if (bgLayer) {
-    const activeBg = appData.activeBgImage || 'assets/steve_bw_stitched_bg.jpg';
-    bgLayer.style.backgroundImage = `url('${activeBg}')`;
-  }
+  applyBgSettings();
+  updateBgStudioUI();
   applySiteTexts();
   renderWorks();
   renderAdminCreditsTable();
@@ -3861,14 +3871,6 @@ function lockAdmin() {
   document.getElementById('adminDashboard')?.classList.add('hidden');
 }
 
-function updateGlassOpacity(val) {
-  const decimal = (val / 100).toFixed(2);
-  document.documentElement.style.setProperty('--glass-opacity', decimal);
-  const label = document.getElementById('glassOpacityVal');
-  if (label) label.textContent = `${val}%`;
-}
-window.updateGlassOpacity = updateGlassOpacity;
-
 
 // ===========================================================================
 // ADVANCED ANALYTICS DASHBOARD
@@ -6057,39 +6059,401 @@ function renderAdminThemes() {
     statusEl.innerHTML = `Active Live Theme: <strong class="text-amber-400">${currentSaved.toUpperCase()}</strong> | Previewing: <strong class="text-cyan-400">${activeNow.toUpperCase()}</strong>`;
   }
 
-  updateBgSelectorUI();
+  updateBgStudioUI();
 
   if (window.lucide) lucide.createIcons();
 }
 
+window.updateBgSelectorUI = updateBgStudioUI;
+
+// ═══════════════════════════════════════════════════════════════════════════
+// GLOBAL ATMOSPHERIC BACKGROUND & ARTISTRY STUDIO ENGINE
+// ═══════════════════════════════════════════════════════════════════════════
+
+function setBgMode(mode) {
+  appData.bgConfig = appData.bgConfig || {};
+  appData.bgConfig.mode = mode;
+  applyBgSettings();
+  updateBgStudioUI();
+  saveAppDataToServer();
+}
+
+function applyBgSettings() {
+  const bgLayer = document.getElementById('globalBgLayer');
+  const colorLayer = document.getElementById('globalBgColorLayer');
+  const overlayLayer = document.getElementById('globalBgOverlay');
+  const bgConfig = appData.bgConfig || {
+    mode: 'image',
+    activeImage: appData.activeBgImage || 'assets/steve_bw_stitched_bg.jpg',
+    brightness: 85,
+    contrast: 115,
+    overlayDensity: 35,
+    glassOpacity: 48,
+    parallaxEnabled: true,
+    direction: 'opposite',
+    speed: 0.16,
+    plainColor: '#030712'
+  };
+
+  const mode = bgConfig.mode || 'image';
+
+  // 1. Photo Wallpaper Layer
+  if (bgLayer) {
+    if (mode === 'image') {
+      bgLayer.classList.remove('hidden');
+      const activeImg = bgConfig.activeImage || appData.activeBgImage || 'assets/steve_bw_stitched_bg.jpg';
+      bgLayer.style.backgroundImage = `url('${activeImg}')`;
+      const b = (bgConfig.brightness || 85) / 100;
+      const c = (bgConfig.contrast || 115);
+      bgLayer.style.filter = `grayscale(100%) contrast(${c}%) brightness(${b})`;
+      bgLayer.style.opacity = '1';
+    } else {
+      bgLayer.classList.add('hidden');
+      bgLayer.style.opacity = '0';
+    }
+  }
+
+  // 2. Plain Color Layer
+  if (colorLayer) {
+    if (mode === 'plain') {
+      colorLayer.classList.remove('hidden');
+      const col = bgConfig.plainColor || '#030712';
+      colorLayer.style.background = col;
+      colorLayer.style.opacity = '1';
+    } else {
+      colorLayer.classList.add('hidden');
+      colorLayer.style.opacity = '0';
+    }
+  }
+
+  // 3. Dark Overlay / Vignette Layer
+  if (overlayLayer) {
+    if (mode === 'off') {
+      overlayLayer.style.opacity = '0';
+    } else {
+      const density = (typeof bgConfig.overlayDensity === 'number' ? bgConfig.overlayDensity : 35) / 100;
+      overlayLayer.style.opacity = density > 0 ? (density * 1.5).toString() : '0';
+    }
+  }
+
+  // 4. Glass Cards Transparency
+  const glass = typeof bgConfig.glassOpacity === 'number' ? bgConfig.glassOpacity : 48;
+  document.documentElement.style.setProperty('--glass-opacity', (glass / 100).toString());
+}
+
 async function setActiveBackground(url) {
   appData.activeBgImage = url;
-  const bg = document.getElementById('globalBgLayer');
-  if (bg) {
-    bg.style.backgroundImage = `url('${url}')`;
-  }
-  updateBgSelectorUI();
+  appData.bgConfig = appData.bgConfig || {};
+  appData.bgConfig.activeImage = url;
+  appData.bgConfig.mode = 'image';
+  applyBgSettings();
+  updateBgStudioUI();
   await saveAppDataToServer();
 }
 
-function updateBgSelectorUI() {
-  const current = appData.activeBgImage || 'assets/steve_bw_stitched_bg.jpg';
+function setBgPlainColor(hex) {
+  appData.bgConfig = appData.bgConfig || {};
+  appData.bgConfig.mode = 'plain';
+  appData.bgConfig.plainColor = hex;
+  const picker = document.getElementById('adminBgColorPicker');
+  if (picker) picker.value = hex;
+  applyBgSettings();
+  updateBgStudioUI();
+  saveAppDataToServer();
+}
+
+function updateBgBrightness(val) {
+  appData.bgConfig = appData.bgConfig || {};
+  appData.bgConfig.brightness = parseInt(val, 10);
+  const label = document.getElementById('bgBrightnessVal');
+  if (label) label.textContent = `${val}%`;
+  applyBgSettings();
+}
+
+function updateBgContrast(val) {
+  appData.bgConfig = appData.bgConfig || {};
+  appData.bgConfig.contrast = parseInt(val, 10);
+  const label = document.getElementById('bgContrastVal');
+  if (label) label.textContent = `${val}%`;
+  applyBgSettings();
+}
+
+function updateBgOverlayDensity(val) {
+  appData.bgConfig = appData.bgConfig || {};
+  appData.bgConfig.overlayDensity = parseInt(val, 10);
+  const label = document.getElementById('bgOverlayVal');
+  if (label) label.textContent = `${val}%`;
+  applyBgSettings();
+}
+
+function updateGlassOpacity(val) {
+  appData.bgConfig = appData.bgConfig || {};
+  appData.bgConfig.glassOpacity = parseInt(val, 10);
+  const label = document.getElementById('glassOpacityVal');
+  if (label) label.textContent = `${val}%`;
+  applyBgSettings();
+}
+
+function toggleBgParallax(enabled) {
+  appData.bgConfig = appData.bgConfig || {};
+  appData.bgConfig.parallaxEnabled = !!enabled;
+  saveAppDataToServer();
+}
+
+function setBgParallaxDirection(dir) {
+  appData.bgConfig = appData.bgConfig || {};
+  appData.bgConfig.direction = dir;
+  saveAppDataToServer();
+}
+
+function updateBgParallaxSpeed(val) {
+  appData.bgConfig = appData.bgConfig || {};
+  appData.bgConfig.speed = parseInt(val, 10) / 100;
+  const label = document.getElementById('bgSpeedVal');
+  if (label) label.textContent = `${val}%`;
+}
+
+async function handleBgFileUpload(event) {
+  const file = event.target.files && event.target.files[0];
+  if (!file) return;
+
+  try {
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      const dataUrl = e.target.result;
+      const res = await fetch('/api/background/upload', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ dataUrl, name: file.name })
+      });
+      const data = await res.json();
+      if (data.success && data.url) {
+        appData.activeBgImage = data.url;
+        appData.bgConfig = appData.bgConfig || {};
+        appData.bgConfig.activeImage = data.url;
+        appData.bgConfig.mode = 'image';
+        applyBgSettings();
+        updateBgStudioUI();
+        alert('Custom background uploaded, isolated, and applied live!');
+      } else {
+        alert('Upload failed: ' + (data.message || 'Unknown error'));
+      }
+    };
+    reader.readAsDataURL(file);
+  } catch (err) {
+    alert('Error uploading background: ' + err.message);
+  }
+}
+
+// Media Bank Background Picker Modal
+let _bgMediaPickerFilter = 'ALL';
+
+function openBgMediaPickerModal() {
+  const modal = document.getElementById('bgMediaPickerModal');
+  if (modal) modal.classList.remove('hidden');
+  renderBgMediaPickerGrid();
+}
+
+function closeBgMediaPickerModal() {
+  const modal = document.getElementById('bgMediaPickerModal');
+  if (modal) modal.classList.add('hidden');
+}
+
+function filterBgMediaPicker(category) {
+  _bgMediaPickerFilter = category;
+  const tabs = document.querySelectorAll('#bgMediaFilterTabs .bg-filter-btn');
+  tabs.forEach(btn => {
+    if (btn.textContent.includes(category) || (category === 'ALL' && btn.textContent.includes('All'))) {
+      btn.className = "bg-filter-btn px-3 py-1 rounded-lg text-xs font-bold bg-amber-500 text-slate-950 shadow whitespace-nowrap";
+    } else {
+      btn.className = "bg-filter-btn px-3 py-1 rounded-lg text-xs font-bold text-slate-400 hover:text-white hover:bg-slate-800 whitespace-nowrap";
+    }
+  });
+  renderBgMediaPickerGrid();
+}
+
+function getAllPortfolioPhotos() {
+  const list = [];
+  const seen = new Set();
+
+  function add(item, defaultCategory) {
+    if (!item) return;
+    const imgUrl = item.url || item.fileUrl || item.image || item.src;
+    if (imgUrl && typeof imgUrl === 'string' && !seen.has(imgUrl) && !imgUrl.endsWith('.mp4') && !imgUrl.endsWith('.mov')) {
+      seen.add(imgUrl);
+      list.push({
+        id: item.id || ('img_' + list.length),
+        url: imgUrl,
+        title: item.title || item.name || 'Steve Pereira Photo',
+        tag: item.tag || item.category || defaultCategory || 'Portfolio Photo'
+      });
+    }
+  }
+
+  (appData.headshots || []).forEach(h => add(h, 'Headshots'));
+  (appData.stills || []).forEach(s => add(s, 'Film Stills'));
+  (appData.fullBodySlates || []).forEach(f => add(f, 'Stage Combat & Tactical'));
+  (appData.media || []).forEach(m => add(m, 'Media Bank'));
+
+  return list;
+}
+
+function renderBgMediaPickerGrid() {
+  const grid = document.getElementById('bgMediaPickerGrid');
+  if (!grid) return;
+
+  const allPhotos = getAllPortfolioPhotos();
+  const filtered = _bgMediaPickerFilter === 'ALL' 
+    ? allPhotos 
+    : allPhotos.filter(m => (m.tag || '').toLowerCase().includes(_bgMediaPickerFilter.toLowerCase()));
+
+  if (filtered.length === 0) {
+    grid.innerHTML = `<div class="col-span-full py-12 text-center text-slate-400 italic text-xs">No photos found in this category.</div>`;
+    return;
+  }
+
+  grid.innerHTML = filtered.map(item => {
+    const imgUrl = item.url;
+    const title = item.title;
+    const tag = item.tag;
+    return `
+      <div onclick="selectBgFromMediaBank('${encodeURIComponent(imgUrl)}')" class="group relative rounded-xl overflow-hidden border border-slate-800 hover:border-amber-400 cursor-pointer bg-slate-900 transition aspect-[4/5] shadow-md hover:scale-[1.02]">
+        <img src="${escapeHtml(imgUrl)}" alt="${escapeHtml(title)}" class="w-full h-full object-cover group-hover:brightness-110 transition">
+        <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-transparent to-transparent opacity-80 group-hover:opacity-95 transition flex flex-col justify-end p-2.5">
+          <span class="text-[9px] font-mono-code font-bold text-amber-400 uppercase tracking-wider block truncate">${escapeHtml(tag)}</span>
+          <strong class="text-xs font-bold text-white block truncate">${escapeHtml(title)}</strong>
+          <span class="text-[10px] text-cyan-300 font-mono-code mt-1 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition">
+            <i data-lucide="check-circle" class="w-3 h-3"></i> Apply as Isolated Background
+          </span>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  if (window.lucide) lucide.createIcons();
+}
+
+async function selectBgFromMediaBank(encodedUrl) {
+  const mediaUrl = decodeURIComponent(encodedUrl);
+  try {
+    const res = await fetch('/api/background/copy-from-media', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ mediaUrl })
+    });
+    const data = await res.json();
+    if (data.success && data.url) {
+      appData.activeBgImage = data.url;
+      appData.bgConfig = appData.bgConfig || {};
+      appData.bgConfig.activeImage = data.url;
+      appData.bgConfig.mode = 'image';
+      applyBgSettings();
+      updateBgStudioUI();
+      closeBgMediaPickerModal();
+      alert('Photo isolated and set as your live background!');
+    } else {
+      setActiveBackground(mediaUrl);
+      closeBgMediaPickerModal();
+    }
+  } catch (err) {
+    setActiveBackground(mediaUrl);
+    closeBgMediaPickerModal();
+  }
+}
+
+function updateBgStudioUI() {
+  const bgConfig = appData.bgConfig || { mode: 'image', activeImage: appData.activeBgImage || 'assets/steve_bw_stitched_bg.jpg' };
+  const mode = bgConfig.mode || 'image';
+  const currentImg = bgConfig.activeImage || appData.activeBgImage || 'assets/steve_bw_stitched_bg.jpg';
+
+  // Mode Buttons
+  const btnImg = document.getElementById('bgModeBtn-image');
+  const btnPlain = document.getElementById('bgModeBtn-plain');
+  const btnOff = document.getElementById('bgModeBtn-off');
+  const secPhoto = document.getElementById('bgPhotoSection');
+  const secPlain = document.getElementById('bgPlainSection');
+
+  if (btnImg) btnImg.className = mode === 'image' ? "px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 bg-amber-500 text-slate-950 shadow" : "px-3 py-1.5 rounded-lg text-xs font-bold text-slate-400 hover:text-white transition flex items-center gap-1.5";
+  if (btnPlain) btnPlain.className = mode === 'plain' ? "px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 bg-amber-500 text-slate-950 shadow" : "px-3 py-1.5 rounded-lg text-xs font-bold text-slate-400 hover:text-white transition flex items-center gap-1.5";
+  if (btnOff) btnOff.className = mode === 'off' ? "px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 bg-amber-500 text-slate-950 shadow" : "px-3 py-1.5 rounded-lg text-xs font-bold text-slate-400 hover:text-white transition flex items-center gap-1.5";
+
+  if (secPhoto) secPhoto.classList.toggle('hidden', mode !== 'image');
+  if (secPlain) secPlain.classList.toggle('hidden', mode !== 'plain');
+
+  // Photo Cards Badges
   const optStitched = document.getElementById('bgOption-stitched');
   const optTattoo = document.getElementById('bgOption-tattoo');
+  const optCustom = document.getElementById('bgOption-custom');
   const badgeStitched = document.getElementById('badge-bg-stitched');
   const badgeTattoo = document.getElementById('badge-bg-tattoo');
+  const badgeCustom = document.getElementById('badge-bg-custom');
+  const customImg = document.getElementById('bgCustomPreviewImg');
+  const customEmpty = document.getElementById('bgCustomEmptyText');
 
-  if (current.includes('stitched')) {
+  if (currentImg.includes('stitched')) {
     if (optStitched) optStitched.className = "p-3.5 rounded-xl border cursor-pointer transition space-y-2 bg-slate-900 border-amber-500/60 shadow-lg";
     if (optTattoo) optTattoo.className = "p-3.5 rounded-xl border cursor-pointer transition space-y-2 bg-slate-900/60 border-slate-800 hover:border-slate-700";
+    if (optCustom) optCustom.className = "p-3.5 rounded-xl border transition space-y-2 bg-slate-900/60 border-slate-800";
     if (badgeStitched) badgeStitched.classList.remove('hidden');
     if (badgeTattoo) badgeTattoo.classList.add('hidden');
-  } else {
+    if (badgeCustom) badgeCustom.classList.add('hidden');
+  } else if (currentImg.includes('tattoo')) {
     if (optTattoo) optTattoo.className = "p-3.5 rounded-xl border cursor-pointer transition space-y-2 bg-slate-900 border-amber-500/60 shadow-lg";
     if (optStitched) optStitched.className = "p-3.5 rounded-xl border cursor-pointer transition space-y-2 bg-slate-900/60 border-slate-800 hover:border-slate-700";
+    if (optCustom) optCustom.className = "p-3.5 rounded-xl border transition space-y-2 bg-slate-900/60 border-slate-800";
     if (badgeTattoo) badgeTattoo.classList.remove('hidden');
     if (badgeStitched) badgeStitched.classList.add('hidden');
+    if (badgeCustom) badgeCustom.classList.add('hidden');
+  } else {
+    if (optCustom) optCustom.className = "p-3.5 rounded-xl border cursor-pointer transition space-y-2 bg-slate-900 border-amber-500/60 shadow-lg";
+    if (optStitched) optStitched.className = "p-3.5 rounded-xl border cursor-pointer transition space-y-2 bg-slate-900/60 border-slate-800 hover:border-slate-700";
+    if (optTattoo) optTattoo.className = "p-3.5 rounded-xl border cursor-pointer transition space-y-2 bg-slate-900/60 border-slate-800 hover:border-slate-700";
+    if (badgeCustom) badgeCustom.classList.remove('hidden');
+    if (badgeStitched) badgeStitched.classList.add('hidden');
+    if (badgeTattoo) badgeTattoo.classList.add('hidden');
+    if (customImg) {
+      customImg.src = currentImg;
+      customImg.classList.remove('hidden');
+    }
+    if (customEmpty) customEmpty.classList.add('hidden');
   }
+
+  // Sliders and controls values
+  const brightness = typeof bgConfig.brightness === 'number' ? bgConfig.brightness : 85;
+  const contrast = typeof bgConfig.contrast === 'number' ? bgConfig.contrast : 115;
+  const overlayDensity = typeof bgConfig.overlayDensity === 'number' ? bgConfig.overlayDensity : 35;
+  const glassOpacity = typeof bgConfig.glassOpacity === 'number' ? bgConfig.glassOpacity : 48;
+  const speed = typeof bgConfig.speed === 'number' ? Math.round(bgConfig.speed * 100) : 16;
+  const dir = bgConfig.direction || 'opposite';
+  const parallaxOn = bgConfig.parallaxEnabled !== false;
+
+  const sliderBright = document.getElementById('adminBgBrightnessSlider');
+  const sliderContrast = document.getElementById('adminBgContrastSlider');
+  const sliderOverlay = document.getElementById('adminBgOverlaySlider');
+  const sliderGlass = document.getElementById('adminGlassOpacitySlider');
+  const sliderSpeed = document.getElementById('adminBgSpeedSlider');
+  const selectDir = document.getElementById('adminBgParallaxDirection');
+  const toggleParallax = document.getElementById('adminBgParallaxToggle');
+
+  if (sliderBright) sliderBright.value = brightness;
+  if (sliderContrast) sliderContrast.value = contrast;
+  if (sliderOverlay) sliderOverlay.value = overlayDensity;
+  if (sliderGlass) sliderGlass.value = glassOpacity;
+  if (sliderSpeed) sliderSpeed.value = speed;
+  if (selectDir) selectDir.value = dir;
+  if (toggleParallax) toggleParallax.checked = parallaxOn;
+
+  const lblBright = document.getElementById('bgBrightnessVal');
+  const lblContrast = document.getElementById('bgContrastVal');
+  const lblOverlay = document.getElementById('bgOverlayVal');
+  const lblGlass = document.getElementById('glassOpacityVal');
+  const lblSpeed = document.getElementById('bgSpeedVal');
+
+  if (lblBright) lblBright.textContent = `${brightness}%`;
+  if (lblContrast) lblContrast.textContent = `${contrast}%`;
+  if (lblOverlay) lblOverlay.textContent = `${overlayDensity}%`;
+  if (lblGlass) lblGlass.textContent = `${glassOpacity}%`;
+  if (lblSpeed) lblSpeed.textContent = `${speed}%`;
 }
 
 function previewTheme(themeId) {
@@ -6126,21 +6490,6 @@ function previewLayout(section, layoutId) {
 async function saveActiveLayouts() {
   await saveAppDataToServer();
   alert('Successfully saved all live layout presets!');
-}
-
-function updateGlassOpacity(val) {
-  document.documentElement.style.setProperty('--glass-opacity', (val / 100).toString());
-  const label = document.getElementById('glassOpacityVal');
-  if (label) label.textContent = `${val}%`;
-}
-
-function updateBgBrightness(val) {
-  const bg = document.getElementById('globalBgLayer');
-  if (bg) {
-    bg.style.filter = `grayscale(100%) contrast(150%) brightness(${val / 100})`;
-  }
-  const label = document.getElementById('bgBrightnessVal');
-  if (label) label.textContent = `${val}%`;
 }
 
 // --------------------------------------------------------------------------
