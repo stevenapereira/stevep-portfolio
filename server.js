@@ -1051,6 +1051,54 @@ const server = http.createServer(async (req, res) => {
     return sendJSON(res, { success: true, message: 'Credit deleted' });
   }
 
+  // About SteveP Life Timeline REST Endpoints (GET, POST, PUT, DELETE)
+  if (reqPath === '/api/about-timeline' && req.method === 'GET') {
+    const db = readDB();
+    return sendJSON(res, { success: true, data: db.aboutTimeline || [] });
+  }
+
+  if (reqPath === '/api/about-timeline' && req.method === 'POST') {
+    const body = await parseJSON(req);
+    const db = readDB();
+    db.aboutTimeline = db.aboutTimeline || [];
+    const newMilestone = {
+      id: 'ab_' + Date.now(),
+      year: body.year || '2026',
+      title: body.title || 'New Life Milestone',
+      tag: body.tag || 'MILESTONE',
+      colorTheme: body.colorTheme || 'auto',
+      icon: body.icon || 'star',
+      url: body.url || '',
+      urlText: body.urlText || '',
+      desc: body.desc || ''
+    };
+    db.aboutTimeline.push(newMilestone);
+    writeDB(db);
+    return sendJSON(res, { success: true, message: 'Milestone added', data: newMilestone });
+  }
+
+  if (reqPath.startsWith('/api/about-timeline/') && req.method === 'PUT') {
+    const milestoneId = reqPath.replace('/api/about-timeline/', '');
+    const body = await parseJSON(req);
+    const db = readDB();
+    db.aboutTimeline = db.aboutTimeline || [];
+    const idx = db.aboutTimeline.findIndex(m => m.id === milestoneId);
+    if (idx !== -1) {
+      db.aboutTimeline[idx] = { ...db.aboutTimeline[idx], ...body };
+      writeDB(db);
+      return sendJSON(res, { success: true, message: 'Milestone updated', data: db.aboutTimeline[idx] });
+    }
+    return sendJSON(res, { success: false, message: 'Milestone not found' }, 404);
+  }
+
+  if (reqPath.startsWith('/api/about-timeline/') && req.method === 'DELETE') {
+    const milestoneId = reqPath.replace('/api/about-timeline/', '');
+    const db = readDB();
+    db.aboutTimeline = (db.aboutTimeline || []).filter(m => m.id !== milestoneId);
+    writeDB(db);
+    return sendJSON(res, { success: true, message: 'Milestone deleted' });
+  }
+
   if (reqPath === '/api/spotlight/sync-videos' && req.method === 'POST') {
     try {
       const https = require('https');

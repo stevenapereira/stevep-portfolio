@@ -771,3 +771,135 @@ p, h1, h2, h3, h4, span, td, th {
 .backup-pw-hidden:hover {
   text-shadow: 0 0 8px rgba(251, 191, 36, 0.7);
 }
+
+/* ==========================================================================
+   ABOUT TIMELINE MULTI-COLOR PALETTES & CONTRASTING TAGS
+   ========================================================================== */
+
+/* 1. Amber / Gold Box */
+.timeline-card-amber {
+  background: linear-gradient(135deg, rgba(120, 53, 15, 0.28) 0%, rgba(15, 23, 42, 0.95) 50%, rgba(2, 6, 23, 0.98) 100%);
+  border-color: rgba(245, 158, 11, 0.45) !important;
+  box-shadow: 0 10px 30px -5px rgba(245, 158, 11, 0.15);
+}
+.timeline-card-amber:hover {
+  border-color: rgba(251, 191, 36, 0.85) !important;
+  box-shadow: 0 14px 40px -5px rgba(245, 158, 11, 0.35);
+}
+.timeline-tag-amber {
+  background: rgba(244, 63, 94, 0.18);
+  color: #fda4af !important;
+  border: 1px solid rgba(244, 63, 94, 0.45);
+}
+
+/* 2. Emerald / Forest Box */
+.timeline-card-emerald {
+  background: linear-gradient(135deg, rgba(6, 78, 59, 0.28) 0%, rgba(15, 23, 42, 0.95) 50%, rgba(2, 6, 23, 0.98) 100%);
+  border-color: rgba(16, 185, 129, 0.45) !important;
+  box-shadow: 0 10px 30px -5px rgba(16, 185, 129, 0.15);
+}
+.timeline-card-emerald:hover {
+  border-color: rgba(52, 211, 153, 0.85) !important;
+  box-shadow: 0 14px 40px -5px rgba(16, 185, 129, 0.35);
+}
+.timeline-tag-emerald {
+  background: rgba(245, 158, 11, 0.18);
+  color: #fde68a !important;
+  border: 1px solid rgba(245, 158, 11, 0.45);
+}
+
+/* 3. Indigo / Royal Blue Box */
+.timeline-card-indigo {
+  background: linear-gradient(135deg, rgba(49, 46, 129, 0.28) 0%, rgba(15, 23, 42, 0.95) 50%, rgba(2, 6, 23, 0.98) 100%);
+  border-color: rgba(99, 102, 241, 0.45) !important;
+  box-shadow: 0 10px 30px -5px rgba(99, 102, 241, 0.15);
+}
+.timeline-card-indigo:hover {
+  border-color: rgba(129, 140, 248, 0.85) !important;
+  box-shadow: 0 14px 40px -5px rgba(99, 102, 241, 0.35);
+}
+.timeline-tag-indigo {
+  background: rgba(16, 185, 129, 0.18);
+  color: #a7f3d0 !important;
+  border: 1px solid rgba(16, 185, 129, 0.45);
+}
+
+/* 4. Rose / Ruby Box */
+.timeline-card-rose {
+  background: linear-gradient(135deg, rgba(136, 19, 55, 0.28) 0%, rgba(15, 23, 42, 0.95) 50%, rgba(2, 6, 23, 0.98) 100%);
+  border-color: rgba(244, 63, 94, 0.45) !important;
+  box-shadow: 0 10px 30px -5px rgba(244, 63, 94, 0.15);
+}
+.timeline-card-rose:hover {
+  border-color: rgba(251, 113, 133, 0.85) !important;
+  box-shadow: 0 14px 40px -5px rgba(244, 63, 94, 0.35);
+}
+.timeline-tag-rose {
+  background: rgba(6, 182, 212, 0.18);
+  color: #a5f3fc !important;
+  border: 1px solid rgba(6, 182, 212, 0.45);
+}
+
+/* 5. Cyan / Sky Box */
+.timeline-card-cyan {
+  background: linear-gradient(135deg, rgba(22, 78, 99, 0.28) 0%, rgba(15, 23, 42, 0.95) 50%, rgba(2, 6, 23, 0.98) 100%);
+  border-color: rgba(6, 182, 212, 0.45) !important;
+  box-shadow: 0 10px 30px -5px rgba(6, 182, 212, 0.15);
+}
+.timeline-card-cyan:hover {
+  border-color: rgba(34, 211, 238, 0.85) !important;
+  box-shadow: 0 14px 40px -5px rgba(6, 182, 212, 0.35);
+}
+.timeline-tag-cyan {
+  background: rgba(168, 85, 247, 0.18);
+  color: #e9d5ff !important;
+  border: 1px solid rgba(168, 85, 247, 0.45);
+}
+
+/* 6. Purple / Violet Box */
+.timeline-card-purple {
+  background: linear-gradient(135deg, rgba(88, 28, 135, 0.28) 0%, rgba(15, 23, 42, 0.95) 50%, rgba(2, 6, 23, 0.98) 100%);
+  border-color: rgba(168, 85, 247, 0.45) !important;
+  box-shadow: 0 10px 30px -5px rgba(168, 85, 247, 0.15);
+}
+.timeline-card-purple:hover {
+  border-color: rgba(192, 132, 252, 0.85) !important;
+  box-shadow: 0 14px 40px -5px rgba(168, 85, 247, 0.35);
+}
+.timeline-tag-purple {
+  background: rgba(245, 158, 11, 0.18);
+  color: #fde68a !important;
+  border: 1px solid rgba(245, 158, 11, 0.45);
+}
+
+/* 7. Orange / Coral Box */
+.timeline-card-orange {
+  background: linear-gradient(135deg, rgba(124, 45, 18, 0.28) 0%, rgba(15, 23, 42, 0.95) 50%, rgba(2, 6, 23, 0.98) 100%);
+  border-color: rgba(249, 115, 22, 0.45) !important;
+  box-shadow: 0 10px 30px -5px rgba(249, 115, 22, 0.15);
+}
+.timeline-card-orange:hover {
+  border-color: rgba(251, 146, 60, 0.85) !important;
+  box-shadow: 0 14px 40px -5px rgba(249, 115, 22, 0.35);
+}
+.timeline-tag-orange {
+  background: rgba(99, 102, 241, 0.18);
+  color: #c7d2fe !important;
+  border: 1px solid rgba(99, 102, 241, 0.45);
+}
+
+/* 8. Fuchsia / Magenta Box */
+.timeline-card-fuchsia {
+  background: linear-gradient(135deg, rgba(112, 26, 117, 0.28) 0%, rgba(15, 23, 42, 0.95) 50%, rgba(2, 6, 23, 0.98) 100%);
+  border-color: rgba(217, 70, 239, 0.45) !important;
+  box-shadow: 0 10px 30px -5px rgba(217, 70, 239, 0.15);
+}
+.timeline-card-fuchsia:hover {
+  border-color: rgba(232, 121, 249, 0.85) !important;
+  box-shadow: 0 14px 40px -5px rgba(217, 70, 239, 0.35);
+}
+.timeline-tag-fuchsia {
+  background: rgba(20, 184, 166, 0.18);
+  color: #99f6e4 !important;
+  border: 1px solid rgba(20, 184, 166, 0.45);
+}

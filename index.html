@@ -1729,27 +1729,31 @@
 
             <!-- 2. About Life Timeline Milestones Manager -->
             <div class="glass-card rounded-2xl border border-slate-800 p-5 space-y-4">
-              <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-                <h4 class="font-black text-white font-cinzel text-sm text-purple-400 flex items-center gap-2">
-                  <i data-lucide="clock" class="w-4 h-4"></i> About SteveP Life Milestones
-                </h4>
+              <div class="flex flex-wrap items-center justify-between border-b border-slate-800 pb-3 gap-2">
+                <div>
+                  <h4 class="font-black text-white font-cinzel text-sm text-purple-400 flex items-center gap-2">
+                    <i data-lucide="clock" class="w-4 h-4"></i> About SteveP Life Milestones &amp; Backstory Cards
+                  </h4>
+                  <p class="text-[11px] text-slate-400 mt-0.5">Entries are automatically sorted chronologically by initial date, each with unique consistent box colors and contrasting tag badges.</p>
+                </div>
                 <div class="flex items-center gap-2">
-                  <button onclick="addAboutTimelinePrompt()" class="px-3 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs flex items-center gap-1.5 shadow">
-                    <i data-lucide="plus" class="w-3.5 h-3.5"></i> Add Milestone
+                  <button onclick="openAddAboutTimelineModal()" class="px-3.5 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-black text-xs flex items-center gap-1.5 shadow transition active:scale-95">
+                    <i data-lucide="plus" class="w-3.5 h-3.5"></i> Add New Milestone
                   </button>
-                  <button onclick="saveAboutMilestonesSection()" class="px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-700 text-purple-300 hover:border-purple-400 font-bold text-xs flex items-center gap-1.5 shadow">
-                    <i data-lucide="check" class="w-3.5 h-3.5"></i> Save Milestones
+                  <button onclick="saveAboutMilestonesSection()" class="px-3.5 py-2 rounded-xl bg-slate-900 border border-slate-700 text-purple-300 hover:border-purple-400 font-bold text-xs flex items-center gap-1.5 shadow transition">
+                    <i data-lucide="check" class="w-3.5 h-3.5"></i> Save All
                   </button>
                 </div>
               </div>
               <div class="overflow-x-auto">
                 <table class="w-full text-left text-xs border-collapse">
                   <thead>
-                    <tr class="border-b border-slate-800 text-slate-400 font-mono-code bg-slate-950/60">
-                      <th class="p-2.5">Year / Date</th>
-                      <th class="p-2.5">Tag</th>
-                      <th class="p-2.5">Title &amp; Description</th>
-                      <th class="p-2.5 text-right">Actions</th>
+                    <tr class="border-b border-slate-800 text-slate-400 font-mono-code bg-slate-950/80">
+                      <th class="p-3">Initial Date</th>
+                      <th class="p-3">Box &amp; Tag Colors</th>
+                      <th class="p-3">Milestone Heading &amp; Narrative</th>
+                      <th class="p-3">Web Page Link</th>
+                      <th class="p-3 text-right">Actions</th>
                     </tr>
                   </thead>
                   <tbody id="adminAboutTimelineBody" class="divide-y divide-slate-800/60">
@@ -3778,6 +3782,117 @@
           <i data-lucide="check" class="w-4 h-4"></i> Save & Apply
         </button>
       </div>
+
+    </div>
+  </div>
+
+  <!-- ABOUT TIMELINE MILESTONE CMS MODAL -->
+  <div id="aboutTimelineEditModal" class="hidden fixed inset-0 z-50 bg-slate-950/95 backdrop-blur-xl flex items-center justify-center p-3 sm:p-6 overflow-y-auto" onclick="closeAboutTimelineModal(event)">
+    <div class="relative w-full max-w-xl glass-card rounded-3xl border border-purple-500/50 shadow-2xl p-5 sm:p-7 space-y-4 bg-slate-950/95 flex flex-col my-auto" onclick="event.stopPropagation()">
+      
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <div>
+          <span class="px-2.5 py-0.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30 text-[10px] font-mono-code font-bold uppercase">About SteveP Story CMS</span>
+          <h4 id="aboutTimelineModalHeading" class="text-base font-black text-white font-cinzel mt-1 flex items-center gap-2">
+            <i data-lucide="calendar" class="w-4 h-4 text-purple-400"></i> Edit Life Story Milestone
+          </h4>
+        </div>
+        <button onclick="closeAboutTimelineModal()" class="p-2 rounded-full bg-slate-900 text-slate-400 hover:text-white border border-slate-800 transition">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <!-- Form Inputs -->
+      <form onsubmit="handleSaveAboutTimelineModal(event)" class="space-y-3.5 text-xs text-left">
+        <input type="hidden" id="aboutModalId">
+
+        <!-- Row 1: Year / Date & Tag / Category -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block font-bold text-slate-300 mb-1 font-mono-code">Initial Year / Date Field: <span class="text-amber-400">*</span></label>
+            <input type="text" id="aboutModalYear" required class="admin-input font-bold text-amber-300 font-mono-code" placeholder="e.g. 1994 - 1995, Born: Friday 13th, 2013">
+            <span class="text-[10px] text-slate-500 mt-0.5 block">Events are automatically sorted chronologically by this initial date.</span>
+          </div>
+          <div>
+            <label class="block font-bold text-slate-300 mb-1 font-mono-code">Category / Tag: <span class="text-rose-400">*</span></label>
+            <input type="text" id="aboutModalTag" required class="admin-input font-bold text-rose-300 font-mono-code uppercase" placeholder="e.g. GAP YEAR, BORN/BIRTH, TECH CAREER">
+            <span class="text-[10px] text-slate-500 mt-0.5 block">Pill badge shown on card with contrasting color.</span>
+          </div>
+        </div>
+
+        <!-- Row 2: Milestone Title -->
+        <div>
+          <label class="block font-bold text-slate-300 mb-1 font-mono-code">Milestone Heading Title: <span class="text-white">*</span></label>
+          <input type="text" id="aboutModalTitle" required class="admin-input font-bold text-white text-sm" placeholder="e.g. Gap Year Volunteering at The Briars Residential Centre">
+        </div>
+
+        <!-- Row 3: Color Palette Box & Icon Selector -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block font-bold text-slate-300 mb-1 font-mono-code">Card Box &amp; Tag Color Palette:</label>
+            <select id="aboutModalColor" class="admin-select font-bold text-amber-400">
+              <option value="auto">🎨 Auto Multi-Color (Rainbow Cycle)</option>
+              <option value="amber">🟡 Amber Gold Box (Rose Tag)</option>
+              <option value="emerald">🟢 Emerald Forest Box (Gold Tag)</option>
+              <option value="indigo">🔵 Indigo Royal Box (Emerald Tag)</option>
+              <option value="rose">🔴 Rose Ruby Box (Cyan Tag)</option>
+              <option value="cyan">🩵 Cyan Sky Box (Purple Tag)</option>
+              <option value="purple">🟣 Purple Violet Box (Gold Tag)</option>
+              <option value="orange">🟠 Orange Coral Box (Indigo Tag)</option>
+              <option value="fuchsia">🌸 Fuchsia Magenta Box (Teal Tag)</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-bold text-slate-300 mb-1 font-mono-code">Milestone Node Icon:</label>
+            <select id="aboutModalIcon" class="admin-select font-bold text-slate-200">
+              <option value="star">⭐ Star (Milestone)</option>
+              <option value="sparkles">✨ Sparkles (Special Highlight)</option>
+              <option value="award">🏆 Award / Achievement</option>
+              <option value="heart">❤️ Heart / Recovery / Sobriety</option>
+              <option value="shield">🛡️ Shield / Security / Resilience</option>
+              <option value="cpu">💻 CPU / Tech / Enterprise</option>
+              <option value="clapperboard">🎬 Clapperboard / Acting</option>
+              <option value="flame">🔥 Flame / Phoenix Rebirth</option>
+              <option value="book-open">📖 Book / Backstory</option>
+              <option value="globe">🌐 Globe / Global / Travel</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Row 4: Optional Web Page URL & Button Text -->
+        <div class="p-3 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-2.5">
+          <span class="text-[11px] text-cyan-400 font-mono-code font-bold uppercase flex items-center gap-1.5">
+            <i data-lucide="link" class="w-3.5 h-3.5"></i> Optional Web Page Entry / External Link
+          </span>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+            <div>
+              <label class="block font-bold text-slate-400 text-[10px] mb-0.5">Web Page URL (e.g. https://...):</label>
+              <input type="url" id="aboutModalUrl" class="admin-input text-xs font-mono-code text-cyan-300" placeholder="https://example.com/page">
+            </div>
+            <div>
+              <label class="block font-bold text-slate-400 text-[10px] mb-0.5">Link Button Text (Optional):</label>
+              <input type="text" id="aboutModalUrlText" class="admin-input text-xs font-bold text-slate-200" placeholder="e.g. Visit Website / Read More">
+            </div>
+          </div>
+        </div>
+
+        <!-- Row 5: Description / Story Narrative -->
+        <div>
+          <label class="block font-bold text-slate-300 mb-1 font-mono-code">Detailed Story Narrative / Description: <span class="text-amber-400">*</span></label>
+          <textarea id="aboutModalDesc" rows="4" required class="admin-textarea text-xs text-slate-200 leading-relaxed" placeholder="Write the milestone story details, background context, and achievements..."></textarea>
+        </div>
+
+        <!-- Modal Footer Actions -->
+        <div class="flex items-center justify-between border-t border-slate-800 pt-3 text-xs">
+          <button type="button" onclick="closeAboutTimelineModal()" class="px-4 py-2 rounded-xl bg-slate-900 border border-slate-700 text-slate-300 font-bold hover:bg-slate-800 transition">
+            Cancel
+          </button>
+          <button type="submit" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-black flex items-center gap-2 shadow-lg shadow-purple-500/20 transition active:scale-95">
+            <i data-lucide="check" class="w-4 h-4"></i> Save &amp; Commit to Database
+          </button>
+        </div>
+      </form>
 
     </div>
   </div>

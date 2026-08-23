@@ -2928,79 +2928,258 @@ async function editCreditPrompt(id) {
   } catch (e) {}
 }
 
+// --------------------------------------------------------------------------
+// ABOUT TIMELINE COLOR PALETTES & DATE SORTING SYSTEM
+// --------------------------------------------------------------------------
+const ABOUT_PALETTES = [
+  {
+    name: 'amber',
+    label: '🟡 Amber Gold',
+    cardClass: 'timeline-card-amber',
+    tagClass: 'timeline-tag-amber',
+    yearPill: 'bg-amber-500/20 text-amber-300 border border-amber-500/40',
+    titleColor: 'text-amber-200',
+    iconCircle: 'border-amber-500/60 bg-amber-950/60 text-amber-400',
+    cmsBorder: 'border-l-4 border-l-amber-500',
+    tagPreview: 'bg-rose-500/20 text-rose-300 border-rose-500/40'
+  },
+  {
+    name: 'emerald',
+    label: '🟢 Emerald Forest',
+    cardClass: 'timeline-card-emerald',
+    tagClass: 'timeline-tag-emerald',
+    yearPill: 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40',
+    titleColor: 'text-emerald-200',
+    iconCircle: 'border-emerald-500/60 bg-emerald-950/60 text-emerald-400',
+    cmsBorder: 'border-l-4 border-l-emerald-500',
+    tagPreview: 'bg-amber-500/20 text-amber-300 border-amber-500/40'
+  },
+  {
+    name: 'indigo',
+    label: '🔵 Indigo Royal',
+    cardClass: 'timeline-card-indigo',
+    tagClass: 'timeline-tag-indigo',
+    yearPill: 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/40',
+    titleColor: 'text-indigo-200',
+    iconCircle: 'border-indigo-500/60 bg-indigo-950/60 text-indigo-400',
+    cmsBorder: 'border-l-4 border-l-indigo-500',
+    tagPreview: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
+  },
+  {
+    name: 'rose',
+    label: '🔴 Rose Ruby',
+    cardClass: 'timeline-card-rose',
+    tagClass: 'timeline-tag-rose',
+    yearPill: 'bg-rose-500/20 text-rose-300 border border-rose-500/40',
+    titleColor: 'text-rose-200',
+    iconCircle: 'border-rose-500/60 bg-rose-950/60 text-rose-400',
+    cmsBorder: 'border-l-4 border-l-rose-500',
+    tagPreview: 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40'
+  },
+  {
+    name: 'cyan',
+    label: '🩵 Cyan Sky',
+    cardClass: 'timeline-card-cyan',
+    tagClass: 'timeline-tag-cyan',
+    yearPill: 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40',
+    titleColor: 'text-cyan-200',
+    iconCircle: 'border-cyan-500/60 bg-cyan-950/60 text-cyan-400',
+    cmsBorder: 'border-l-4 border-l-cyan-500',
+    tagPreview: 'bg-purple-500/20 text-purple-300 border-purple-500/40'
+  },
+  {
+    name: 'purple',
+    label: '🟣 Purple Violet',
+    cardClass: 'timeline-card-purple',
+    tagClass: 'timeline-tag-purple',
+    yearPill: 'bg-purple-500/20 text-purple-300 border border-purple-500/40',
+    titleColor: 'text-purple-200',
+    iconCircle: 'border-purple-500/60 bg-purple-950/60 text-purple-400',
+    cmsBorder: 'border-l-4 border-l-purple-500',
+    tagPreview: 'bg-amber-500/20 text-amber-300 border-amber-500/40'
+  },
+  {
+    name: 'orange',
+    label: '🟠 Orange Coral',
+    cardClass: 'timeline-card-orange',
+    tagClass: 'timeline-tag-orange',
+    yearPill: 'bg-orange-500/20 text-orange-300 border border-orange-500/40',
+    titleColor: 'text-orange-200',
+    iconCircle: 'border-orange-500/60 bg-orange-950/60 text-orange-400',
+    cmsBorder: 'border-l-4 border-l-orange-500',
+    tagPreview: 'bg-indigo-500/20 text-indigo-300 border-indigo-500/40'
+  },
+  {
+    name: 'fuchsia',
+    label: '🌸 Fuchsia Magenta',
+    cardClass: 'timeline-card-fuchsia',
+    tagClass: 'timeline-tag-fuchsia',
+    yearPill: 'bg-fuchsia-500/20 text-fuchsia-300 border border-fuchsia-500/40',
+    titleColor: 'text-fuchsia-200',
+    iconCircle: 'border-fuchsia-500/60 bg-fuchsia-950/60 text-fuchsia-400',
+    cmsBorder: 'border-l-4 border-l-fuchsia-500',
+    tagPreview: 'bg-teal-500/20 text-teal-300 border-teal-500/40'
+  }
+];
+
+function getTimelinePalette(idx, item) {
+  if (item && item.colorTheme && item.colorTheme !== 'auto') {
+    const found = ABOUT_PALETTES.find(p => p.name === item.colorTheme);
+    if (found) return found;
+  }
+  return ABOUT_PALETTES[idx % ABOUT_PALETTES.length];
+}
+
+function getInitialDateValue(item) {
+  if (!item) return 9999;
+  const str = String(item.year || item.date || item.title || '').trim().toLowerCase();
+  
+  // 1. Birth / Earliest event (excluding rebirth)
+  if (/\b(born|birth|premature|infirmary|friday the 13th|friday 13th)\b/i.test(str) && !str.includes('rebirth')) {
+    return 1974.1;
+  }
+  
+  // 2. Extract first 4-digit year e.g. 1992, 1994, 2008, 2013
+  const match = str.match(/\b(19\d{2}|20\d{2})\b/);
+  if (match) return parseInt(match[1], 10);
+  
+  // 3. Fallbacks for key events
+  if (str.includes('phoenix') || str.includes('gatwick') || str.includes('rebirth') || str.includes('cardiac')) return 2013.1;
+  if (str.includes('sober') || str.includes('kmst')) return 2013.2;
+  if (str.includes('present') || str.includes('today') || str.includes('current')) return 2026;
+  
+  return 2000;
+}
+
 function renderAboutTimeline() {
   const container = document.getElementById('aboutTimelineGrid');
   if (!container) return;
 
-  const items = appData.aboutTimeline || [];
-  if (items.length === 0) {
+  const rawItems = appData.aboutTimeline || [];
+  if (rawItems.length === 0) {
     container.innerHTML = `<div class="p-6 text-center text-slate-400 font-mono-code text-xs">No timeline events found. Add them in the Admin CMS!</div>`;
     return;
   }
 
+  // Sort chronologically by initial date field
+  const items = [...rawItems].sort((a, b) => getInitialDateValue(a) - getInitialDateValue(b));
+
   const layout = appData.layouts?.about || 'zigzag';
 
   if (layout === 'zigzag') {
-    container.className = "relative space-y-8 before:absolute before:inset-0 before:left-1/2 before:-translate-x-1/2 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-amber-500/50 before:to-transparent";
-    container.innerHTML = items.map((item, idx) => `
-      <div class="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
-        <div class="flex items-center justify-center w-10 h-10 rounded-full border border-slate-700 bg-slate-900 text-amber-400 group-hover:scale-110 group-hover:border-amber-400 transition shrink-0 shadow-lg z-10">
-          <i data-lucide="${item.icon || 'star'}" class="w-5 h-5"></i>
+    container.className = "relative space-y-8 before:absolute before:inset-0 before:left-1/2 before:-translate-x-1/2 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-amber-500 before:via-rose-500 before:to-indigo-500";
+    container.innerHTML = items.map((item, idx) => {
+      const pal = getTimelinePalette(idx, item);
+      const webLink = item.url ? `
+        <div class="pt-2">
+          <a href="${escapeHtml(item.url)}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-950/90 border border-slate-700 hover:border-amber-400 text-xs font-bold text-slate-200 hover:text-amber-300 transition shadow-sm group/link">
+            <i data-lucide="external-link" class="w-3.5 h-3.5 text-amber-400 group-hover/link:translate-x-0.5 transition"></i>
+            <span>${escapeHtml(item.urlText || 'Visit Official Web Page')}</span>
+          </a>
         </div>
-        <div class="w-[calc(100%-3rem)] md:w-[calc(50%-2.5rem)] glass-card p-5 sm:p-6 rounded-2xl border border-slate-800 space-y-2 hover:border-amber-500/50 transition">
-          <div class="flex flex-wrap items-center justify-between gap-2">
-            <span class="px-3 py-0.5 rounded-full bg-amber-500/20 text-amber-400 text-xs font-black font-mono-code">${item.year || item.date || ''}</span>
-            <span class="text-[11px] font-extrabold text-rose-400 uppercase tracking-wider font-mono-code">${item.tag || item.category || 'MILESTONE'}</span>
+      ` : '';
+
+      return `
+        <div class="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
+          <div class="flex items-center justify-center w-10 h-10 rounded-full border ${pal.iconCircle} group-hover:scale-110 transition shrink-0 shadow-lg z-10">
+            <i data-lucide="${item.icon || 'star'}" class="w-5 h-5"></i>
           </div>
-          <h3 class="text-lg font-black text-white font-cinzel">${item.title}</h3>
-          <p class="text-xs text-slate-300 leading-relaxed">${item.desc}</p>
+          <div class="w-[calc(100%-3rem)] md:w-[calc(50%-2.5rem)] glass-card p-5 sm:p-6 rounded-2xl border ${pal.cardClass} space-y-2.5 transition backdrop-blur-xl">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <span class="px-3 py-0.5 rounded-full ${pal.yearPill} text-xs font-black font-mono-code">${escapeHtml(item.year || item.date || '')}</span>
+              <span class="px-2.5 py-0.5 rounded-full ${pal.tagClass} text-[11px] font-extrabold uppercase tracking-wider font-mono-code shadow-sm">${escapeHtml(item.tag || item.category || 'MILESTONE')}</span>
+            </div>
+            <h3 class="text-lg font-black text-white font-cinzel tracking-wide">${escapeHtml(item.title)}</h3>
+            ${item.location ? `<p class="text-[11px] text-slate-400 font-mono-code flex items-center gap-1"><i data-lucide="map-pin" class="w-3 h-3 text-slate-500"></i> ${escapeHtml(item.location)}</p>` : ''}
+            <p class="text-xs text-slate-300 leading-relaxed whitespace-pre-line">${escapeHtml(item.desc)}</p>
+            ${webLink}
+          </div>
         </div>
-      </div>
-    `).join('');
+      `;
+    }).join('');
   } else if (layout === 'roadmap') {
     container.className = "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5";
-    container.innerHTML = items.map((item, idx) => `
-      <div class="glass-card p-5 rounded-2xl border border-slate-800 space-y-3 hover:border-amber-400/80 transition shadow-lg flex flex-col justify-between">
-        <div class="space-y-2">
-          <div class="flex items-center justify-between">
-            <span class="px-3 py-1 rounded-full bg-gradient-to-r from-amber-500 to-rose-600 text-slate-950 font-black text-xs font-mono-code">Step ${idx + 1} • ${item.year || item.date || ''}</span>
-            <span class="text-[10px] font-bold text-rose-400 font-mono-code">${item.tag || 'ERA'}</span>
+    container.innerHTML = items.map((item, idx) => {
+      const pal = getTimelinePalette(idx, item);
+      const webLink = item.url ? `
+        <div class="pt-2">
+          <a href="${escapeHtml(item.url)}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-slate-950/90 border border-slate-700 hover:border-amber-400 text-xs font-bold text-slate-200 hover:text-amber-300 transition">
+            <i data-lucide="external-link" class="w-3 h-3 text-amber-400"></i>
+            <span>${escapeHtml(item.urlText || 'Web Page')}</span>
+          </a>
+        </div>
+      ` : '';
+
+      return `
+        <div class="glass-card p-5 rounded-2xl border ${pal.cardClass} space-y-3 transition shadow-lg flex flex-col justify-between backdrop-blur-xl">
+          <div class="space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="px-3 py-1 rounded-full ${pal.yearPill} font-black text-xs font-mono-code">Step ${idx + 1} • ${escapeHtml(item.year || item.date || '')}</span>
+              <span class="px-2 py-0.5 rounded-full ${pal.tagClass} text-[10px] font-extrabold uppercase font-mono-code">${escapeHtml(item.tag || 'ERA')}</span>
+            </div>
+            <h3 class="text-base font-black text-white font-cinzel">${escapeHtml(item.title)}</h3>
+            ${item.location ? `<p class="text-[10px] text-slate-400 font-mono-code">${escapeHtml(item.location)}</p>` : ''}
+            <p class="text-slate-300 text-xs leading-relaxed whitespace-pre-line">${escapeHtml(item.desc)}</p>
+            ${webLink}
           </div>
-          <h3 class="text-base font-black text-white font-cinzel">${item.title}</h3>
-          <p class="text-slate-300 text-xs leading-relaxed">${item.desc}</p>
+          <div class="pt-2 border-t border-slate-800/80 flex items-center justify-between text-[10px] text-slate-400 font-mono-code">
+            <span>Milestone #${idx + 1}</span>
+            <span>SteveP Journey</span>
+          </div>
         </div>
-        <div class="pt-2 border-t border-slate-800/80 flex items-center justify-between text-[10px] text-amber-400 font-mono-code">
-          <span>Milestone #${idx + 1}</span>
-          <span>SteveP Timeline</span>
-        </div>
-      </div>
-    `).join('');
+      `;
+    }).join('');
   } else if (layout === 'story-cards') {
     container.className = "space-y-6";
     const first = items[0];
     const rest = items.slice(1);
+    const pal0 = getTimelinePalette(0, first);
+
     container.innerHTML = `
       ${first ? `
-        <div class="glass-card p-6 sm:p-8 rounded-3xl border border-amber-500/50 bg-gradient-to-r from-slate-950/90 via-slate-900/90 to-amber-950/30 space-y-3 shadow-2xl">
-          <div class="flex items-center gap-2">
-            <span class="px-3 py-1 rounded-full bg-amber-500 text-slate-950 font-black text-xs font-mono-code">FEATURED ERA • ${first.year || first.date || ''}</span>
-            <span class="text-xs text-slate-400 font-bold">${first.tag || 'HIGHLIGHT'}</span>
+        <div class="glass-card p-6 sm:p-8 rounded-3xl border ${pal0.cardClass} space-y-3 shadow-2xl backdrop-blur-xl">
+          <div class="flex items-center justify-between gap-2">
+            <span class="px-3 py-1 rounded-full ${pal0.yearPill} font-black text-xs font-mono-code">INITIAL MILESTONE • ${escapeHtml(first.year || first.date || '')}</span>
+            <span class="px-2.5 py-0.5 rounded-full ${pal0.tagClass} text-xs font-extrabold uppercase font-mono-code">${escapeHtml(first.tag || 'HIGHLIGHT')}</span>
           </div>
-          <h3 class="text-2xl font-black text-amber-300 font-cinzel">${first.title}</h3>
-          <p class="text-slate-200 text-sm leading-relaxed">${first.desc}</p>
+          <h3 class="text-2xl font-black text-white font-cinzel">${escapeHtml(first.title)}</h3>
+          ${first.location ? `<p class="text-xs text-slate-400 font-mono-code">${escapeHtml(first.location)}</p>` : ''}
+          <p class="text-slate-200 text-sm leading-relaxed whitespace-pre-line">${escapeHtml(first.desc)}</p>
+          ${first.url ? `
+            <div class="pt-2">
+              <a href="${escapeHtml(first.url)}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-slate-950/90 border border-slate-700 hover:border-amber-400 text-xs font-bold text-slate-200 hover:text-amber-300 transition">
+                <i data-lucide="external-link" class="w-3.5 h-3.5 text-amber-400"></i>
+                <span>${escapeHtml(first.urlText || 'Visit Official Web Page')}</span>
+              </a>
+            </div>
+          ` : ''}
         </div>
       ` : ''}
       <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-        ${rest.map((item, i) => `
-          <div class="glass-card p-6 rounded-2xl border border-slate-800 space-y-2 hover:border-amber-400 transition">
-            <div class="flex items-center justify-between">
-              <span class="px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-400 font-mono-code font-bold text-xs">${item.year || item.date || ''}</span>
-              <span class="text-xs text-slate-400">${item.tag || 'MILESTONE'}</span>
+        ${rest.map((item, i) => {
+          const pal = getTimelinePalette(i + 1, item);
+          return `
+            <div class="glass-card p-6 rounded-2xl border ${pal.cardClass} space-y-2.5 transition backdrop-blur-xl flex flex-col justify-between">
+              <div class="space-y-2">
+                <div class="flex items-center justify-between">
+                  <span class="px-2.5 py-0.5 rounded-full ${pal.yearPill} font-mono-code font-bold text-xs">${escapeHtml(item.year || item.date || '')}</span>
+                  <span class="px-2 py-0.5 rounded-full ${pal.tagClass} text-[10px] font-extrabold uppercase font-mono-code">${escapeHtml(item.tag || 'MILESTONE')}</span>
+                </div>
+                <h4 class="text-lg font-black text-white font-cinzel">${escapeHtml(item.title)}</h4>
+                ${item.location ? `<p class="text-[10px] text-slate-400 font-mono-code">${escapeHtml(item.location)}</p>` : ''}
+                <p class="text-slate-300 text-xs leading-relaxed whitespace-pre-line">${escapeHtml(item.desc)}</p>
+              </div>
+              ${item.url ? `
+                <div class="pt-2 border-t border-slate-800/80">
+                  <a href="${escapeHtml(item.url)}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-slate-950/90 border border-slate-700 hover:border-amber-400 text-xs font-bold text-slate-200 hover:text-amber-300 transition">
+                    <i data-lucide="external-link" class="w-3 h-3 text-amber-400"></i>
+                    <span>${escapeHtml(item.urlText || 'Web Page')}</span>
+                  </a>
+                </div>
+              ` : ''}
             </div>
-            <h4 class="text-lg font-black text-white font-cinzel">${item.title}</h4>
-            <p class="text-slate-300 text-xs leading-relaxed">${item.desc}</p>
-          </div>
-        `).join('')}
+          `;
+        }).join('')}
       </div>
     `;
   }
@@ -5809,24 +5988,53 @@ function renderAdminTimelines() {
   const itBody = document.getElementById('adminITTimelineBody');
 
   if (aboutBody) {
-    const items = appData.aboutTimeline || [];
-    if (items.length === 0) {
-      aboutBody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-slate-400 italic">No timeline entries found. Click "+ Add Timeline Milestone" above.</td></tr>`;
+    const rawItems = appData.aboutTimeline || [];
+    if (rawItems.length === 0) {
+      aboutBody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-400 italic">No timeline entries found. Click "+ Add New Milestone" above.</td></tr>`;
     } else {
-      aboutBody.innerHTML = items.map((item, idx) => `
-        <tr class="hover:bg-slate-900/60 transition">
-          <td class="p-2.5 font-mono-code font-bold text-amber-400 whitespace-nowrap">${item.year || item.date || ''}</td>
-          <td class="p-2.5"><span class="px-2 py-0.5 rounded bg-purple-500/20 text-purple-400 font-bold text-[10px]">${item.tag || item.category || 'MILESTONE'}</span></td>
-          <td class="p-2.5">
-            <strong class="text-white text-xs block">${item.title}</strong>
-            <span class="text-slate-400 text-[11px] block line-clamp-1">${item.desc}</span>
-          </td>
-          <td class="p-2.5 text-right space-x-1 whitespace-nowrap">
-            <button onclick="editAboutTimelinePrompt(${idx})" class="px-2.5 py-1 rounded bg-slate-800 text-amber-400 hover:bg-slate-700 font-bold text-[10px]">Edit</button>
-            <button onclick="deleteAboutTimeline(${idx})" class="px-2.5 py-1 rounded bg-rose-600/80 text-white hover:bg-rose-500 font-bold text-[10px]">Delete</button>
-          </td>
-        </tr>
-      `).join('');
+      // Sort chronologically by initial date
+      const items = [...rawItems].sort((a, b) => getInitialDateValue(a) - getInitialDateValue(b));
+
+      aboutBody.innerHTML = items.map((item, idx) => {
+        const pal = getTimelinePalette(idx, item);
+        const originalIndex = rawItems.findIndex(x => (x.id && x.id === item.id) || (x.title === item.title && x.year === item.year));
+        const webBadge = item.url ? `
+          <a href="${escapeHtml(item.url)}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-cyan-500/20 border border-cyan-500/40 text-cyan-300 text-[11px] font-mono-code font-bold hover:bg-cyan-500 hover:text-slate-950 transition shadow-sm" title="${escapeHtml(item.url)}">
+            <i data-lucide="external-link" class="w-3 h-3"></i>
+            <span class="max-w-[130px] truncate">${escapeHtml(item.urlText || 'Web Page')}</span>
+          </a>
+        ` : `<span class="text-slate-500 text-[11px] italic font-mono-code">— None —</span>`;
+
+        return `
+          <tr class="hover:bg-slate-900/70 transition ${pal.cmsBorder}">
+            <td class="p-3 font-mono-code whitespace-nowrap">
+              <span class="px-2.5 py-1 rounded-lg ${pal.yearPill} font-bold text-xs block text-center shadow-sm">${escapeHtml(item.year || item.date || '')}</span>
+            </td>
+            <td class="p-3 whitespace-nowrap">
+              <div class="space-y-1">
+                <span class="px-2.5 py-0.5 rounded-full ${pal.tagClass} font-extrabold text-[10px] font-mono-code uppercase block text-center shadow-sm">${escapeHtml(item.tag || item.category || 'MILESTONE')}</span>
+                <span class="text-[9px] text-slate-400 font-mono-code block text-center">${pal.label}</span>
+              </div>
+            </td>
+            <td class="p-3 max-w-md">
+              <strong class="text-white text-xs block font-bold font-cinzel">${escapeHtml(item.title)}</strong>
+              ${item.location ? `<span class="text-[10px] text-slate-400 font-mono-code block">${escapeHtml(item.location)}</span>` : ''}
+              <span class="text-slate-300 text-[11px] block line-clamp-2 mt-0.5 leading-relaxed">${escapeHtml(item.desc)}</span>
+            </td>
+            <td class="p-3 whitespace-nowrap">
+              ${webBadge}
+            </td>
+            <td class="p-3 text-right space-x-1 whitespace-nowrap">
+              <button onclick="openEditAboutTimelineModal('${item.id || originalIndex}')" class="px-2.5 py-1.5 rounded-lg bg-slate-800 text-amber-400 hover:bg-amber-500 hover:text-slate-950 border border-slate-700 hover:border-amber-400 font-bold text-xs transition shadow-sm">
+                Edit
+              </button>
+              <button onclick="deleteAboutTimeline(${originalIndex})" class="px-2.5 py-1.5 rounded-lg bg-rose-600/80 text-white hover:bg-rose-600 font-bold text-xs transition shadow-sm">
+                Delete
+              </button>
+            </td>
+          </tr>
+        `;
+      }).join('');
     }
   }
 
@@ -5837,11 +6045,11 @@ function renderAdminTimelines() {
     } else {
       itBody.innerHTML = items.map((item, idx) => `
         <tr class="hover:bg-slate-900/60 transition">
-          <td class="p-2.5 font-mono-code font-bold text-cyan-400 whitespace-nowrap">${item.year}</td>
-          <td class="p-2.5 font-bold text-slate-300 text-xs">${item.company || '-'}</td>
+          <td class="p-2.5 font-mono-code font-bold text-cyan-400 whitespace-nowrap">${escapeHtml(item.year)}</td>
+          <td class="p-2.5 font-bold text-slate-300 text-xs">${escapeHtml(item.company || '-')}</td>
           <td class="p-2.5">
-            <strong class="text-white text-xs block">${item.title}</strong>
-            <span class="text-slate-400 text-[11px] block line-clamp-1">${item.desc}</span>
+            <strong class="text-white text-xs block font-cinzel">${escapeHtml(item.title)}</strong>
+            <span class="text-slate-400 text-[11px] block line-clamp-1">${escapeHtml(item.desc)}</span>
           </td>
           <td class="p-2.5 text-right space-x-1 whitespace-nowrap">
             <button onclick="editITTimelinePrompt(${idx})" class="px-2.5 py-1 rounded bg-slate-800 text-cyan-400 hover:bg-slate-700 font-bold text-[10px]">Edit</button>
@@ -5851,42 +6059,119 @@ function renderAdminTimelines() {
       `).join('');
     }
   }
+
+  if (window.lucide) lucide.createIcons();
 }
 
-async function addAboutTimelinePrompt() {
-  const year = prompt('Year or Date (e.g. 2026 or Friday 13th):', new Date().getFullYear());
-  if (!year) return;
-  const title = prompt('Milestone Title:', 'New Life Milestone');
-  if (!title) return;
-  const desc = prompt('Description / Story:', 'Event description details...');
-  if (!desc) return;
-  const tag = prompt('Tag / Category:', 'ACTING & PRODUCING') || 'MILESTONE';
+function openAddAboutTimelineModal() {
+  const modal = document.getElementById('aboutTimelineEditModal');
+  if (!modal) return;
+  
+  document.getElementById('aboutModalId').value = '';
+  document.getElementById('aboutModalYear').value = '';
+  document.getElementById('aboutModalTitle').value = '';
+  document.getElementById('aboutModalTag').value = 'MILESTONE';
+  document.getElementById('aboutModalColor').value = 'auto';
+  document.getElementById('aboutModalIcon').value = 'star';
+  document.getElementById('aboutModalUrl').value = '';
+  document.getElementById('aboutModalUrlText').value = '';
+  document.getElementById('aboutModalDesc').value = '';
+  document.getElementById('aboutTimelineModalHeading').innerHTML = `<i data-lucide="plus-circle" class="w-4 h-4 text-purple-400"></i> Add New Life Story Milestone`;
+
+  modal.classList.remove('hidden');
+  if (window.lucide) lucide.createIcons();
+}
+
+function openEditAboutTimelineModal(idOrIdx) {
+  const modal = document.getElementById('aboutTimelineEditModal');
+  if (!modal) return;
+
+  let item = null;
+  if (typeof idOrIdx === 'string' && idOrIdx.startsWith('ab_')) {
+    item = (appData.aboutTimeline || []).find(x => x.id === idOrIdx);
+  } else {
+    const idx = parseInt(idOrIdx, 10);
+    item = (appData.aboutTimeline || [])[idx];
+  }
+
+  if (!item) return alert('Milestone not found');
+
+  document.getElementById('aboutModalId').value = item.id || '';
+  document.getElementById('aboutModalYear').value = item.year || item.date || '';
+  document.getElementById('aboutModalTitle').value = item.title || '';
+  document.getElementById('aboutModalTag').value = item.tag || item.category || 'MILESTONE';
+  document.getElementById('aboutModalColor').value = item.colorTheme || 'auto';
+  document.getElementById('aboutModalIcon').value = item.icon || 'star';
+  document.getElementById('aboutModalUrl').value = item.url || item.link || '';
+  document.getElementById('aboutModalUrlText').value = item.urlText || item.linkText || '';
+  document.getElementById('aboutModalDesc').value = item.desc || '';
+  document.getElementById('aboutTimelineModalHeading').innerHTML = `<i data-lucide="edit-3" class="w-4 h-4 text-purple-400"></i> Edit Life Story Milestone`;
+
+  modal.classList.remove('hidden');
+  if (window.lucide) lucide.createIcons();
+}
+
+function closeAboutTimelineModal(e) {
+  if (e && e.target !== e.currentTarget) return;
+  document.getElementById('aboutTimelineEditModal')?.classList.add('hidden');
+}
+
+async function handleSaveAboutTimelineModal(e) {
+  e.preventDefault();
+  const id = document.getElementById('aboutModalId')?.value;
+  const year = document.getElementById('aboutModalYear')?.value.trim();
+  const title = document.getElementById('aboutModalTitle')?.value.trim();
+  const tag = document.getElementById('aboutModalTag')?.value.trim() || 'MILESTONE';
+  const colorTheme = document.getElementById('aboutModalColor')?.value || 'auto';
+  const icon = document.getElementById('aboutModalIcon')?.value || 'star';
+  const url = document.getElementById('aboutModalUrl')?.value.trim();
+  const urlText = document.getElementById('aboutModalUrlText')?.value.trim();
+  const desc = document.getElementById('aboutModalDesc')?.value.trim();
+
+  if (!year || !title || !desc) {
+    return alert('Please fill in Year/Date, Title, and Description.');
+  }
 
   appData.aboutTimeline = appData.aboutTimeline || [];
-  appData.aboutTimeline.unshift({ id: 'ab_' + Date.now(), year, title, desc, tag, icon: 'star' });
+
+  if (id) {
+    const existing = appData.aboutTimeline.find(x => x.id === id);
+    if (existing) {
+      existing.year = year;
+      existing.title = title;
+      existing.tag = tag;
+      existing.colorTheme = colorTheme;
+      existing.icon = icon;
+      existing.url = url;
+      existing.urlText = urlText;
+      existing.desc = desc;
+    }
+  } else {
+    const newId = 'ab_' + Date.now();
+    appData.aboutTimeline.push({
+      id: newId,
+      year,
+      title,
+      tag,
+      colorTheme,
+      icon,
+      url,
+      urlText,
+      desc
+    });
+  }
+
+  // Sort permanently by initial date
+  appData.aboutTimeline.sort((a, b) => getInitialDateValue(a) - getInitialDateValue(b));
+
+  closeAboutTimelineModal();
   renderAll();
-  await saveAppDataToServer();
-}
-
-async function editAboutTimelinePrompt(idx) {
-  const item = appData.aboutTimeline[idx];
-  if (!item) return;
-
-  const year = prompt('Edit Year/Date:', item.year || item.date);
-  if (year === null) return;
-  const title = prompt('Edit Title:', item.title);
-  if (title === null) return;
-  const desc = prompt('Edit Description:', item.desc);
-  if (desc === null) return;
-  const tag = prompt('Edit Tag:', item.tag || item.category);
-
-  item.year = year;
-  item.title = title;
-  item.desc = desc;
-  if (tag) item.tag = tag;
-
-  renderAll();
-  await saveAppDataToServer();
+  const saved = await saveAppDataToServer();
+  if (saved) {
+    alert('✅ Milestone saved permanently to database!');
+  } else {
+    alert('⚠️ Milestone saved in browser state');
+  }
 }
 
 async function deleteAboutTimeline(idx) {
