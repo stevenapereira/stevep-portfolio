@@ -2718,7 +2718,7 @@
             <div class="glass-card rounded-2xl border border-slate-800 p-6 space-y-6">
               
               <!-- Title & Mode Selector Bar -->
-              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800/80 pb-4">
+              <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-slate-800/80 pb-4">
                 <div>
                   <h4 class="text-sm font-black text-amber-400 uppercase tracking-wider font-mono-code flex items-center gap-2">
                     <i data-lucide="image" class="w-4 h-4 text-amber-400"></i> Global Atmospheric Background &amp; Artistry Studio
@@ -2726,16 +2726,23 @@
                   <p class="text-xs text-slate-400 pt-0.5">Customize live background photos, plain solid colors, smooth reverse parallax scroll, and lighting filters.</p>
                 </div>
 
-                <!-- Mode Switcher Pills -->
-                <div class="inline-flex rounded-xl bg-slate-950 p-1 border border-slate-800">
-                  <button type="button" id="bgModeBtn-image" onclick="setBgMode('image')" class="px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 bg-amber-500 text-slate-950 shadow">
-                    <i data-lucide="image" class="w-3.5 h-3.5"></i> Photo Wallpaper
-                  </button>
-                  <button type="button" id="bgModeBtn-plain" onclick="setBgMode('plain')" class="px-3 py-1.5 rounded-lg text-xs font-bold text-slate-400 hover:text-white transition flex items-center gap-1.5">
-                    <i data-lucide="palette" class="w-3.5 h-3.5"></i> Plain Color
-                  </button>
-                  <button type="button" id="bgModeBtn-off" onclick="setBgMode('off')" class="px-3 py-1.5 rounded-lg text-xs font-bold text-slate-400 hover:text-white transition flex items-center gap-1.5">
-                    <i data-lucide="eye-off" class="w-3.5 h-3.5"></i> Off (Theme Default)
+                <div class="flex flex-wrap items-center gap-2.5">
+                  <!-- Mode Switcher Pills -->
+                  <div class="inline-flex rounded-xl bg-slate-950 p-1 border border-slate-800">
+                    <button type="button" id="bgModeBtn-image" onclick="setBgMode('image')" class="px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 bg-amber-500 text-slate-950 shadow">
+                      <i data-lucide="image" class="w-3.5 h-3.5"></i> Photo Wallpaper
+                    </button>
+                    <button type="button" id="bgModeBtn-plain" onclick="setBgMode('plain')" class="px-3 py-1.5 rounded-lg text-xs font-bold text-slate-400 hover:text-white transition flex items-center gap-1.5">
+                      <i data-lucide="palette" class="w-3.5 h-3.5"></i> Plain Color
+                    </button>
+                    <button type="button" id="bgModeBtn-off" onclick="setBgMode('off')" class="px-3 py-1.5 rounded-lg text-xs font-bold text-slate-400 hover:text-white transition flex items-center gap-1.5">
+                      <i data-lucide="eye-off" class="w-3.5 h-3.5"></i> Off (Theme Default)
+                    </button>
+                  </div>
+
+                  <!-- Reset Button -->
+                  <button type="button" onclick="resetBgStudioSettings()" class="px-3 py-2 rounded-xl bg-rose-500/15 hover:bg-rose-500/25 text-rose-300 border border-rose-500/30 text-xs font-bold flex items-center gap-1.5 transition active:scale-95 shadow-sm" title="Reset all background settings to signature defaults">
+                    <i data-lucide="rotate-ccw" class="w-3.5 h-3.5 text-rose-400"></i> Reset to Defaults
                   </button>
                 </div>
               </div>
@@ -2761,14 +2768,14 @@
 
                 <!-- Presets & Current Active Card Grid -->
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-1">
-                  <!-- Preset 1: 35-Photo Wallpaper Mosaic -->
-                  <div id="bgOption-stitched" onclick="setActiveBackground('assets/steve_bw_stitched_bg.jpg')" class="p-3.5 rounded-xl border cursor-pointer transition space-y-2 bg-slate-900 border-amber-500/60 shadow-lg">
+                  <!-- Preset 1: 35mm Repeating Contact-Sheet Mosaic -->
+                  <div id="bgOption-stitched" onclick="setActiveBackground('assets/steve_35mm_contact_wallpaper.jpg')" class="p-3.5 rounded-xl border cursor-pointer transition space-y-2 bg-slate-900 border-amber-500/60 shadow-lg">
                     <div class="h-24 w-full rounded-lg overflow-hidden border border-slate-800 relative">
-                      <img src="assets/steve_bw_stitched_bg.jpg" alt="35-Photo Wallpaper" class="w-full h-full object-cover">
+                      <img src="assets/steve_35mm_contact_wallpaper.jpg" alt="35mm Contact Wallpaper" class="w-full h-full object-cover">
                       <span id="badge-bg-stitched" class="absolute bottom-1.5 right-1.5 px-2 py-0.5 rounded bg-slate-950/90 text-amber-300 font-mono-code font-bold text-[9px]">ACTIVE</span>
                     </div>
-                    <strong class="text-xs font-bold text-white block">1. 35-Photo B&amp;W Contact Mosaic</strong>
-                    <p class="text-[11px] text-slate-400">Dense film-strip wallpaper featuring 35 distinct headshots, film stills &amp; combat slates.</p>
+                    <strong class="text-xs font-bold text-white block">1. 35mm Repeating Mosaic (25% Scale)</strong>
+                    <p class="text-[11px] text-slate-400">All 35mm film stills &amp; headshots scaled to 25% with seamless infinite repeat (zero blank spots).</p>
                   </div>
 
                   <!-- Preset 2: Signature Single Tattoo Hero Portrait -->

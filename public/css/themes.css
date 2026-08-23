@@ -225,14 +225,14 @@ body {
 /* Dynamic High-Contrast B&W Background Layer with Silky GPU Parallax Motion */
 .bw-dynamic-bg {
   position: fixed;
-  top: -25vh;
+  top: -30vh;
   left: 0;
   right: 0;
   width: 100vw;
-  height: 150vh;
-  background-size: cover;
-  background-position: center center;
-  background-repeat: repeat-y;
+  height: 160vh;
+  background-size: 680px auto;
+  background-position: center top;
+  background-repeat: repeat;
   filter: grayscale(100%) contrast(var(--bg-contrast, 115%)) brightness(var(--bg-brightness, 0.85));
   will-change: transform;
   pointer-events: none;

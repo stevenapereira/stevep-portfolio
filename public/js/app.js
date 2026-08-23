@@ -4782,7 +4782,7 @@ function updateSEODisplay() {
 // --------------------------------------------------------------------------
 // CLIENT-SIDE CANVAS IMAGE OPTIMIZER & NON-BLOCKING UPLOAD ENGINE
 // --------------------------------------------------------------------------
-function compressImage(file, maxWidth = 1600, quality = 0.82) {
+function compressImage(file, maxWidth = 1600, maxHeight = 1600, quality = 0.76) {
   return new Promise((resolve) => {
     const reader = new FileReader();
     reader.readAsDataURL(file);
@@ -4791,12 +4791,17 @@ function compressImage(file, maxWidth = 1600, quality = 0.82) {
       img.src = event.target.result;
       img.onload = () => {
         const canvas = document.createElement('canvas');
-        let width = img.width;
-        let height = img.height;
+        let width = img.naturalWidth || img.width;
+        let height = img.naturalHeight || img.height;
 
-        if (width > maxWidth) {
-          height = Math.round((height * maxWidth) / width);
-          width = maxWidth;
+        if (width > maxWidth || height > maxHeight) {
+          if (width > height) {
+            height = Math.round((height * maxWidth) / width);
+            width = maxWidth;
+          } else {
+            width = Math.round((width * maxHeight) / height);
+            height = maxHeight;
+          }
         }
 
         canvas.width = width;
@@ -4807,7 +4812,9 @@ function compressImage(file, maxWidth = 1600, quality = 0.82) {
         const dataUrl = canvas.toDataURL('image/jpeg', quality);
         resolve(dataUrl);
       };
+      img.onerror = () => resolve(event.target.result);
     };
+    reader.onerror = () => resolve(null);
   });
 }
 
@@ -6218,31 +6225,51 @@ async function handleBgFileUpload(event) {
   if (!file) return;
 
   try {
-    const reader = new FileReader();
-    reader.onload = async (e) => {
-      const dataUrl = e.target.result;
-      const res = await fetch('/api/background/upload', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ dataUrl, name: file.name })
-      });
-      const data = await res.json();
-      if (data.success && data.url) {
-        appData.activeBgImage = data.url;
-        appData.bgConfig = appData.bgConfig || {};
-        appData.bgConfig.activeImage = data.url;
-        appData.bgConfig.mode = 'image';
-        applyBgSettings();
-        updateBgStudioUI();
-        alert('Custom background uploaded, isolated, and applied live!');
-      } else {
-        alert('Upload failed: ' + (data.message || 'Unknown error'));
-      }
-    };
-    reader.readAsDataURL(file);
+    const compressedDataUrl = await compressImage(file, 1920, 1920, 0.76);
+    const res = await fetch('/api/background/upload', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ dataUrl: compressedDataUrl, name: file.name })
+    });
+    const data = await res.json();
+    if (data.success && data.url) {
+      appData.activeBgImage = data.url;
+      appData.bgConfig = appData.bgConfig || {};
+      appData.bgConfig.activeImage = data.url;
+      appData.bgConfig.mode = 'image';
+      applyBgSettings();
+      updateBgStudioUI();
+      alert('Custom background uploaded, compressed & saved as isolated asset!');
+    } else {
+      alert('Upload failed: ' + (data.message || 'Unknown error'));
+    }
   } catch (err) {
     alert('Error uploading background: ' + err.message);
   }
+}
+
+async function resetBgStudioSettings() {
+  if (!confirm('Reset background wallpaper, lighting, and parallax motion back to signature defaults?')) return;
+
+  const defaultImg = 'assets/steve_35mm_contact_wallpaper.jpg';
+  appData.activeBgImage = defaultImg;
+  appData.bgConfig = {
+    mode: 'image',
+    activeImage: defaultImg,
+    brightness: 85,
+    contrast: 115,
+    overlayDensity: 35,
+    glassOpacity: 48,
+    parallaxEnabled: true,
+    direction: 'opposite',
+    speed: 0.16,
+    plainColor: '#030712'
+  };
+
+  applyBgSettings();
+  updateBgStudioUI();
+  await saveAppDataToServer();
+  alert('Background & Artistry Studio reset to signature default settings!');
 }
 
 // Media Bank Background Picker Modal
@@ -6362,9 +6389,9 @@ async function selectBgFromMediaBank(encodedUrl) {
 }
 
 function updateBgStudioUI() {
-  const bgConfig = appData.bgConfig || { mode: 'image', activeImage: appData.activeBgImage || 'assets/steve_bw_stitched_bg.jpg' };
+  const bgConfig = appData.bgConfig || { mode: 'image', activeImage: appData.activeBgImage || 'assets/steve_35mm_contact_wallpaper.jpg' };
   const mode = bgConfig.mode || 'image';
-  const currentImg = bgConfig.activeImage || appData.activeBgImage || 'assets/steve_bw_stitched_bg.jpg';
+  const currentImg = bgConfig.activeImage || appData.activeBgImage || 'assets/steve_35mm_contact_wallpaper.jpg';
 
   // Mode Buttons
   const btnImg = document.getElementById('bgModeBtn-image');
@@ -6390,7 +6417,7 @@ function updateBgStudioUI() {
   const customImg = document.getElementById('bgCustomPreviewImg');
   const customEmpty = document.getElementById('bgCustomEmptyText');
 
-  if (currentImg.includes('stitched')) {
+  if (currentImg.includes('stitched') || currentImg.includes('35mm_contact') || currentImg.includes('steve_bw_stitched_bg')) {
     if (optStitched) optStitched.className = "p-3.5 rounded-xl border cursor-pointer transition space-y-2 bg-slate-900 border-amber-500/60 shadow-lg";
     if (optTattoo) optTattoo.className = "p-3.5 rounded-xl border cursor-pointer transition space-y-2 bg-slate-900/60 border-slate-800 hover:border-slate-700";
     if (optCustom) optCustom.className = "p-3.5 rounded-xl border transition space-y-2 bg-slate-900/60 border-slate-800";
