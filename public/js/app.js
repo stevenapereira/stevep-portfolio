@@ -463,8 +463,95 @@ function setLightboxImgAsBg() {
 }
 
 // --------------------------------------------------------------------------
-// FILMOGRAPHY CREDITS & SPOTLIGHT CRUD
+// FILMOGRAPHY CREDITS & ROLE PALETTES SYSTEM
 // --------------------------------------------------------------------------
+const CREDIT_PALETTES = [
+  {
+    name: 'amber',
+    rowClass: 'credit-row-amber',
+    rolePill: 'bg-amber-500/20 text-amber-300 border border-amber-500/40 shadow-sm',
+    catBadge: 'bg-rose-500/20 text-rose-300 border border-rose-500/40 font-mono-code',
+    statusBadge: 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-mono-code',
+    yearPill: 'text-amber-400 font-mono-code font-bold'
+  },
+  {
+    name: 'emerald',
+    rowClass: 'credit-row-emerald',
+    rolePill: 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow-sm',
+    catBadge: 'bg-amber-500/20 text-amber-300 border border-amber-500/40 font-mono-code',
+    statusBadge: 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-mono-code',
+    yearPill: 'text-emerald-400 font-mono-code font-bold'
+  },
+  {
+    name: 'indigo',
+    rowClass: 'credit-row-indigo',
+    rolePill: 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 shadow-sm',
+    catBadge: 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-mono-code',
+    statusBadge: 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-mono-code',
+    yearPill: 'text-indigo-400 font-mono-code font-bold'
+  },
+  {
+    name: 'rose',
+    rowClass: 'credit-row-rose',
+    rolePill: 'bg-rose-500/20 text-rose-300 border border-rose-500/40 shadow-sm',
+    catBadge: 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 font-mono-code',
+    statusBadge: 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-mono-code',
+    yearPill: 'text-rose-400 font-mono-code font-bold'
+  },
+  {
+    name: 'cyan',
+    rowClass: 'credit-row-cyan',
+    rolePill: 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 shadow-sm',
+    catBadge: 'bg-purple-500/20 text-purple-300 border border-purple-500/40 font-mono-code',
+    statusBadge: 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-mono-code',
+    yearPill: 'text-cyan-400 font-mono-code font-bold'
+  },
+  {
+    name: 'purple',
+    rowClass: 'credit-row-purple',
+    rolePill: 'bg-purple-500/20 text-purple-300 border border-purple-500/40 shadow-sm',
+    catBadge: 'bg-amber-500/20 text-amber-300 border border-amber-500/40 font-mono-code',
+    statusBadge: 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-mono-code',
+    yearPill: 'text-purple-400 font-mono-code font-bold'
+  },
+  {
+    name: 'orange',
+    rowClass: 'credit-row-orange',
+    rolePill: 'bg-orange-500/20 text-orange-300 border border-orange-500/40 shadow-sm',
+    catBadge: 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 font-mono-code',
+    statusBadge: 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-mono-code',
+    yearPill: 'text-orange-400 font-mono-code font-bold'
+  },
+  {
+    name: 'fuchsia',
+    rowClass: 'credit-row-fuchsia',
+    rolePill: 'bg-fuchsia-500/20 text-fuchsia-300 border border-fuchsia-500/40 shadow-sm',
+    catBadge: 'bg-teal-500/20 text-teal-300 border border-teal-500/40 font-mono-code',
+    statusBadge: 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-mono-code',
+    yearPill: 'text-fuchsia-400 font-mono-code font-bold'
+  }
+];
+
+function getCreditPalette(credit, idx = 0) {
+  if (!credit) return CREDIT_PALETTES[0];
+  const roleStr = String(credit.role || '').toLowerCase();
+  const catStr = String(credit.category || '').toLowerCase();
+
+  if (roleStr.includes('lead') || roleStr.includes('double')) return CREDIT_PALETTES[0]; // amber
+  if (roleStr.includes('assistant') || roleStr.includes('banner')) return CREDIT_PALETTES[1]; // emerald
+  if (roleStr.includes('charlie') || roleStr.includes('antagonist')) return CREDIT_PALETTES[3]; // rose
+  if (roleStr.includes('journalist') || roleStr.includes('doctor') || roleStr.includes('cop')) return CREDIT_PALETTES[4]; // cyan
+  if (roleStr.includes('featured') || roleStr.includes('guest')) return CREDIT_PALETTES[5]; // purple
+  if (roleStr.includes('lowborn') || roleStr.includes('guard') || roleStr.includes('fighter')) return CREDIT_PALETTES[6]; // orange
+  if (roleStr.includes('inmate') || roleStr.includes('public') || roleStr.includes('prisoner')) return CREDIT_PALETTES[7]; // fuchsia
+  
+  if (catStr.includes('commercial')) return CREDIT_PALETTES[0]; // amber
+  if (catStr.includes('television')) return CREDIT_PALETTES[2]; // indigo
+  if (catStr.includes('film')) return CREDIT_PALETTES[3]; // rose
+
+  return CREDIT_PALETTES[idx % CREDIT_PALETTES.length];
+}
+
 function renderWorks(filterCat = 'All') {
   const tbody = document.getElementById('worksTableBody');
   if (!tbody) return;
@@ -474,16 +561,34 @@ function renderWorks(filterCat = 'All') {
     credits = credits.filter(c => c.category === filterCat);
   }
 
-  tbody.innerHTML = credits.map(c => `
-    <tr class="hover:bg-slate-900/60 transition">
-      <td class="p-4 font-bold text-white">${c.title}</td>
-      <td class="p-4 text-amber-400 font-medium">${c.role}</td>
-      <td class="p-4"><span class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 text-[10px] font-bold">${c.category}</span></td>
-      <td class="p-4 text-slate-300">${c.production}</td>
-      <td class="p-4 font-mono-code font-bold text-slate-400">${c.year}</td>
-      <td class="p-4"><span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 text-[10px] font-bold">${c.status}</span></td>
-    </tr>
-  `).join('');
+  tbody.innerHTML = credits.map((c, idx) => {
+    const pal = getCreditPalette(c, idx);
+    return `
+      <tr class="credit-row-item ${pal.rowClass} border-b border-slate-800/60 backdrop-blur-md">
+        <td class="p-4 font-bold text-white font-cinzel text-sm">
+          <div class="flex items-center gap-2">
+            <span class="w-1.5 h-1.5 rounded-full bg-current opacity-75"></span>
+            <span>${escapeHtml(c.title || '')}</span>
+          </div>
+        </td>
+        <td class="p-4 whitespace-nowrap">
+          <span class="px-3 py-1 rounded-full ${pal.rolePill} text-xs font-black tracking-wide">${escapeHtml(c.role || '')}</span>
+        </td>
+        <td class="p-4 whitespace-nowrap">
+          <span class="px-2.5 py-0.5 rounded-full ${pal.catBadge} text-[10px] font-extrabold uppercase">${escapeHtml(c.category || '')}</span>
+        </td>
+        <td class="p-4 text-slate-300 font-medium text-xs">${escapeHtml(c.production || '')}</td>
+        <td class="p-4 whitespace-nowrap">
+          <span class="${pal.yearPill} text-xs">${escapeHtml(c.year || '')}</span>
+        </td>
+        <td class="p-4 whitespace-nowrap">
+          <span class="px-2.5 py-0.5 rounded-full ${pal.statusBadge} text-[10px] font-extrabold uppercase">${escapeHtml(c.status || 'Verified')}</span>
+        </td>
+      </tr>
+    `;
+  }).join('');
+
+  if (window.lucide) lucide.createIcons();
 }
 
 function filterWorks(cat) {
@@ -495,19 +600,30 @@ function renderAdminCreditsTable() {
   if (!tbody) return;
 
   const credits = appData.credits || [];
-  tbody.innerHTML = credits.map(c => `
-    <tr class="hover:bg-slate-900/80 transition">
-      <td class="p-3 font-bold text-white">${c.title}</td>
-      <td class="p-3 text-amber-400">${c.role}</td>
-      <td class="p-3 text-slate-300">${c.category}</td>
-      <td class="p-3 text-slate-400">${c.production}</td>
-      <td class="p-3 font-mono-code text-slate-400">${c.year}</td>
-      <td class="p-3 flex items-center gap-2">
-        <button onclick="editCreditPrompt('${c.id}')" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-amber-400 text-[10px] font-bold">Edit</button>
-        <button onclick="deleteCredit('${c.id}')" class="px-2.5 py-1 rounded bg-rose-600/80 hover:bg-rose-500 text-white text-[10px] font-bold">Delete</button>
-      </td>
-    </tr>
-  `).join('');
+  tbody.innerHTML = credits.map((c, idx) => {
+    const pal = getCreditPalette(c, idx);
+    return `
+      <tr class="credit-row-item ${pal.rowClass} border-b border-slate-800/80 transition">
+        <td class="p-3 font-bold text-white font-cinzel text-xs">${escapeHtml(c.title || '')}</td>
+        <td class="p-3 whitespace-nowrap">
+          <span class="px-2.5 py-1 rounded-full ${pal.rolePill} text-xs font-black">${escapeHtml(c.role || '')}</span>
+        </td>
+        <td class="p-3 whitespace-nowrap">
+          <span class="px-2 py-0.5 rounded-full ${pal.catBadge} text-[10px] font-extrabold uppercase">${escapeHtml(c.category || '')}</span>
+        </td>
+        <td class="p-3 text-slate-300 text-xs">${escapeHtml(c.production || '')}</td>
+        <td class="p-3 whitespace-nowrap">
+          <span class="${pal.yearPill} text-xs font-mono-code">${escapeHtml(c.year || '')}</span>
+        </td>
+        <td class="p-3 whitespace-nowrap space-x-1">
+          <button onclick="editCreditPrompt('${c.id}')" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-amber-500 hover:text-slate-950 text-amber-400 border border-slate-700 text-[10px] font-bold transition shadow-sm">Edit</button>
+          <button onclick="deleteCredit('${c.id}')" class="px-2.5 py-1 rounded-lg bg-rose-600/80 hover:bg-rose-600 text-white text-[10px] font-bold transition shadow-sm">Delete</button>
+        </td>
+      </tr>
+    `;
+  }).join('');
+
+  if (window.lucide) lucide.createIcons();
 }
 
 async function syncSpotlightVideos() {
@@ -1163,15 +1279,18 @@ function openFullCastingSheetModal() {
   ];
   if (countBadge) countBadge.textContent = `${credits.length} Verified Credits`;
   if (creditsList) {
-    creditsList.innerHTML = credits.map(c => `
-      <tr class="hover:bg-slate-900/60 transition">
-        <td class="p-2.5 font-bold text-white">${c.title || ''}</td>
-        <td class="p-2.5 text-amber-400 font-medium">${c.role || ''}</td>
-        <td class="p-2.5"><span class="px-1.5 py-0.5 rounded bg-slate-800 text-[10px] text-slate-300">${c.category || ''}</span></td>
-        <td class="p-2.5 text-slate-400">${c.production || ''}</td>
-        <td class="p-2.5 font-mono-code font-bold text-slate-400">${c.year || ''}</td>
-      </tr>
-    `).join('');
+    creditsList.innerHTML = credits.map((c, idx) => {
+      const pal = getCreditPalette(c, idx);
+      return `
+        <tr class="credit-row-item ${pal.rowClass} transition border-b border-slate-800/60">
+          <td class="p-2.5 font-bold text-white font-cinzel text-xs">${escapeHtml(c.title || '')}</td>
+          <td class="p-2.5 whitespace-nowrap"><span class="px-2 py-0.5 rounded-full ${pal.rolePill} text-[10.5px] font-black">${escapeHtml(c.role || '')}</span></td>
+          <td class="p-2.5 whitespace-nowrap"><span class="px-1.5 py-0.5 rounded-full ${pal.catBadge} text-[9px] font-extrabold uppercase">${escapeHtml(c.category || '')}</span></td>
+          <td class="p-2.5 text-slate-300 text-xs">${escapeHtml(c.production || '')}</td>
+          <td class="p-2.5 whitespace-nowrap"><span class="${pal.yearPill} text-xs font-mono-code">${escapeHtml(c.year || '')}</span></td>
+        </tr>
+      `;
+    }).join('');
   }
 
   // 4. Populate Training Preview
@@ -2940,7 +3059,7 @@ const ABOUT_PALETTES = [
     yearPill: 'bg-amber-500/20 text-amber-300 border border-amber-500/40',
     titleColor: 'text-amber-200',
     iconCircle: 'border-amber-500/60 bg-amber-950/60 text-amber-400',
-    cmsBorder: 'border-l-4 border-l-amber-500',
+    cmsBorder: 'timeline-cms-row-amber',
     tagPreview: 'bg-rose-500/20 text-rose-300 border-rose-500/40'
   },
   {
@@ -2951,7 +3070,7 @@ const ABOUT_PALETTES = [
     yearPill: 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40',
     titleColor: 'text-emerald-200',
     iconCircle: 'border-emerald-500/60 bg-emerald-950/60 text-emerald-400',
-    cmsBorder: 'border-l-4 border-l-emerald-500',
+    cmsBorder: 'timeline-cms-row-emerald',
     tagPreview: 'bg-amber-500/20 text-amber-300 border-amber-500/40'
   },
   {
@@ -2962,7 +3081,7 @@ const ABOUT_PALETTES = [
     yearPill: 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/40',
     titleColor: 'text-indigo-200',
     iconCircle: 'border-indigo-500/60 bg-indigo-950/60 text-indigo-400',
-    cmsBorder: 'border-l-4 border-l-indigo-500',
+    cmsBorder: 'timeline-cms-row-indigo',
     tagPreview: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
   },
   {
@@ -2973,7 +3092,7 @@ const ABOUT_PALETTES = [
     yearPill: 'bg-rose-500/20 text-rose-300 border border-rose-500/40',
     titleColor: 'text-rose-200',
     iconCircle: 'border-rose-500/60 bg-rose-950/60 text-rose-400',
-    cmsBorder: 'border-l-4 border-l-rose-500',
+    cmsBorder: 'timeline-cms-row-rose',
     tagPreview: 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40'
   },
   {
@@ -2984,7 +3103,7 @@ const ABOUT_PALETTES = [
     yearPill: 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40',
     titleColor: 'text-cyan-200',
     iconCircle: 'border-cyan-500/60 bg-cyan-950/60 text-cyan-400',
-    cmsBorder: 'border-l-4 border-l-cyan-500',
+    cmsBorder: 'timeline-cms-row-cyan',
     tagPreview: 'bg-purple-500/20 text-purple-300 border-purple-500/40'
   },
   {
@@ -2995,7 +3114,7 @@ const ABOUT_PALETTES = [
     yearPill: 'bg-purple-500/20 text-purple-300 border border-purple-500/40',
     titleColor: 'text-purple-200',
     iconCircle: 'border-purple-500/60 bg-purple-950/60 text-purple-400',
-    cmsBorder: 'border-l-4 border-l-purple-500',
+    cmsBorder: 'timeline-cms-row-purple',
     tagPreview: 'bg-amber-500/20 text-amber-300 border-amber-500/40'
   },
   {
@@ -3006,7 +3125,7 @@ const ABOUT_PALETTES = [
     yearPill: 'bg-orange-500/20 text-orange-300 border border-orange-500/40',
     titleColor: 'text-orange-200',
     iconCircle: 'border-orange-500/60 bg-orange-950/60 text-orange-400',
-    cmsBorder: 'border-l-4 border-l-orange-500',
+    cmsBorder: 'timeline-cms-row-orange',
     tagPreview: 'bg-indigo-500/20 text-indigo-300 border-indigo-500/40'
   },
   {
@@ -3017,7 +3136,7 @@ const ABOUT_PALETTES = [
     yearPill: 'bg-fuchsia-500/20 text-fuchsia-300 border border-fuchsia-500/40',
     titleColor: 'text-fuchsia-200',
     iconCircle: 'border-fuchsia-500/60 bg-fuchsia-950/60 text-fuchsia-400',
-    cmsBorder: 'border-l-4 border-l-fuchsia-500',
+    cmsBorder: 'timeline-cms-row-fuchsia',
     tagPreview: 'bg-teal-500/20 text-teal-300 border-teal-500/40'
   }
 ];
