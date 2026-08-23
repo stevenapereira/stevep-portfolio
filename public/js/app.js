@@ -110,6 +110,11 @@ function renderAll() {
   if (appData.activeTheme) {
     document.documentElement.setAttribute('data-theme', appData.activeTheme);
   }
+  const bgLayer = document.getElementById('globalBgLayer');
+  if (bgLayer) {
+    const activeBg = appData.activeBgImage || 'assets/steve_bw_stitched_bg.jpg';
+    bgLayer.style.backgroundImage = `url('${activeBg}')`;
+  }
   applySiteTexts();
   renderWorks();
   renderAdminCreditsTable();

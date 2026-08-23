@@ -13,7 +13,7 @@
 [data-theme="editorial-light"] {
   --bg-main: #f8fafc;
   --bg-nav: rgba(255, 255, 255, 0.92);
-  --bg-card: rgba(255, 255, 255, 0.85);
+  --bg-card: rgba(255, 255, 255, 0.78);
   --border-card: rgba(15, 23, 42, 0.12);
   --text-main: #0f172a;
   --text-muted: #334155;
@@ -24,14 +24,14 @@
   --accent-glow: rgba(217, 119, 6, 0.3);
   --font-heading: 'Cinzel', serif;
   --font-body: 'Plus Jakarta Sans', sans-serif;
-  --bg-overlay: linear-gradient(to bottom, rgba(248, 250, 252, 0.65), rgba(248, 250, 252, 0.88));
+  --bg-overlay: linear-gradient(to bottom, rgba(248, 250, 252, 0.35), rgba(248, 250, 252, 0.60));
 }
 
 /* 2. WARM LINEN & TERRACOTTA (Vogue Luxury / Sand Beige) */
 [data-theme="warm-linen"] {
   --bg-main: #f5ede0;
   --bg-nav: rgba(245, 237, 224, 0.94);
-  --bg-card: rgba(254, 250, 243, 0.88);
+  --bg-card: rgba(254, 250, 243, 0.78);
   --border-card: rgba(194, 65, 12, 0.2);
   --text-main: #271810;
   --text-muted: #573a2e;
@@ -42,14 +42,14 @@
   --accent-glow: rgba(194, 65, 12, 0.35);
   --font-heading: 'Cinzel', serif;
   --font-body: 'Plus Jakarta Sans', sans-serif;
-  --bg-overlay: linear-gradient(to bottom, rgba(245, 237, 224, 0.65), rgba(245, 237, 224, 0.88));
+  --bg-overlay: linear-gradient(to bottom, rgba(245, 237, 224, 0.35), rgba(245, 237, 224, 0.60));
 }
 
 /* 3. NORDIC GLACIER & ARCTIC TEAL (Ice Blue / Crisp Modern) */
 [data-theme="nordic-frost"] {
   --bg-main: #eef6fb;
   --bg-nav: rgba(238, 246, 251, 0.94);
-  --bg-card: rgba(255, 255, 255, 0.88);
+  --bg-card: rgba(255, 255, 255, 0.78);
   --border-card: rgba(2, 132, 199, 0.22);
   --text-main: #082f49;
   --text-muted: #1e4f73;
@@ -60,14 +60,14 @@
   --accent-glow: rgba(2, 132, 199, 0.35);
   --font-heading: 'Plus Jakarta Sans', sans-serif;
   --font-body: 'Plus Jakarta Sans', sans-serif;
-  --bg-overlay: linear-gradient(to bottom, rgba(238, 246, 251, 0.65), rgba(238, 246, 251, 0.90));
+  --bg-overlay: linear-gradient(to bottom, rgba(238, 246, 251, 0.35), rgba(238, 246, 251, 0.62));
 }
 
 /* 4. MIAMI NEON SUNSET (Synthwave / Electric Magenta & Cyan) */
 [data-theme="neon-sunset"] {
   --bg-main: #0d041c;
   --bg-nav: rgba(13, 4, 28, 0.82);
-  --bg-card: rgba(28, 10, 56, 0.58);
+  --bg-card: rgba(28, 10, 56, 0.52);
   --border-card: rgba(244, 63, 94, 0.45);
   --text-main: #ffffff;
   --text-muted: #fed7aa;
@@ -78,14 +78,14 @@
   --accent-glow: rgba(244, 63, 94, 0.55);
   --font-heading: 'Plus Jakarta Sans', sans-serif;
   --font-body: 'Plus Jakarta Sans', sans-serif;
-  --bg-overlay: linear-gradient(to bottom, rgba(13, 4, 28, 0.45), rgba(13, 4, 28, 0.75));
+  --bg-overlay: linear-gradient(to bottom, rgba(13, 4, 28, 0.25), rgba(13, 4, 28, 0.55));
 }
 
 /* 5. OXFORD ROYAL NAVY & CHAMPAGNE GOLD (Executive Prestige) */
 [data-theme="royal-navy"] {
   --bg-main: #071426;
   --bg-nav: rgba(7, 20, 38, 0.85);
-  --bg-card: rgba(15, 32, 58, 0.62);
+  --bg-card: rgba(15, 32, 58, 0.55);
   --border-card: rgba(251, 191, 36, 0.35);
   --text-main: #ffffff;
   --text-muted: #cbd5e1;
@@ -96,14 +96,14 @@
   --accent-glow: rgba(251, 191, 36, 0.45);
   --font-heading: 'Cinzel', serif;
   --font-body: 'Plus Jakarta Sans', sans-serif;
-  --bg-overlay: linear-gradient(to bottom, rgba(7, 20, 38, 0.45), rgba(7, 20, 38, 0.75));
+  --bg-overlay: linear-gradient(to bottom, rgba(7, 20, 38, 0.25), rgba(7, 20, 38, 0.55));
 }
 
 /* 6. CYBER MATRIX EMERALD (Pitch Black & Electric Matrix Lime) */
 [data-theme="emerald-matrix"] {
   --bg-main: #010d06;
   --bg-nav: rgba(1, 13, 6, 0.85);
-  --bg-card: rgba(2, 28, 14, 0.65);
+  --bg-card: rgba(2, 28, 14, 0.58);
   --border-card: rgba(0, 255, 102, 0.4);
   --text-main: #ffffff;
   --text-muted: #a7f3d0;
@@ -114,14 +114,14 @@
   --accent-glow: rgba(0, 255, 102, 0.5);
   --font-heading: 'JetBrains Mono', monospace;
   --font-body: 'Plus Jakarta Sans', sans-serif;
-  --bg-overlay: linear-gradient(to bottom, rgba(1, 13, 6, 0.45), rgba(1, 13, 6, 0.75));
+  --bg-overlay: linear-gradient(to bottom, rgba(1, 13, 6, 0.25), rgba(1, 13, 6, 0.55));
 }
 
 /* 7. HOLLYWOOD CRIMSON VELVET (Dramatic Theatre & Ruby Embers) */
 [data-theme="crimson-stage"] {
   --bg-main: #1c0409;
   --bg-nav: rgba(28, 4, 9, 0.85);
-  --bg-card: rgba(45, 8, 16, 0.65);
+  --bg-card: rgba(45, 8, 16, 0.58);
   --border-card: rgba(225, 29, 72, 0.45);
   --text-main: #ffffff;
   --text-muted: #fecdd3;
@@ -132,7 +132,7 @@
   --accent-glow: rgba(225, 29, 72, 0.55);
   --font-heading: 'Cinzel', serif;
   --font-body: 'Plus Jakarta Sans', sans-serif;
-  --bg-overlay: linear-gradient(to bottom, rgba(28, 4, 9, 0.45), rgba(28, 4, 9, 0.75));
+  --bg-overlay: linear-gradient(to bottom, rgba(28, 4, 9, 0.25), rgba(28, 4, 9, 0.55));
 }
 
 /* 8. PURE CINEMA NOIR (Signature Obsidian & Amber Gold - Default) */
@@ -152,7 +152,7 @@
   --font-body: 'Plus Jakarta Sans', sans-serif;
   --font-serif: 'Cinzel', serif;
   --font-code: 'JetBrains Mono', monospace;
-  --bg-overlay: linear-gradient(to bottom, rgba(3, 7, 18, 0.45), rgba(3, 7, 18, 0.68));
+  --bg-overlay: linear-gradient(to bottom, rgba(3, 7, 18, 0.18), rgba(3, 7, 18, 0.45));
 }
 
 /* ==========================================================================
@@ -234,7 +234,7 @@ body {
   background-size: 100% auto;
   background-position: center top;
   background-repeat: repeat-y;
-  filter: grayscale(100%) contrast(150%) brightness(0.48);
+  filter: grayscale(100%) contrast(115%) brightness(0.85);
   transition: background-image 0.6s ease-in-out, filter 0.4s ease;
   will-change: background-position;
   pointer-events: none;
