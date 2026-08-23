@@ -53,10 +53,11 @@ let isUploading = false;
 window.addEventListener('DOMContentLoaded', () => {
   if (window.lucide) lucide.createIcons();
   
-  // Default ambient background layer
+  // Default ambient background layer (Stitched B&W Panorama or custom active)
   const bgLayer = document.getElementById('globalBgLayer');
   if (bgLayer) {
-    bgLayer.style.backgroundImage = "url('assets/steve_signature_tattoo_bg.jpg')";
+    const activeBg = appData.activeBgImage || 'assets/steve_bw_stitched_bg.jpg';
+    bgLayer.style.backgroundImage = `url('${activeBg}')`;
   }
 
   loadData();
@@ -6045,7 +6046,39 @@ function renderAdminThemes() {
     statusEl.innerHTML = `Active Live Theme: <strong class="text-amber-400">${currentSaved.toUpperCase()}</strong> | Previewing: <strong class="text-cyan-400">${activeNow.toUpperCase()}</strong>`;
   }
 
+  updateBgSelectorUI();
+
   if (window.lucide) lucide.createIcons();
+}
+
+async function setActiveBackground(url) {
+  appData.activeBgImage = url;
+  const bg = document.getElementById('globalBgLayer');
+  if (bg) {
+    bg.style.backgroundImage = `url('${url}')`;
+  }
+  updateBgSelectorUI();
+  await saveAppDataToServer();
+}
+
+function updateBgSelectorUI() {
+  const current = appData.activeBgImage || 'assets/steve_bw_stitched_bg.jpg';
+  const optStitched = document.getElementById('bgOption-stitched');
+  const optTattoo = document.getElementById('bgOption-tattoo');
+  const badgeStitched = document.getElementById('badge-bg-stitched');
+  const badgeTattoo = document.getElementById('badge-bg-tattoo');
+
+  if (current.includes('stitched')) {
+    if (optStitched) optStitched.className = "p-3.5 rounded-xl border cursor-pointer transition space-y-2 bg-slate-900 border-amber-500/60 shadow-lg";
+    if (optTattoo) optTattoo.className = "p-3.5 rounded-xl border cursor-pointer transition space-y-2 bg-slate-900/60 border-slate-800 hover:border-slate-700";
+    if (badgeStitched) badgeStitched.classList.remove('hidden');
+    if (badgeTattoo) badgeTattoo.classList.add('hidden');
+  } else {
+    if (optTattoo) optTattoo.className = "p-3.5 rounded-xl border cursor-pointer transition space-y-2 bg-slate-900 border-amber-500/60 shadow-lg";
+    if (optStitched) optStitched.className = "p-3.5 rounded-xl border cursor-pointer transition space-y-2 bg-slate-900/60 border-slate-800 hover:border-slate-700";
+    if (badgeTattoo) badgeTattoo.classList.remove('hidden');
+    if (badgeStitched) badgeStitched.classList.add('hidden');
+  }
 }
 
 function previewTheme(themeId) {
@@ -6054,12 +6087,12 @@ function previewTheme(themeId) {
   renderAdminThemes();
 }
 
-async function saveActiveTheme(themeId) {
+function saveActiveTheme(themeId) {
   appData.activeTheme = themeId;
   _stagedTheme = themeId;
   document.documentElement.setAttribute('data-theme', themeId);
   renderAdminThemes();
-  await saveAppDataToServer();
+  saveAppDataToServer();
   alert(`Theme "${themeId.toUpperCase()}" is now permanently saved as the public live theme!`);
 }
 

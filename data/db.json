@@ -633,12 +633,117 @@
     "keywords": "Steve Pereira, British Indian Actor, Actor, Leicester, London, Spotlight Actor, IT Nerd, IT Expert, Survival, Unique Story, Alcoholism, Sober , Edge of Life, near death experience,"
   },
   "analytics": {
-    "pageViews": 1889,
+    "pageViews": 1892,
     "spotlightClicks": 321,
     "cvDownloads": 190,
     "showreelPlays": 510,
     "bookingEnquiries": 30,
     "recentEvents": [
+      {
+        "type": "page_click",
+        "label": "about",
+        "timestamp": "2026-08-23T03:11:50.458Z",
+        "source": "Other Referral",
+        "medium": "referral",
+        "referrerRaw": "http://localhost:3000/",
+        "browser": "Chrome",
+        "os": "macOS",
+        "device": "Desktop",
+        "country": "Local / Dev",
+        "countryCode": "XX",
+        "city": "Localhost",
+        "region": "",
+        "isp": "Local Network",
+        "page": "about",
+        "url": "",
+        "hackId": "",
+        "duration": 8,
+        "details": {}
+      },
+      {
+        "type": "page_click",
+        "label": "casting",
+        "timestamp": "2026-08-23T03:11:47.514Z",
+        "source": "Other Referral",
+        "medium": "referral",
+        "referrerRaw": "http://localhost:3000/",
+        "browser": "Chrome",
+        "os": "macOS",
+        "device": "Desktop",
+        "country": "Local / Dev",
+        "countryCode": "XX",
+        "city": "Localhost",
+        "region": "",
+        "isp": "Local Network",
+        "page": "casting",
+        "url": "",
+        "hackId": "",
+        "duration": 5,
+        "details": {}
+      },
+      {
+        "type": "page_view",
+        "label": "",
+        "timestamp": "2026-08-23T03:11:43.031Z",
+        "source": "Other Referral",
+        "medium": "referral",
+        "referrerRaw": "http://localhost:3000/",
+        "browser": "Chrome",
+        "os": "macOS",
+        "device": "Desktop",
+        "country": "Local / Dev",
+        "countryCode": "XX",
+        "city": "Localhost",
+        "region": "",
+        "isp": "Local Network",
+        "page": "Steve Pereira | British Indian Actor | IT Expert Since 1992 | Cardiac Arrest Survivor | Sober Since 2013",
+        "url": "",
+        "hackId": "",
+        "duration": 0,
+        "details": {}
+      },
+      {
+        "type": "page_view",
+        "label": "",
+        "timestamp": "2026-08-23T03:07:28.601Z",
+        "source": "Other Referral",
+        "medium": "referral",
+        "referrerRaw": "http://localhost:3000/",
+        "browser": "Chrome",
+        "os": "macOS",
+        "device": "Desktop",
+        "country": "Local / Dev",
+        "countryCode": "XX",
+        "city": "Localhost",
+        "region": "",
+        "isp": "Local Network",
+        "page": "Steve Pereira | British Indian Actor | IT Expert Since 1992 | Cardiac Arrest Survivor | Sober Since 2013",
+        "url": "",
+        "hackId": "",
+        "duration": 0,
+        "details": {}
+      },
+      {
+        "type": "page_view",
+        "label": "",
+        "timestamp": "2026-08-23T03:07:24.896Z",
+        "source": "Other Referral",
+        "medium": "referral",
+        "referrerRaw": "http://localhost:3000/",
+        "browser": "Chrome",
+        "os": "macOS",
+        "device": "Desktop",
+        "country": "Local / Dev",
+        "countryCode": "XX",
+        "city": "Localhost",
+        "region": "",
+        "isp": "Local Network",
+        "page": "Steve Pereira | British Indian Actor | IT Expert Since 1992 | Cardiac Arrest Survivor | Sober Since 2013",
+        "url": "",
+        "hackId": "",
+        "duration": 0,
+        "details": {}
+      },
       {
         "type": "page_click",
         "label": "about",
@@ -10223,47 +10328,17 @@
         "label": "",
         "timestamp": "2026-08-11T19:25:57.082Z",
         "details": {}
-      },
-      {
-        "type": "page_view",
-        "label": "",
-        "timestamp": "2026-08-11T19:25:55.266Z",
-        "details": {}
-      },
-      {
-        "type": "page_view",
-        "label": "",
-        "timestamp": "2026-08-11T19:25:51.692Z",
-        "details": {}
-      },
-      {
-        "type": "page_view",
-        "label": "",
-        "timestamp": "2026-08-11T19:25:04.346Z",
-        "details": {}
-      },
-      {
-        "type": "page_view",
-        "label": "",
-        "timestamp": "2026-08-11T02:42:13.421Z",
-        "details": {}
-      },
-      {
-        "type": "page_view",
-        "label": "",
-        "timestamp": "2026-08-11T02:42:10.678Z",
-        "details": {}
       }
     ],
-    "pageClicks": 105,
+    "pageClicks": 107,
     "pageClickStats": {
-      "about": 25,
+      "about": 26,
       "headshots": 12,
       "booking": 7,
       "hacks": 10,
       "itexpert": 17,
       "sobriety": 9,
-      "casting": 25
+      "casting": 26
     }
   },
   "spotlightVideos": [
@@ -10511,5 +10586,6 @@
   ],
   "backupConfig": {
     "schedulerEnabled": false
-  }
+  },
+  "activeBgImage": "assets/steve_bw_stitched_bg.jpg"
 }

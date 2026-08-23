@@ -69,7 +69,7 @@
 <body class="min-h-screen relative transition-colors duration-400">
 
   <!-- ================= GLOBAL DYNAMIC BACKGROUND LAYER (DOWNWARD SCROLL MOTION) ================= -->
-  <div id="globalBgLayer" class="fixed inset-0 z-0 bw-dynamic-bg pointer-events-none" style="background-image: url('assets/steve_signature_tattoo_bg.jpg');"></div>
+  <div id="globalBgLayer" class="fixed inset-0 z-0 bw-dynamic-bg pointer-events-none" style="background-image: url('assets/steve_bw_stitched_bg.jpg');"></div>
   <div id="globalBgOverlay" class="fixed inset-0 z-0 pointer-events-none" style="background: var(--bg-overlay);"></div>
 
   <div class="relative z-10">
@@ -2710,6 +2710,35 @@
               <p class="text-xs text-slate-400">Switch and preview different visual layouts for the About Timeline, 34-Yr IT Architect, and Hacks sections instantly.</p>
               <div id="adminLayoutStudioGrid" class="space-y-4">
                 <!-- Injected via renderAdminThemes() -->
+              </div>
+            </div>
+
+            <!-- Cinematic Background Backdrop Selector -->
+            <div class="glass-card rounded-2xl border border-slate-800 p-5 space-y-3">
+              <div class="flex items-center justify-between">
+                <h4 class="text-xs font-black text-amber-400 uppercase tracking-wider font-mono-code flex items-center gap-1.5">
+                  <i data-lucide="image" class="w-3.5 h-3.5 text-amber-400"></i> Global Atmospheric Background Image
+                </h4>
+              </div>
+              <p class="text-xs text-slate-400">Choose between the new 7-Photo Stitched B&amp;W Panorama or the Signature Tattoo Hero portrait.</p>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
+                <div id="bgOption-stitched" onclick="setActiveBackground('assets/steve_bw_stitched_bg.jpg')" class="p-3.5 rounded-xl border cursor-pointer transition space-y-2 bg-slate-900 border-amber-500/60 shadow-lg">
+                  <div class="h-24 w-full rounded-lg overflow-hidden border border-slate-800 relative">
+                    <img src="assets/steve_bw_stitched_bg.jpg" alt="Stitched B&W Background" class="w-full h-full object-cover">
+                    <span id="badge-bg-stitched" class="absolute bottom-1.5 right-1.5 px-2 py-0.5 rounded bg-slate-950/90 text-amber-300 font-mono-code font-bold text-[9px]">ACTIVE</span>
+                  </div>
+                  <strong class="text-xs font-bold text-white block">1. Stitched B&amp;W Cinematic Panorama (7-Photo Fusion)</strong>
+                  <p class="text-[11px] text-slate-400">Seamless blend of 7 dramatic B&amp;W headshots &amp; location stills with edge vignetting.</p>
+                </div>
+
+                <div id="bgOption-tattoo" onclick="setActiveBackground('assets/steve_signature_tattoo_bg.jpg')" class="p-3.5 rounded-xl border cursor-pointer transition space-y-2 bg-slate-900/60 border-slate-800 hover:border-slate-700">
+                  <div class="h-24 w-full rounded-lg overflow-hidden border border-slate-800 relative">
+                    <img src="assets/steve_signature_tattoo_bg.jpg" alt="Signature Tattoo Background" class="w-full h-full object-cover">
+                    <span id="badge-bg-tattoo" class="absolute bottom-1.5 right-1.5 px-2 py-0.5 rounded bg-slate-950/90 text-amber-300 font-mono-code font-bold text-[9px] hidden">ACTIVE</span>
+                  </div>
+                  <strong class="text-xs font-bold text-white block">2. Signature Single Tattoo Hero Portrait</strong>
+                  <p class="text-[11px] text-slate-400">Classic single-subject dramatic tattoo portrait.</p>
+                </div>
               </div>
             </div>
 
