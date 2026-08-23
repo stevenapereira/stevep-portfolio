@@ -65,16 +65,22 @@ window.addEventListener('DOMContentLoaded', () => {
   trackEvent('page_view');
 });
 
-// Downward Parallax Motion for Background Photo on Page Scroll
-window.addEventListener('scroll', () => {
-  const bgLayer = document.getElementById('globalBgLayer');
-  if (bgLayer) {
-    const scrollY = window.scrollY || window.pageYOffset;
-    // Downward translation matching scroll direction
-    const offset = scrollY * 0.18;
-    bgLayer.style.transform = `translate3d(0, -${offset}px, 0)`;
+// Silky-Smooth Continuous Parallax Motion for Background Wallpaper on Page Scroll
+let _lastScrollY = -1;
+function updateBgParallax() {
+  const scrollY = window.scrollY || window.pageYOffset || 0;
+  if (scrollY !== _lastScrollY) {
+    _lastScrollY = scrollY;
+    const bgLayer = document.getElementById('globalBgLayer');
+    if (bgLayer) {
+      // Moves wallpaper organically at a smooth 0.32 ratio without bottom clipping
+      const yOffset = scrollY * 0.32;
+      bgLayer.style.backgroundPosition = `center -${yOffset}px`;
+    }
   }
-});
+  requestAnimationFrame(updateBgParallax);
+}
+requestAnimationFrame(updateBgParallax);
 
 // Load Data from Backend API or LocalStorage Fallback
 async function loadData() {

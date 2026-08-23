@@ -222,20 +222,22 @@ body {
   font-family: var(--font-code);
 }
 
-/* Dynamic High-Contrast B&W Background Layer with Downward Parallax Motion */
+/* Dynamic High-Contrast B&W Background Layer with Continuous Parallax Motion */
 .bw-dynamic-bg {
   position: fixed;
-  top: -15%;
+  top: 0;
   left: 0;
   right: 0;
-  bottom: -15%;
-  width: 100%;
-  height: 130vh;
-  background-size: cover;
-  background-position: center 8%;
+  bottom: 0;
+  width: 100vw;
+  height: 100vh;
+  background-size: 100% auto;
+  background-position: center top;
+  background-repeat: repeat-y;
   filter: grayscale(100%) contrast(150%) brightness(0.48);
-  transition: background-image 0.6s ease-in-out, filter 0.4s ease, transform 0.1s cubic-bezier(0.1, 0.5, 0.1, 1);
-  will-change: transform;
+  transition: background-image 0.6s ease-in-out, filter 0.4s ease;
+  will-change: background-position;
+  pointer-events: none;
 }
 
 /* Glassmorphic Card Transparency Controller */
