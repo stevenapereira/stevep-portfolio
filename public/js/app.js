@@ -6256,9 +6256,9 @@ async function resetBgStudioSettings() {
   appData.bgConfig = {
     mode: 'image',
     activeImage: defaultImg,
-    brightness: 85,
-    contrast: 115,
-    overlayDensity: 35,
+    brightness: 95,
+    contrast: 100,
+    overlayDensity: 30,
     glassOpacity: 48,
     parallaxEnabled: true,
     direction: 'opposite',
