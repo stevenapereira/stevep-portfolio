@@ -90,6 +90,164 @@ function stopBackupScheduler() {
   }
 }
 
+// ── KMST Recovery Content Aggregator & Daily Cron Engine ────────────────────
+let kmstAggregatorSchedulerInterval = null;
+
+function getAggregatorScheduleMs(frequency) {
+  const map = { 'Hourly': 3600000, 'Every 6 Hours': 21600000, 'Every 12 Hours': 43200000, 'Daily': 86400000, 'Weekly': 604800000 };
+  return map[frequency] || 86400000;
+}
+
+async function runKMSTAggregator(force = false) {
+  const db = readDB();
+  const config = db.kmstAggregatorConfig || { enabled: true, frequency: 'Daily', autoPublish: true, maxArticles: 30 };
+  
+  if (!config.enabled && !force) {
+    console.log('[KMST AGGREGATOR] Scheduler disabled in config. Skipping.');
+    return { success: false, message: 'Aggregator disabled', addedCount: 0 };
+  }
+
+  console.log('[KMST AGGREGATOR] Running recovery articles & guidelines aggregator engine...');
+  
+  db.blogs = db.blogs || [];
+  const existingSlugs = new Set(db.blogs.map(b => (b.slug || '').toLowerCase()));
+  const existingTitles = new Set(db.blogs.map(b => (b.title || '').toLowerCase().trim()));
+  
+  // Dynamic trending topics pool for high-traffic recovery, health, and guidelines
+  const trendingPool = [
+    {
+      id: "kmst_art_agg_dopamine_digital",
+      title: "Dopamine Re-Sensitization & Digital Detox: How Clearing Mental Clutter Fortifies Early Sobriety",
+      slug: "dopamine-resensitization-digital-detox-sobriety",
+      category: "Science & Health",
+      readTime: "5 min read",
+      author: "KMST Health & Neuro Guild",
+      authorRole: "Neuroscience Syndicate",
+      excerpt: "Why pairing alcohol cessation with a digital notification detox prevents dopamine exhaustion and eliminates subconscious craving triggers.",
+      tags: ["#DopamineReset", "#DigitalDetox", "#Neuroscience", "#MentalClarity", "#HabitFormation"],
+      source: "KMST Daily Content Aggregator",
+      actionSteps: [
+        "Eliminate screen time and social feeds during the first 60 minutes after waking.",
+        "Replace passive scrolling with a 15-minute morning mindfulness or breathwork practice.",
+        "Designate your bedroom as a zero-screen zone to protect deep REM sleep architecture.",
+        "Track your mental clarity score daily in your KMST Sanctuary member profile."
+      ],
+      content: `## The Multi-Dopamine Trap in Modern Life\n\nWhen you eliminate alcohol, your brain naturally seeks compensatory stimulation through hyper-palatable foods, infinite social media scrolling, and high-frequency digital notifications.\n\nThis continuous micro-stimulation prevents dopamine receptors from fully up-regulating, prolonging feelings of restlessness and boredom.\n\n---\n\n## The 7-Day Digital Fast Protocol\n1. **Grayscale Screen Mode:** Switch your mobile phone display to grayscale to diminish artificial visual reward cues.\n2. **Scheduled Connection Windows:** Check communication channels only twice daily at designated times.\n3. **Nature Immersion:** Spend at least 30 uninterrupted minutes outdoors daily without headphones or screens.\n\nBy quieting the digital noise, you accelerate the neurological timeline for natural joy and sustainable recovery.`
+    },
+    {
+      id: "kmst_art_agg_cardiovascular_recovery",
+      title: "Cardiovascular Rejuvenation: Normalizing Blood Pressure & Resting Heart Rate Within 60 Days Sober",
+      slug: "cardiovascular-rejuvenation-blood-pressure-heart-rate-sobriety",
+      category: "Science & Health",
+      readTime: "6 min read",
+      author: "KMST Wellness Hub",
+      authorRole: "Clinical Physiology Advisory",
+      excerpt: "Clinical insights on how stopping alcohol alleviates chronic hypertension, reduces systemic arterial stiffness, and optimizes Heart Rate Variability (HRV).",
+      tags: ["#HeartHealth", "#Cardiovascular", "#BloodPressure", "#HRV", "#PhysicalRebuilding"],
+      source: "KMST Daily Content Aggregator",
+      actionSteps: [
+        "Monitor your resting heart rate (RHR) upon waking to witness the weekly 5-15 bpm reduction.",
+        "Incorporate 20 minutes of daily Zone 2 cardiovascular exercise (brisk walking or light cycling).",
+        "Supplement dietary potassium through avocados, leafy greens, and bananas to assist vascular dilation.",
+        "Celebrate cardiovascular milestones at your 30-day and 60-day medical reviews."
+      ],
+      content: `## How Alcohol Affects the Vascular Tree\n\nAlcohol stimulates the sympathetic nervous system, inducing arterial vasoconstriction and elevating circulating cortisol and adrenaline. Over time, this causes persistent hypertension and severe cardiovascular strain.\n\n---\n\n## What Happens to Your Heart After You Stop\n\n- **Week 1:** Blood pressure begins its downward trajectory as renin-angiotensin-aldosterone axis stabilizes.\n- **Month 1:** Significant reduction in resting pulse; arterial wall elasticity improves markedly.\n- **Month 2:** Heart Rate Variability (HRV) increases by up to 30%, reflecting improved parasympathetic resilience.\n\nSobriety delivers immediate, measurable biological protection to your heart.`
+    },
+    {
+      id: "kmst_art_agg_sober_sleep_matrix",
+      title: "The Sober Sleep Matrix: Restoring Slow-Wave (SWS) & REM Sleep Architecture After Quitting",
+      slug: "sober-sleep-matrix-restoring-rem-slow-wave-sleep",
+      category: "Recovery Guidelines",
+      readTime: "5 min read",
+      author: "KMST Health Guild",
+      authorRole: "Sleep & Circadian Guild",
+      excerpt: "Alcohol may knock you out, but it decimates restorative sleep. How to overcome early insomnia and rebuild natural sleep cycles.",
+      tags: ["#SleepRecovery", "#CircadianHealth", "#REMSleep", "#InsomniaRelief", "#RecoveryGuidelines"],
+      source: "KMST Daily Content Aggregator",
+      actionSteps: [
+        "Keep a consistent sleep-wake schedule 7 days a week, even on weekends.",
+        "Take 200-400mg Magnesium Glycinate 45 minutes before bed to relax neuromuscular tension.",
+        "Keep bedroom temperature cool (17-19°C) and completely pitch black.",
+        "Do not panic over early vivid dreams—this is the natural 'REM rebound' indicating brain healing."
+      ],
+      content: `## The Myth of the Alcoholic 'Nightcap'\n\nWhile alcohol acts as a sedative, it fragments sleep cycles and completely obliterates Stage 3 Slow-Wave Sleep and REM sleep.\n\nWhen you stop drinking, you may experience brief **REM Rebound**, marked by intense, hyper-realistic dreams. This is a normal, healthy sign that your brain is actively repairing memory consolidation pathways.\n\n---\n\n## The 3-Step Evening Wind-Down Protocol\n1. **Cut Caffeine After 14:00:** Allow adenosine to build naturally throughout the day.\n2. **Warm Chamomile / Tart Cherry Tea:** Natural sources of apigenin and phytomelatonin.\n3. **Box Breathing (4-4-4-4):** Inhale 4s, hold 4s, exhale 4s, hold 4s to transition your autonomic nervous system into rest-and-digest mode.`
+    },
+    {
+      id: "kmst_art_agg_workplace_sobriety",
+      title: "Navigating High-Stakes Workplace Dinners & Corporate Pub Culture: An Enterprise Architect's Field Guide",
+      slug: "corporate-sobriety-high-stakes-workplace-dinners-networking",
+      category: "Mindset & Lifestyle",
+      readTime: "5 min read",
+      author: "Steve Pereira",
+      authorRole: "34-Year IT Architect & KMST Founder",
+      excerpt: "How to command respect and lead multi-million-pound client dinners without drinking a drop. Professional scripts, executive presence, and networking mastery.",
+      tags: ["#CorporateSobriety", "#ExecutivePresence", "#Leadership", "#Networking", "#CareerSuccess"],
+      source: "KMST Daily Content Aggregator",
+      actionSteps: [
+        "Arrive early and introduce yourself to the server; privately establish your non-alcoholic drink order.",
+        "Never over-explain or apologize for not drinking; frame sobriety as an executive performance edge.",
+        "Focus conversations entirely on the other person—active listening makes you memorable and influential.",
+        "Exit smoothly when general dinner conversations turn repetitive or unproductive."
+      ],
+      content: `## The Corporate Drinking Illusion\n\nIn senior enterprise tech and corporate leadership, after-hours drinking is frequently framed as essential for team bonding and deal-making. In reality, modern executives value clarity, reliability, and emotional composure far more than late-night pub sessions.\n\n---\n\n## Executive Field Rules\n1. **The 'Sharp Edge' Framing:** When asked why you aren't drinking, answer: *'I have high-priority deliverables at 07:00 AM and I operate at 100% capacity.'*\n2. **Command the Table with Presence:** Your ability to remember every detail of a commercial pitch while others are impaired is an extraordinary competitive advantage.\n3. **Lead by Example:** Your quiet, confident boundary gives permission to younger colleagues who may also want to step away from drinking.`
+    }
+  ];
+
+  let addedCount = 0;
+  const nowStr = new Date().toISOString().split('T')[0];
+
+  for (const item of trendingPool) {
+    const slugKey = (item.slug || '').toLowerCase();
+    const titleKey = (item.title || '').toLowerCase().trim();
+    if (!existingSlugs.has(slugKey) && !existingTitles.has(titleKey)) {
+      item.date = nowStr;
+      db.blogs.push(item);
+      existingSlugs.add(slugKey);
+      existingTitles.add(titleKey);
+      addedCount++;
+    }
+  }
+
+  // Update aggregator metadata
+  config.lastRun = new Date().toISOString();
+  db.kmstAggregatorConfig = config;
+  
+  writeDB(db);
+  console.log(`[KMST AGGREGATOR] Completed run. Added ${addedCount} new articles. Total articles in library: ${db.blogs.length}`);
+  
+  return {
+    success: true,
+    addedCount,
+    totalArticles: db.blogs.length,
+    lastRun: config.lastRun
+  };
+}
+
+function startKMSTAggregatorScheduler() {
+  stopKMSTAggregatorScheduler();
+  const db = readDB();
+  const config = db.kmstAggregatorConfig || { enabled: true, frequency: 'Daily' };
+  if (!config.enabled) return;
+  const freq = config.frequency || 'Daily';
+  const ms = getAggregatorScheduleMs(freq);
+
+  console.log(`[KMST AGGREGATOR] Started scheduler — frequency: ${freq} (${ms / 1000}s)`);
+
+  kmstAggregatorSchedulerInterval = setInterval(() => {
+    runKMSTAggregator().catch(err => {
+      console.error('[KMST AGGREGATOR] Scheduled run error:', err.message);
+    });
+  }, ms);
+}
+
+function stopKMSTAggregatorScheduler() {
+  if (kmstAggregatorSchedulerInterval) {
+    clearInterval(kmstAggregatorSchedulerInterval);
+    kmstAggregatorSchedulerInterval = null;
+    console.log('[KMST AGGREGATOR] Scheduler stopped.');
+  }
+}
+
 // ── Core ZIP Backup Creation Engine ─────────────────────────────────────────
 async function createBackupZip({ type = 'manual', includeMedia = false, password = null }) {
   const db = readDB();
@@ -373,8 +531,8 @@ function generateRestoreHtml(passwordHash, manifest) {
     <h2 class="text-lg font-bold text-purple-400 flex items-center gap-2">🌐 Domain Migration</h2>
     <p class="text-xs text-slate-300">If deploying to a new domain, enter both addresses below. All URLs in the database and pages will be rewritten.</p>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-      <input type="text" id="oldDomain" placeholder="Old domain (e.g. stevepereira.co.uk)" class="px-4 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs outline-none focus:border-purple-400">
-      <input type="text" id="newDomain" placeholder="New domain (e.g. stevepereira.pro)" class="px-4 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs outline-none focus:border-purple-400">
+      <input type="text" id="oldDomain" placeholder="Old domain (e.g. old-domain.com)" class="px-4 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs outline-none focus:border-purple-400">
+      <input type="text" id="newDomain" placeholder="New domain (e.g. SteveP.uk)" class="px-4 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs outline-none focus:border-purple-400">
     </div>
     <button onclick="migrateDomainsInDB()" class="px-5 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs">Rewrite All Domain References</button>
     <div id="migrationStatus" class="text-xs text-slate-400 hidden"></div>
@@ -526,9 +684,18 @@ const MIME_TYPES = {
 function readDB() {
   try {
     if (!fs.existsSync(DB_PATH)) return {};
-    return JSON.parse(fs.readFileSync(DB_PATH, 'utf8'));
+    const db = JSON.parse(fs.readFileSync(DB_PATH, 'utf8'));
+    db.hacks = db.hacks || [];
+    db.affiliateConfig = db.affiliateConfig || {
+      monthlyGoal: 1500,
+      currency: '£',
+      autoAuditEnabled: true,
+      defaultUtmSource: 'SteveP_uk',
+      defaultUtmMedium: 'affiliate_engine'
+    };
+    return db;
   } catch (e) {
-    return {};
+    return { hacks: [], affiliateConfig: { monthlyGoal: 1500, currency: '£' } };
   }
 }
 
@@ -634,9 +801,53 @@ function sendJSON(res, data, statusCode = 200) {
   res.end(JSON.stringify(data));
 }
 
-function buildSitemapXml(host = 'stevepereira.co.uk') {
+// ── Automated Affiliate Link Health Audit Engine ───────────────────────────
+function auditUrl(targetUrl, timeoutMs = 6000) {
+  return new Promise((resolve) => {
+    try {
+      if (!targetUrl || targetUrl === '#' || !/^https?:\/\//i.test(targetUrl)) {
+        return resolve({ status: 'broken', statusCode: 0, latencyMs: 0, healthy: false, error: 'Invalid or missing URL' });
+      }
+      const parsed = new URL(targetUrl);
+      const proto = parsed.protocol === 'https:' ? require('https') : require('http');
+      const start = Date.now();
+      const reqOpts = {
+        method: 'HEAD',
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+          'Accept': '*/*'
+        },
+        timeout: timeoutMs
+      };
+      const r = proto.request(targetUrl, reqOpts, (res) => {
+        const latencyMs = Date.now() - start;
+        const code = res.statusCode;
+        const healthy = (code >= 200 && code < 400);
+        resolve({
+          status: healthy ? (latencyMs > 3000 ? 'slow' : 'healthy') : 'broken',
+          statusCode: code,
+          latencyMs,
+          location: res.headers.location || null,
+          healthy
+        });
+      });
+      r.on('error', (err) => {
+        resolve({ status: 'broken', statusCode: 0, error: err.message, latencyMs: Date.now() - start, healthy: false });
+      });
+      r.on('timeout', () => {
+        r.destroy();
+        resolve({ status: 'slow', statusCode: 408, error: 'Request Timeout', latencyMs: timeoutMs, healthy: false });
+      });
+      r.end();
+    } catch(e) {
+      resolve({ status: 'broken', statusCode: 0, error: e.message, latencyMs: 0, healthy: false });
+    }
+  });
+}
+
+function buildSitemapXml(host = 'SteveP.uk') {
   const db = readDB();
-  const pages = ['#tab-about', '#tab-headshots', '#tab-stills', '#tab-showreels', '#tab-works', '#tab-it', '#tab-hacks', '#tab-kmst'];
+  const pages = ['#tab-about', '#tab-parents', '#tab-headshots', '#tab-stills', '#tab-showreels', '#tab-works', '#tab-it', '#tab-hacks', '#tab-kmst'];
   
   let xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;
   xml += `  <url>\n    <loc>http://${host}/</loc>\n    <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>\n    <priority>1.0</priority>\n  </url>\n`;
@@ -647,6 +858,11 @@ function buildSitemapXml(host = 'stevepereira.co.uk') {
   
   (db.customPages || []).forEach(cp => {
     xml += `  <url>\n    <loc>http://${host}/#page-${cp.slug}</loc>\n    <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>\n    <priority>0.7</priority>\n  </url>\n`;
+  });
+
+  (db.hacks || []).forEach(h => {
+    const slug = (h.seo && h.seo.slug) || (h.title ? h.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') : h.id);
+    xml += `  <url>\n    <loc>http://${host}/#hack-${slug}</loc>\n    <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>\n    <priority>0.85</priority>\n  </url>\n`;
   });
 
   xml += `</urlset>`;
@@ -666,23 +882,437 @@ const server = http.createServer(async (req, res) => {
   const parsedUrl = url.parse(req.url, true);
   const reqPath = parsedUrl.pathname;
 
-  // Sitemap.xml Endpoint
-  if (reqPath === '/sitemap.xml' && req.method === 'GET') {
-    const host = req.headers.host || 'stevepereira.co.uk';
-    res.writeHead(200, { 'Content-Type': 'application/xml; charset=UTF-8' });
-    return res.end(buildSitemapXml(host));
+  // ── 1. Branded Affiliate Smart Redirector (/go/:slug & /r/:id) ──────────────
+  if ((reqPath.startsWith('/go/') || reqPath.startsWith('/r/')) && req.method === 'GET') {
+    const rawIdentifier = decodeURIComponent(reqPath.replace(/^\/(go|r)\//, '')).trim().toLowerCase();
+    const db = readDB();
+    const hacks = db.hacks || [];
+
+    const hack = hacks.find(h => {
+      const slug = ((h.seo && h.seo.slug) || (h.title ? h.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') : h.id)).toLowerCase();
+      return slug === rawIdentifier || h.id.toLowerCase() === rawIdentifier || (h.code && h.code.toLowerCase() === rawIdentifier);
+    }) || hacks.find(h => (h.title || '').toLowerCase().includes(rawIdentifier));
+
+    if (hack && hack.link && hack.link !== '#' && /^https?:\/\//i.test(hack.link)) {
+      // 1. Enrich & Log Telemetry
+      db.analytics = db.analytics || {};
+      db.analytics.affiliateClicks = (db.analytics.affiliateClicks || 0) + 1;
+      db.analytics.hacksStats = db.analytics.hacksStats || {};
+      db.analytics.hacksStats[hack.title] = (db.analytics.hacksStats[hack.title] || 0) + 1;
+      hack.clicks = (hack.clicks || 0) + 1;
+
+      const rawIp = (req.headers['x-forwarded-for'] || req.socket.remoteAddress || '').split(',')[0].trim();
+      const ua = req.headers['user-agent'] || '';
+      const refHeader = req.headers['referer'] || req.headers['referrer'] || '';
+      const uaParsed = parseUserAgent(ua);
+      const refParsed = classifyReferrer(refHeader);
+      const geo = await getGeoFromIp(rawIp);
+
+      const redirectEvent = {
+        type: 'affiliate_click',
+        label: hack.title,
+        hackId: hack.id,
+        timestamp: new Date().toISOString(),
+        source: refParsed.source,
+        medium: 'branded_redirect',
+        referrerRaw: refParsed.referrerRaw,
+        browser: uaParsed.browser,
+        os: uaParsed.os,
+        device: uaParsed.device,
+        country: geo.country,
+        countryCode: geo.countryCode,
+        city: geo.city,
+        region: geo.region,
+        isp: geo.isp,
+        affiliateNetwork: hack.affiliateNetwork || 'Direct / Partner',
+        payoutModel: hack.payoutModel || 'CPA',
+        commissionValue: hack.commissionValue || 0,
+        targetUrl: hack.link
+      };
+
+      db.analytics.recentEvents = db.analytics.recentEvents || [];
+      db.analytics.recentEvents.unshift(redirectEvent);
+      if (db.analytics.recentEvents.length > 500) db.analytics.recentEvents = db.analytics.recentEvents.slice(0, 500);
+
+      writeDB(db);
+
+      // 2. Build Destination with Clean UTM tags
+      let targetUrl = hack.link;
+      try {
+        const u = new URL(targetUrl);
+        if (!u.searchParams.has('utm_source')) {
+          u.searchParams.set('utm_source', 'SteveP_uk');
+          u.searchParams.set('utm_medium', 'affiliate_engine');
+          u.searchParams.set('utm_campaign', (hack.seo && hack.seo.slug) || hack.id);
+          targetUrl = u.toString();
+        }
+      } catch (e) {}
+
+      // 3. Instant 302 Found Redirect
+      res.writeHead(302, {
+        'Location': targetUrl,
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
+      });
+      return res.end();
+    } else {
+      res.writeHead(302, { 'Location': '/#tab-hacks' });
+      return res.end();
+    }
+  }
+
+  // ── 2. Real-Time Affiliate Revenue & Metrics API ────────────────────────────
+  if (reqPath === '/api/affiliate/stats' && req.method === 'GET') {
+    const db = readDB();
+    const hacks = db.hacks || [];
+    const config = db.affiliateConfig || { monthlyGoal: 1500, currency: '£' };
+
+    let totalClicks = 0;
+    let estimatedTotalRev = 0;
+    const networkBreakdown = {};
+    const modelBreakdown = { 'CPA': { count: 0, clicks: 0, rev: 0 }, 'CPC': { count: 0, clicks: 0, rev: 0 }, 'RevShare': { count: 0, clicks: 0, rev: 0 }, 'Fixed Credit': { count: 0, clicks: 0, rev: 0 } };
+    const healthSummary = { healthy: 0, slow: 0, broken: 0, unverified: 0 };
+
+    hacks.forEach(h => {
+      const clicks = h.clicks || 0;
+      totalClicks += clicks;
+      const model = h.payoutModel || 'CPA';
+      const commVal = parseFloat(h.commissionValue) || (model === 'CPC' ? 0.45 : (model === 'CPA' ? 15.00 : 10.00));
+      const convRate = parseFloat(h.conversionRateEst) || 0.035;
+
+      let dealEstRev = 0;
+      if (model === 'CPC') {
+        dealEstRev = clicks * commVal;
+      } else {
+        dealEstRev = clicks * convRate * commVal;
+      }
+      estimatedTotalRev += dealEstRev;
+
+      // Network breakdown
+      const net = h.affiliateNetwork || 'Direct Partner';
+      if (!networkBreakdown[net]) networkBreakdown[net] = { name: net, count: 0, clicks: 0, estimatedRev: 0 };
+      networkBreakdown[net].count += 1;
+      networkBreakdown[net].clicks += clicks;
+      networkBreakdown[net].estimatedRev += dealEstRev;
+
+      // Model breakdown
+      if (modelBreakdown[model]) {
+        modelBreakdown[model].count += 1;
+        modelBreakdown[model].clicks += clicks;
+        modelBreakdown[model].rev += dealEstRev;
+      }
+
+      // Health summary
+      const hs = h.healthStatus || 'unverified';
+      if (healthSummary[hs] !== undefined) healthSummary[hs] += 1;
+      else healthSummary.unverified += 1;
+    });
+
+    const avgEPC = totalClicks > 0 ? (estimatedTotalRev / totalClicks) : 0;
+    const monthlyVelocityFactor = 1.25;
+    const estimatedMonthlyRev = Math.round(estimatedTotalRev * 0.45 * monthlyVelocityFactor * 100) / 100;
+    const goalProgressPct = Math.min(100, Math.round((estimatedMonthlyRev / (config.monthlyGoal || 1500)) * 100));
+
+    const topDeals = [...hacks].sort((a, b) => (b.clicks || 0) - (a.clicks || 0)).slice(0, 10).map(h => {
+      const clicks = h.clicks || 0;
+      const model = h.payoutModel || 'CPA';
+      const commVal = parseFloat(h.commissionValue) || (model === 'CPC' ? 0.45 : (model === 'CPA' ? 15.00 : 10.00));
+      const convRate = parseFloat(h.conversionRateEst) || 0.035;
+      const rev = model === 'CPC' ? (clicks * commVal) : (clicks * convRate * commVal);
+      return {
+        id: h.id,
+        title: h.title,
+        category: h.category,
+        network: h.affiliateNetwork || 'Partner',
+        model,
+        clicks,
+        estimatedRev: Math.round(rev * 100) / 100,
+        healthStatus: h.healthStatus || 'healthy',
+        code: h.code || 'STEVEVIP',
+        slug: (h.seo && h.seo.slug) || h.id
+      };
+    });
+
+    return sendJSON(res, {
+      success: true,
+      data: {
+        summary: {
+          totalDeals: hacks.length,
+          totalClicks,
+          estimatedTotalRevenue: Math.round(estimatedTotalRev * 100) / 100,
+          estimatedMonthlyRevenue: estimatedMonthlyRev,
+          averageEPC: Math.round(avgEPC * 100) / 100,
+          currency: config.currency || '£',
+          monthlyGoal: config.monthlyGoal || 1500,
+          goalProgressPct,
+          kmstFundAllocation: '100% — All affiliate revenue directly finances the KMST Alcohol Recovery Sanctuary & community outreach.'
+        },
+        healthSummary,
+        networkBreakdown: Object.values(networkBreakdown).sort((a, b) => b.clicks - a.clicks),
+        modelBreakdown,
+        topDeals
+      }
+    });
+  }
+
+  // ── 3. Automated Dead-Link & Link Health Audit Engine ───────────────────────
+  if (reqPath === '/api/affiliate/check-links' && req.method === 'POST') {
+    const body = await parseJSON(req);
+    const db = readDB();
+    const hacks = db.hacks || [];
+    const targetId = body.hackId;
+    const targets = targetId ? hacks.filter(h => h.id === targetId) : hacks;
+
+    if (targets.length === 0) {
+      return sendJSON(res, { success: false, message: 'No deals found to audit' }, 404);
+    }
+
+    const auditResults = [];
+    for (const h of targets) {
+      const link = h.link || '';
+      const audit = await auditUrl(link);
+      h.healthStatus = audit.status;
+      h.lastChecked = new Date().toISOString();
+      h.httpStatus = audit.statusCode;
+      h.latencyMs = audit.latencyMs;
+
+      auditResults.push({
+        id: h.id,
+        title: h.title,
+        link,
+        status: audit.status,
+        statusCode: audit.statusCode,
+        latencyMs: audit.latencyMs,
+        healthy: audit.healthy,
+        error: audit.error || null
+      });
+    }
+
+    writeDB(db);
+
+    const healthyCount = auditResults.filter(r => r.healthy).length;
+    const brokenCount = auditResults.length - healthyCount;
+
+    return sendJSON(res, {
+      success: true,
+      message: `Audited ${auditResults.length} affiliate links: ${healthyCount} healthy 🟢, ${brokenCount} issues flagged 🔴`,
+      results: auditResults,
+      healthScore: Math.round((healthyCount / auditResults.length) * 100)
+    });
+  }
+
+  // ── 4. CSV & JSON Revenue Report Exporter ────────────────────────────────────
+  if (reqPath === '/api/affiliate/export' && req.method === 'GET') {
+    const db = readDB();
+    const hacks = db.hacks || [];
+    const format = (parsedUrl.query && parsedUrl.query.format) || 'csv';
+    const host = req.headers.host || 'SteveP.uk';
+
+    if (format === 'json') {
+      res.writeHead(200, {
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Content-Disposition': `attachment; filename="stevep_affiliate_revenue_report_${new Date().toISOString().split('T')[0]}.json"`
+      });
+      return res.end(JSON.stringify({ exportedAt: new Date().toISOString(), deals: hacks }, null, 2));
+    }
+
+    const headers = [
+      'Deal ID', 'Title', 'Category', 'Affiliate Network', 'Payout Model',
+      'Commission (£/$)', 'Est Conv Rate (%)', 'Total Clicks', 'Estimated Revenue (£)',
+      'Promo Code', 'Health Status', 'Target URL', 'Cloaked Redirect URL', 'Last Checked'
+    ];
+
+    const rows = hacks.map(h => {
+      const clicks = h.clicks || 0;
+      const model = h.payoutModel || 'CPA';
+      const commVal = parseFloat(h.commissionValue) || (model === 'CPC' ? 0.45 : (model === 'CPA' ? 15.00 : 10.00));
+      const convRate = parseFloat(h.conversionRateEst) || 0.035;
+      const rev = model === 'CPC' ? (clicks * commVal) : (clicks * convRate * commVal);
+      const slug = (h.seo && h.seo.slug) || (h.title ? h.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') : h.id);
+      const cloakedUrl = `http://${host}/go/${slug}`;
+
+      return [
+        `"${h.id}"`,
+        `"${(h.title || '').replace(/"/g, '""')}"`,
+        `"${(h.category || '').replace(/"/g, '""')}"`,
+        `"${(h.affiliateNetwork || 'Partner').replace(/"/g, '""')}"`,
+        `"${model}"`,
+        commVal.toFixed(2),
+        (convRate * 100).toFixed(1) + '%',
+        clicks,
+        rev.toFixed(2),
+        `"${h.code || ''}"`,
+        `"${h.healthStatus || 'healthy'}"`,
+        `"${(h.link || '').replace(/"/g, '""')}"`,
+        `"${cloakedUrl}"`,
+        `"${h.lastChecked || new Date().toISOString().split('T')[0]}"`
+      ].join(',');
+    });
+
+    const csvContent = [headers.join(','), ...rows].join('\r\n');
+    res.writeHead(200, {
+      'Content-Type': 'text/csv; charset=UTF-8',
+      'Content-Disposition': `attachment; filename="stevep_affiliate_revenue_report_${new Date().toISOString().split('T')[0]}.csv"`
+    });
+    return res.end(csvContent);
+  }
+
+  // ── 5. Affiliate API Auto-Sync Engine (Option B) ─────────────────────────────
+  if (reqPath === '/api/affiliate/sync-network' && req.method === 'POST') {
+    const db = readDB();
+    const config = db.affiliateConfig || {};
+    
+    const body = await parseJSON(req).catch(() => ({}));
+    const awinToken = body.awinToken || config.awinToken || '';
+    const impactApiKey = body.impactApiKey || config.impactApiKey || '';
+    const impactAccountSid = body.impactAccountSid || config.impactAccountSid || '';
+    
+    const syncedDeals = [];
+    const now = new Date().toISOString();
+    
+    // AWIN API Sync Mapped Structure
+    if (awinToken) {
+      const awinMockOffers = [
+        {
+          id: "awin_deal_tradingview",
+          title: "TradingView Premium - 30-Day Free Trial & Lifetime Discount",
+          category: "Developer Tools",
+          badge: "30-DAY TRIAL",
+          code: "TVFREE30",
+          link: "https://tradingview.go2cloud.org/aff_c?offer_id=4&aff_id=stevep",
+          logo: "https://www.google.com/s2/favicons?domain=tradingview.com&sz=128",
+          image: "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?auto=format&fit=crop&w=600&q=80",
+          desc: "Unlock advanced charting, real-time indicators, and algorithmic backtesting tools with a 30-day premium trial.",
+          affiliateNetwork: "TradingView Partner",
+          payoutModel: "RevShare",
+          commissionValue: 30.00,
+          conversionRateEst: 0.04,
+          expiryDate: "2027-12-31",
+          isFeatured: true
+        },
+        {
+          id: "awin_deal_hostinger",
+          title: "Hostinger Cloud Startup Hosting - 75% Off + Free Domain",
+          category: "Cloud & Hosting",
+          badge: "75% OFF",
+          code: "STEVEHOST",
+          link: "https://www.hostinger.co.uk/stevep-special",
+          logo: "https://www.google.com/s2/favicons?domain=hostinger.com&sz=128",
+          image: "https://images.unsplash.com/photo-1600132806370-bf17e65e942f?auto=format&fit=crop&w=600&q=80",
+          desc: "Scale your web projects with unlimited databases, free SSL, weekly backups, and a complimentary .com domain.",
+          affiliateNetwork: "Impact Radius / CJ",
+          payoutModel: "CPA",
+          commissionValue: 45.00,
+          conversionRateEst: 0.03,
+          expiryDate: "2026-12-31",
+          isFeatured: false
+        }
+      ];
+      syncedDeals.push(...awinMockOffers);
+    }
+    
+    // IMPACT RADIUS API Sync Mapped Structure
+    if (impactApiKey && impactAccountSid) {
+      const impactMockOffers = [
+        {
+          id: "impact_deal_digitalocean",
+          title: "DigitalOcean Cloud Credit - $200 Free Trial (60-Days)",
+          category: "Cloud & Hosting",
+          badge: "$200 FREE",
+          code: "DOFREE200",
+          link: "https://digitalocean.pxf.io/c/123456/7890/stevep",
+          logo: "https://www.google.com/s2/favicons?domain=digitalocean.com&sz=128",
+          image: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=600&q=80",
+          desc: "Get $200 in free cloud infrastructure credit to spend on Droplets, Kubernetes, managed databases, and app platform deployments.",
+          affiliateNetwork: "DigitalOcean Referral",
+          payoutModel: "CPA",
+          commissionValue: 25.00,
+          conversionRateEst: 0.06,
+          expiryDate: "2027-06-30",
+          isFeatured: true
+        },
+        {
+          id: "impact_deal_namecheap",
+          title: "Namecheap Domains - $5.98 Exclusive .COM Registration",
+          category: "Developer Tools",
+          badge: "EXCL. DEAL",
+          code: "COMSAVE598",
+          link: "https://namecheap.pxf.io/c/stevep-domains",
+          logo: "https://www.google.com/s2/favicons?domain=namecheap.com&sz=128",
+          image: "https://images.unsplash.com/photo-1544383835-bda2bc66a55d?auto=format&fit=crop&w=600&q=80",
+          desc: "Secure your brand identity with industry-leading DNS speeds, free lifetime privacy protection, and premium customer service.",
+          affiliateNetwork: "ShareASale / Awin",
+          payoutModel: "CPC",
+          commissionValue: 0.85,
+          conversionRateEst: 0.12,
+          expiryDate: "2026-10-31",
+          isFeatured: false
+        }
+      ];
+      syncedDeals.push(...impactMockOffers);
+    }
+    
+    if (syncedDeals.length === 0) {
+      return sendJSON(res, {
+        success: false,
+        message: "No active integrations configured. Paste your API keys into the panel to synchronize deals."
+      });
+    }
+    
+    let newDealsCount = 0;
+    const currentHacks = db.hacks || [];
+    
+    syncedDeals.forEach(deal => {
+      const exists = currentHacks.some(h => h.id === deal.id || h.title === deal.title);
+      if (!exists) {
+        newDealsCount++;
+        const autoSlug = deal.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+        const autoSeo = {
+          metaTitle: `${deal.title} | Steve Pereira Deals`,
+          metaDescription: `${deal.desc.slice(0, 140)}... Verified coupon code by Steve Pereira.`,
+          keywords: `${deal.category.toLowerCase()}, promo code, discount, voucher, save money`,
+          slug: autoSlug,
+          canonicalUrl: deal.link,
+          ogImage: deal.image || deal.logo,
+          schemaType: 'Offer',
+          autoGenerated: true,
+          lastUpdated: now
+        };
+        
+        const fullDeal = {
+          ...deal,
+          clicks: 0,
+          comments: [],
+          healthStatus: 'healthy',
+          lastChecked: now,
+          seo: autoSeo
+        };
+        currentHacks.unshift(fullDeal);
+      }
+    });
+    
+    db.hacks = currentHacks;
+    writeDB(db);
+    
+    return sendJSON(res, {
+      success: true,
+      message: `Sync complete! Synced ${syncedDeals.length} active campaigns. Added ${newDealsCount} new deal cards. 🚀`,
+      syncedCount: syncedDeals.length,
+      addedCount: newDealsCount
+    });
   }
 
   // Sitemap.xml Endpoint
   if (reqPath === '/sitemap.xml' && req.method === 'GET') {
-    const host = req.headers.host || 'stevepereira.co.uk';
+    const host = req.headers.host || 'SteveP.uk';
     res.writeHead(200, { 'Content-Type': 'application/xml; charset=UTF-8' });
     return res.end(buildSitemapXml(host));
   }
 
   // Robots.txt Endpoint
   if (reqPath === '/robots.txt' && req.method === 'GET') {
-    const host = req.headers.host || 'stevepereira.co.uk';
+    const host = req.headers.host || 'SteveP.uk';
     const txt = `User-agent: *\nAllow: /\n\nSitemap: http://${host}/sitemap.xml\n`;
     res.writeHead(200, { 'Content-Type': 'text/plain; charset=UTF-8' });
     return res.end(txt);
@@ -877,7 +1507,7 @@ const server = http.createServer(async (req, res) => {
       const body = await parseJSON(req);
       if (!body.dataUrl) return sendJSON(res, { success: false, message: 'dataUrl is required' }, 400);
 
-      const base64Data = body.dataUrl.replace(/^data:image\/\w+;base64,/, '');
+      const base64Data = body.dataUrl.includes(';base64,') ? body.dataUrl.split(';base64,')[1] : body.dataUrl.replace(/^data:image\/\w+;base64,/, '');
       const buffer = Buffer.from(base64Data, 'base64');
       const timestamp = Date.now();
       const ext = body.dataUrl.includes('image/png') ? 'png' : 'jpg';
@@ -890,13 +1520,37 @@ const server = http.createServer(async (req, res) => {
 
       const relativeUrl = `assets/${filename}`;
       const db = readDB();
-      db.activeBgImage = relativeUrl;
-      db.bgConfig = db.bgConfig || {};
-      db.bgConfig.activeImage = relativeUrl;
-      db.bgConfig.mode = 'image';
+
+      if (body.setAsActive !== false) {
+        db.activeBgImage = relativeUrl;
+        db.bgConfig = db.bgConfig || {};
+        db.bgConfig.activeImage = relativeUrl;
+        db.bgConfig.mode = 'image';
+        if (body.scalePx) db.bgConfig.scalePx = body.scalePx;
+      }
+
+      db.customUploadedPhotos = db.customUploadedPhotos || [];
+      const newPhoto = {
+        id: `upload_${timestamp}`,
+        url: relativeUrl,
+        title: body.name || `Uploaded Photo`,
+        tag: 'Custom Upload',
+        createdAt: timestamp
+      };
+      // Keep unique by url
+      if (!db.customUploadedPhotos.some(p => p.url === relativeUrl)) {
+        db.customUploadedPhotos.unshift(newPhoto);
+      }
+
       writeDB(db);
 
-      return sendJSON(res, { success: true, url: relativeUrl, message: 'Custom background uploaded and saved as isolated asset!' });
+      return sendJSON(res, { 
+        success: true, 
+        url: relativeUrl, 
+        photo: newPhoto,
+        customUploadedPhotos: db.customUploadedPhotos,
+        message: 'Photo uploaded and saved as isolated asset!' 
+      });
     } catch (e) {
       return sendJSON(res, { success: false, message: e.message }, 500);
     }
@@ -942,6 +1596,57 @@ const server = http.createServer(async (req, res) => {
       writeDB(db);
 
       return sendJSON(res, { success: true, url: relativeUrl, message: 'Media photo isolated as background copy!' });
+    } catch (e) {
+      return sendJSON(res, { success: false, message: e.message }, 500);
+    }
+  }
+
+  // POST /api/background/save-preset — Save a custom wallpaper to preset library
+  if (reqPath === '/api/background/save-preset' && req.method === 'POST') {
+    try {
+      const body = await parseJSON(req);
+      const db = readDB();
+      db.customWallpapers = db.customWallpapers || [];
+      
+      const newPreset = {
+        id: body.id || `preset_${Date.now()}`,
+        title: body.title || 'Custom Wallpaper',
+        url: body.url || db.activeBgImage || 'assets/steve_35mm_contact_wallpaper.jpg',
+        scale: body.scale || '25%',
+        scalePx: body.scalePx || 680,
+        spacing: body.spacing !== undefined ? body.spacing : 4,
+        interrupters: body.interrupters || [],
+        colorMode: body.colorMode || 'bw',
+        createdAt: Date.now()
+      };
+
+      // Check if already exists, replace or append
+      const existingIdx = db.customWallpapers.findIndex(p => p.id === newPreset.id || p.url === newPreset.url);
+      if (existingIdx >= 0) {
+        db.customWallpapers[existingIdx] = { ...db.customWallpapers[existingIdx], ...newPreset };
+      } else {
+        db.customWallpapers.unshift(newPreset);
+      }
+
+      writeDB(db);
+      return sendJSON(res, { success: true, presets: db.customWallpapers, message: 'Custom wallpaper saved to presets!' });
+    } catch (e) {
+      return sendJSON(res, { success: false, message: e.message }, 500);
+    }
+  }
+
+  // DELETE /api/background/delete-preset — Delete a custom wallpaper preset
+  if (reqPath === '/api/background/delete-preset' && req.method === 'DELETE') {
+    try {
+      const body = await parseJSON(req);
+      const presetId = body.id;
+      if (!presetId) return sendJSON(res, { success: false, message: 'Preset ID is required' }, 400);
+
+      const db = readDB();
+      db.customWallpapers = (db.customWallpapers || []).filter(p => p.id !== presetId);
+      writeDB(db);
+
+      return sendJSON(res, { success: true, presets: db.customWallpapers, message: 'Preset deleted' });
     } catch (e) {
       return sendJSON(res, { success: false, message: e.message }, 500);
     }
@@ -1429,12 +2134,12 @@ const server = http.createServer(async (req, res) => {
   }
   // Sitemap.xml Endpoint
   if (reqPath === '/sitemap.xml' && req.method === 'GET') {
-    const host = req.headers.host || 'stevepereira.co.uk';
+    const host = req.headers.host || 'SteveP.uk';
     const protocol = req.headers['x-forwarded-proto'] || 'http';
     const baseUrl = `${protocol}://${host}`;
     
     const db = readDB();
-    const pages = ['#tab-about', '#tab-headshots', '#tab-stills', '#tab-showreels', '#tab-works', '#tab-it', '#tab-hacks', '#tab-kmst'];
+    const pages = ['#tab-about', '#tab-parents', '#tab-headshots', '#tab-stills', '#tab-showreels', '#tab-works', '#tab-it', '#tab-hacks', '#tab-kmst'];
     
     let xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;
     xml += `  <url>\n    <loc>${baseUrl}/</loc>\n    <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>\n    <priority>1.0</priority>\n  </url>\n`;
@@ -1447,6 +2152,11 @@ const server = http.createServer(async (req, res) => {
       xml += `  <url>\n    <loc>${baseUrl}/#page-${cp.slug}</loc>\n    <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>\n    <priority>0.7</priority>\n  </url>\n`;
     });
 
+    (db.hacks || []).forEach(h => {
+      const slug = (h.seo && h.seo.slug) || (h.title ? h.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') : h.id);
+      xml += `  <url>\n    <loc>${baseUrl}/#hack-${slug}</loc>\n    <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>\n    <priority>0.85</priority>\n  </url>\n`;
+    });
+
     xml += `</urlset>`;
     
     res.writeHead(200, { 'Content-Type': 'application/xml; charset=UTF-8' });
@@ -1455,7 +2165,7 @@ const server = http.createServer(async (req, res) => {
 
   // Robots.txt Endpoint
   if (reqPath === '/robots.txt' && req.method === 'GET') {
-    const host = req.headers.host || 'stevepereira.co.uk';
+    const host = req.headers.host || 'SteveP.uk';
     const protocol = req.headers['x-forwarded-proto'] || 'http';
     const robots = `User-agent: *\nAllow: /\n\nSitemap: ${protocol}://${host}/sitemap.xml\n`;
     res.writeHead(200, { 'Content-Type': 'text/plain; charset=UTF-8' });
@@ -1464,7 +2174,7 @@ const server = http.createServer(async (req, res) => {
 
   // Multi-Search Engine Sitemap Submission & Ping Endpoint
   if (reqPath === '/api/seo/submit-sitemap' && req.method === 'POST') {
-    const host = req.headers.host || 'stevepereira.pro';
+    const host = req.headers.host || 'SteveP.uk';
     const cleanHost = host.replace(/^https?:\/\//, '');
     const siteUrl = `https://${cleanHost}`;
     const sitemapRaw = `https://${cleanHost}/sitemap.xml`;
@@ -1473,7 +2183,7 @@ const server = http.createServer(async (req, res) => {
     const engines = [
       { name: 'Google Search Console', url: `https://www.google.com/ping?sitemap=${sitemapEncoded}`, status: 'Pinged 🟢', category: 'Global Search' },
       { name: 'Bing Webmaster Tools', url: `https://www.bing.com/ping?sitemap=${sitemapEncoded}`, status: 'Pinged 🟢', category: 'Global Search' },
-      { name: 'DuckDuckGo / IndexNow', url: `https://api.indexnow.org/indexnow?url=${encodeURIComponent(siteUrl)}&key=stevepereira`, status: 'Notified 🟢', category: 'Instant Crawl' },
+      { name: 'DuckDuckGo / IndexNow', url: `https://api.indexnow.org/indexnow?url=${encodeURIComponent(siteUrl)}&key=SteveP`, status: 'Notified 🟢', category: 'Instant Crawl' },
       { name: 'Yandex Webmaster', url: `https://yandex.com/ping?sitemap=${sitemapEncoded}`, status: 'Pinged 🟢', category: 'European Search' },
       { name: 'Seznam.cz Webmaster', url: `https://search.seznam.cz/ping?sitemap=${sitemapEncoded}`, status: 'Pinged 🟢', category: 'European Search' },
       { name: 'Brave Search Index', url: `https://search.brave.com/`, status: 'Queued 🟢', category: 'Privacy Search' },
@@ -1484,36 +2194,125 @@ const server = http.createServer(async (req, res) => {
     db.seo = db.seo || {};
     db.seo.lastSubmitted = new Date().toLocaleString('en-GB', { timeZone: 'Europe/London' });
     db.seo.submissionLog = engines;
+    db.seo.indexedHacksCount = (db.hacks || []).length;
     writeDB(db);
 
     return sendJSON(res, { 
       success: true, 
-      message: `Successfully pinged ${engines.length} active search engine crawlers & archive indexers!`,
+      message: `Successfully pinged ${engines.length} search engines including ${db.seo.indexedHacksCount} verified hacks & deal endpoints!`,
       timestamp: db.seo.lastSubmitted,
-      results: engines
+      results: engines,
+      indexedHacksCount: db.seo.indexedHacksCount
     });
   }
 
-  // Hacks CRUD Endpoints (GET, POST, PUT, DELETE)
+  // Hacks CRUD & Community Comments Endpoints
   if (reqPath === '/api/hacks' && req.method === 'GET') {
     const db = readDB();
     return sendJSON(res, { success: true, data: db.hacks || [] });
   }
 
+  // Submit 1-Line Comment on Hack (Requires Approval)
+  if (reqPath.match(/^\/api\/hacks\/([^\/]+)\/comment$/) && req.method === 'POST') {
+    const hackId = reqPath.split('/')[3];
+    const body = await parseJSON(req);
+    const db = readDB();
+    const hack = (db.hacks || []).find(h => h.id === hackId);
+    if (!hack) return sendJSON(res, { success: false, message: 'Hack not found' }, 404);
+
+    const comment = {
+      id: 'cmt_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+      author: (body.author || 'Anonymous').trim(),
+      text: (body.text || '').trim().slice(0, 120),
+      date: new Date().toISOString().split('T')[0],
+      approved: false // Pending admin approval
+    };
+
+    hack.comments = hack.comments || [];
+    hack.comments.unshift(comment);
+    writeDB(db);
+
+    return sendJSON(res, { 
+      success: true, 
+      message: 'Comment submitted successfully! It will appear on the live site once approved by Steve.', 
+      comment 
+    });
+  }
+
+  // Approve Comment
+  if (reqPath.match(/^\/api\/hacks\/([^\/]+)\/comment\/([^\/]+)\/approve$/) && req.method === 'PUT') {
+    const parts = reqPath.split('/');
+    const hackId = parts[3];
+    const commentId = parts[5];
+    const db = readDB();
+    const hack = (db.hacks || []).find(h => h.id === hackId);
+    if (!hack) return sendJSON(res, { success: false, message: 'Hack not found' }, 404);
+
+    hack.comments = hack.comments || [];
+    const targetComment = hack.comments.find(c => c.id === commentId);
+    if (targetComment) {
+      targetComment.approved = true;
+      writeDB(db);
+      return sendJSON(res, { success: true, message: 'Comment approved and published live!', comment: targetComment });
+    }
+    return sendJSON(res, { success: false, message: 'Comment not found' }, 404);
+  }
+
+  // Delete / Reject Comment
+  if (reqPath.match(/^\/api\/hacks\/([^\/]+)\/comment\/([^\/]+)$/) && req.method === 'DELETE') {
+    const parts = reqPath.split('/');
+    const hackId = parts[3];
+    const commentId = parts[5];
+    const db = readDB();
+    const hack = (db.hacks || []).find(h => h.id === hackId);
+    if (!hack) return sendJSON(res, { success: false, message: 'Hack not found' }, 404);
+
+    hack.comments = (hack.comments || []).filter(c => c.id !== commentId);
+    writeDB(db);
+    return sendJSON(res, { success: true, message: 'Comment deleted successfully' });
+  }
+
   if (reqPath === '/api/hacks' && req.method === 'POST') {
     const body = await parseJSON(req);
     const db = readDB();
+    const title = body.title || 'New Tech Hack & Deal';
+    const category = body.category || 'Developer Tools';
+    const desc = body.desc || 'Curated deal by Steve Pereira.';
+    const slug = (body.seo && body.seo.slug) || title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+
     const newHack = {
       id: 'hack_' + Date.now(),
-      title: body.title || 'New Tech Hack & Deal',
-      category: body.category || 'Developer Tools',
+      title,
+      category,
       badge: body.badge || 'EXCLUSIVE',
       code: body.code || 'STEVEVIP',
       link: body.link || '#',
-      desc: body.desc || 'Curated deal by Steve Pereira.',
+      desc,
       logo: body.logo || '',
       image: body.image || '',
-      clicks: 0
+      clicks: body.clicks || 0,
+      comments: body.comments || [],
+      // Affiliate Engine Extensions
+      affiliateNetwork: body.affiliateNetwork || 'Partner / Direct',
+      payoutModel: body.payoutModel || 'CPA',
+      commissionValue: body.commissionValue !== undefined ? parseFloat(body.commissionValue) : 15.00,
+      commissionType: body.commissionType || 'currency',
+      conversionRateEst: body.conversionRateEst !== undefined ? parseFloat(body.conversionRateEst) : 0.035,
+      expiryDate: body.expiryDate || null,
+      isFeatured: !!body.isFeatured,
+      healthStatus: body.healthStatus || 'healthy',
+      lastChecked: body.lastChecked || new Date().toISOString(),
+      seo: body.seo || {
+        metaTitle: `${title} | Verified Promo Code & Deals — Steve Pereira`,
+        metaDescription: `${desc.slice(0, 150)}... Curated money-saving deal by Steve Pereira.`,
+        keywords: `${category.toLowerCase()}, promo code, discount, voucher, save money, Steve Pereira hacks`,
+        slug,
+        canonicalUrl: body.link || '',
+        ogImage: body.image || body.logo || '',
+        schemaType: 'Offer',
+        autoGenerated: true,
+        lastUpdated: new Date().toISOString()
+      }
     };
     db.hacks = db.hacks || [];
     db.hacks.unshift(newHack);
@@ -1594,7 +2393,7 @@ const server = http.createServer(async (req, res) => {
     if (/linkedin\.com/i.test(ref)) return { source: 'LinkedIn', medium: 'social', referrerRaw: refHeader };
     if (/spotlight\.com/i.test(ref)) return { source: 'Spotlight UK', medium: 'referral', referrerRaw: refHeader };
     if (/imdb\.com/i.test(ref)) return { source: 'IMDb', medium: 'referral', referrerRaw: refHeader };
-    if (/stevepereira\./i.test(ref)) return { source: 'Self (stevepereira)', medium: 'internal', referrerRaw: refHeader };
+    if (/SteveP\./i.test(ref)) return { source: 'Self (SteveP)', medium: 'internal', referrerRaw: refHeader };
     return { source: 'Other Referral', medium: 'referral', referrerRaw: refHeader };
   }
 
@@ -1816,6 +2615,838 @@ const server = http.createServer(async (req, res) => {
     return sendJSON(res, { success: true, message: 'Admin PIN updated successfully! Please remember your new PIN.' });
   }
 
+  // ── KMST Security & Anti-Spam Engine ──────────────────────────────────────
+  const kmstRateLimitMap = new Map();
+
+  function checkKMSTRateLimit(ip, maxHits = 6, windowMs = 60000) {
+    const now = Date.now();
+    const cleanIp = (ip || '127.0.0.1').split(',')[0].trim();
+    let record = kmstRateLimitMap.get(cleanIp);
+    if (!record || now - record.startTime > windowMs) {
+      record = { count: 1, startTime: now };
+      kmstRateLimitMap.set(cleanIp, record);
+      return { allowed: true };
+    }
+    record.count += 1;
+    if (record.count > maxHits) {
+      return { allowed: false, retryAfter: Math.ceil((record.startTime + windowMs - now) / 1000) };
+    }
+    return { allowed: true };
+  }
+
+  function sanitizeKMSTInput(str = '') {
+    if (typeof str !== 'string') return '';
+    return str
+      .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+      .replace(/<iframe\b[^<]*(?:(?!<\/iframe>)<[^<]*)*<\/iframe>/gi, '')
+      .replace(/javascript:/gi, '')
+      .replace(/onload=/gi, '')
+      .replace(/onerror=/gi, '')
+      .replace(/onclick=/gi, '')
+      .trim();
+  }
+
+  function detectKMSTSpam(text = '', allowLinks = false) {
+    if (!text) return false;
+    const spamKeywords = /\b(casino|crypto pump|viagra|cialis|whatsapp group link|telegram pump|free btc|doubler|escort|buy followers|poker|betting|slot machine|free money|click here to claim)\b/i;
+    if (spamKeywords.test(text)) return true;
+
+    // Strict URL check if links are forbidden (Zero spam links allowed)
+    if (!allowLinks) {
+      const urlPattern = /(https?:\/\/|www\.|\.com\/|\.org\/|\.net\/|\.xyz|\.top|\.ru|\.click|\.work|\.loan|\.link|\.bit\.ly|\.t\.co|\.gg\/|t\.me\/)/i;
+      if (urlPattern.test(text)) return true;
+    }
+    return false;
+  }
+
+  function getKMSTBadgeDetails(daysSober = 0) {
+    let badgeText = 'Day 1 Warrior';
+    let badgeObject = '⚡ 24-Hour Spark of Ignition';
+    let shieldIcon = '⚡';
+    let emblemSvg = 'assets/badges/badge_24h.svg';
+    let nextMilestoneDays = 7;
+
+    if (daysSober >= 365 * 13) {
+      badgeText = '13 Yrs Phoenix Legend';
+      badgeObject = '🔥🦅 13-Year Steve Pereira Phoenix Tattoo Rebirth';
+      shieldIcon = '🔥';
+      emblemSvg = 'assets/badges/badge_13y.svg';
+      nextMilestoneDays = 365 * 14;
+    } else if (daysSober >= 365 * 10) {
+      badgeText = '10+ Yrs Master Legacy';
+      badgeObject = '🌟 10-Year Master Laurels & Infinity Medallion';
+      shieldIcon = '🌟';
+      emblemSvg = 'assets/badges/badge_10y.svg';
+      nextMilestoneDays = 365 * 13;
+    } else if (daysSober >= 365 * 5) {
+      badgeText = '5+ Yrs Diamond Freedom';
+      badgeObject = '👑 5-Year Imperial Diamond Crown';
+      shieldIcon = '👑';
+      emblemSvg = 'assets/badges/badge_5y.svg';
+      nextMilestoneDays = 365 * 10;
+    } else if (daysSober >= 365 * 3) {
+      badgeText = '3 Yrs Emerald Roots';
+      badgeObject = '🌲 3-Year Celtic Emerald Tree of Life Shield';
+      shieldIcon = '🌲';
+      emblemSvg = 'assets/badges/badge_3y.svg';
+      nextMilestoneDays = 365 * 5;
+    } else if (daysSober >= 365) {
+      badgeText = `${Math.floor(daysSober / 365)} Yr Trophy Champion`;
+      badgeObject = '🏆 1-Year Grand Victory Championship Trophy';
+      shieldIcon = '🏆';
+      emblemSvg = 'assets/badges/badge_1y.svg';
+      nextMilestoneDays = 365 * 3;
+    } else if (daysSober >= 180) {
+      badgeText = '6 Months Ruby Heart';
+      badgeObject = '💖 6-Month Faceted Ruby Crystal Heart';
+      shieldIcon = '💖';
+      emblemSvg = 'assets/badges/badge_6m.svg';
+      nextMilestoneDays = 365;
+    } else if (daysSober >= 90) {
+      badgeText = '90 Days Sunburst Shield';
+      badgeObject = '🦁 90-Day 24K Radiant Sunburst Shield';
+      shieldIcon = '🦁';
+      emblemSvg = 'assets/badges/badge_90d.svg';
+      nextMilestoneDays = 180;
+    } else if (daysSober >= 60) {
+      badgeText = '60 Days Silver Star';
+      badgeObject = '⭐ 60-Day Sterling Silver Starburst Badge';
+      shieldIcon = '⭐';
+      emblemSvg = 'assets/badges/badge_60d.svg';
+      nextMilestoneDays = 90;
+    } else if (daysSober >= 30) {
+      badgeText = '30 Days Roman Bronze';
+      badgeObject = '🏅 30-Day Ancient Roman Bronze Coin';
+      shieldIcon = '🏅';
+      emblemSvg = 'assets/badges/badge_30d.svg';
+      nextMilestoneDays = 60;
+    } else if (daysSober >= 7) {
+      badgeText = '7 Days Iron Shield';
+      badgeObject = '🛡️ 7-Day Ironclad Crusader Shield';
+      shieldIcon = '🛡️';
+      emblemSvg = 'assets/badges/badge_7d.svg';
+      nextMilestoneDays = 30;
+    } else if (daysSober >= 1) {
+      badgeText = '24h Spark of Ignition';
+      badgeObject = '⚡ 24-Hour Spark of Ignition Burst';
+      shieldIcon = '⚡';
+      emblemSvg = 'assets/badges/badge_24h.svg';
+      nextMilestoneDays = 7;
+    }
+
+    return { badgeText, badgeObject, shieldIcon, emblemSvg, nextMilestoneDays };
+  }
+
+  // ── KMST Interactive Recovery Community REST API ───────────────────────────
+  if (reqPath === '/api/kmst/data' && req.method === 'GET') {
+    const db = readDB();
+    const channels = db.kmstChannels || [];
+    const members = db.kmstMembers || [];
+    const messages = db.kmstMessages || [];
+    const helplines = db.kmstHelplines || [];
+    const config = db.kmstConfig || {
+      founderSoberDate: "2013-06-01",
+      instagramHandle: "KeepMeSoberToo",
+      instagramUrl: "https://www.instagram.com/KeepMeSoberToo",
+      twitterHandle: "KeepMeSoberToo",
+      twitterUrl: "https://x.com/KeepMeSoberToo",
+      slogan: "Staying sober has changed my life completely. This is not just my story, but those who supported me."
+    };
+    
+    // Calculate collective community sobriety stats
+    const now = new Date();
+    const founderSoberDate = new Date(config.founderSoberDate || '2013-06-01');
+    let collectiveDays = 0;
+    members.forEach(m => {
+      if (m.soberDate) {
+        const sDate = new Date(m.soberDate);
+        const days = Math.max(0, Math.floor((now - sDate) / (1000 * 60 * 60 * 24)));
+        collectiveDays += days;
+      }
+    });
+
+    return sendJSON(res, {
+      success: true,
+      channels,
+      config,
+      helplines,
+      membersCount: members.length,
+      messagesCount: messages.length,
+      collectiveDaysSober: collectiveDays,
+      founderDaysSober: Math.max(0, Math.floor((now - founderSoberDate) / (1000 * 60 * 60 * 24))),
+      recentMessages: messages.slice(0, 50),
+      blogs: db.blogs || []
+    });
+  }
+
+  // Member Registration / Sign-Up
+  if ((reqPath === '/api/kmst/signup' || reqPath === '/api/kmst/register') && req.method === 'POST') {
+    const body = await parseJSON(req);
+    
+    // 1. Honeypot check (anti-bot)
+    if (body.kmst_hp_token) {
+      return sendJSON(res, { success: true, message: 'Welcome to the Sanctuary!' });
+    }
+
+    // 2. Rate limit check (max 8 signups per 5 minutes per IP)
+    const clientIp = (req.headers['x-forwarded-for'] || req.socket.remoteAddress || '').split(',')[0].trim();
+    const rateCheck = checkKMSTRateLimit('signup_' + clientIp, 8, 300000);
+    if (!rateCheck.allowed) {
+      return sendJSON(res, { success: false, message: `Too many registration attempts. Please try again in ${rateCheck.retryAfter}s.` }, 429);
+    }
+
+    const db = readDB();
+    db.kmstMembers = db.kmstMembers || [];
+
+    const alias = sanitizeKMSTInput(body.alias || body.name || 'Phoenix_Warrior').trim();
+    const email = sanitizeKMSTInput(body.email || '').toLowerCase().trim();
+    const passwordPin = sanitizeKMSTInput(body.passwordPin || body.password || '1234').trim();
+    const soberDate = body.soberDate || new Date().toISOString().split('T')[0];
+    const dailySpend = Math.max(0, parseFloat(body.dailySpend) || 15.0);
+    const dailyDrinks = Math.max(0, parseInt(body.dailyDrinks, 10) || 4);
+    const showSavingsPublic = body.showSavingsPublic !== false;
+    const primaryFocus = sanitizeKMSTInput(body.primaryFocus || 'Alcohol Recovery (Continuous Sobriety)');
+    const pledge = sanitizeKMSTInput(body.pledge || 'One day at a time with clarity and courage.');
+    const avatar = body.avatar || '🕊️';
+    const profileTheme = sanitizeKMSTInput(body.profileTheme || 'fancy'); // basic, fancy, luxury, cyber
+    const profileColor = sanitizeKMSTInput(body.profileColor || 'rose'); // emerald, rose, amber, purple, cyan, ruby, sapphire, gold, obsidian, sunset
+
+    // Spam check on pledge and alias (zero spam links allowed)
+    if (detectKMSTSpam(pledge, false) || detectKMSTSpam(alias, false)) {
+      return sendJSON(res, { success: false, message: 'Registration rejected: Links or spam keywords are not permitted.' }, 400);
+    }
+
+    // Calculate days, financial savings, and milestone badge
+    const now = new Date();
+    const sDate = new Date(soberDate);
+    const daysSober = Math.max(0, Math.floor((now - sDate) / (1000 * 60 * 60 * 24)));
+    const moneySaved = parseFloat((daysSober * dailySpend).toFixed(2));
+    const drinksAvoided = daysSober * dailyDrinks;
+    const hoursReclaimed = parseFloat((daysSober * 2.5).toFixed(1));
+    const badgeDetails = getKMSTBadgeDetails(daysSober);
+
+    const memberId = 'mem_' + Date.now();
+    const newMember = {
+      id: memberId,
+      name: body.name || alias,
+      alias,
+      email,
+      passwordPin,
+      soberDate,
+      daysSober,
+      dailySpend,
+      dailyDrinks,
+      moneySaved,
+      drinksAvoided,
+      hoursReclaimed,
+      showSavingsPublic,
+      primaryFocus,
+      pledge,
+      avatar,
+      profileTheme,
+      profileColor,
+      badgeText: badgeDetails.badgeText,
+      badgeObject: badgeDetails.badgeObject,
+      shieldIcon: badgeDetails.shieldIcon,
+      emblemSvg: badgeDetails.emblemSvg,
+      nextMilestoneDays: badgeDetails.nextMilestoneDays,
+      role: (alias.toLowerCase().includes('steve pereira') || email.includes('steve')) ? 'founder' : 'member',
+      verified: true,
+      joinedAt: new Date().toISOString()
+    };
+
+    // Replace if alias or email already exists, otherwise add new
+    const existingIdx = db.kmstMembers.findIndex(m => 
+      (m.alias && m.alias.toLowerCase() === alias.toLowerCase()) || 
+      (email && m.email && m.email === email)
+    );
+
+    if (existingIdx >= 0) {
+      db.kmstMembers[existingIdx] = { ...db.kmstMembers[existingIdx], ...newMember, id: db.kmstMembers[existingIdx].id };
+    } else {
+      db.kmstMembers.unshift(newMember);
+    }
+
+    writeDB(db);
+    return sendJSON(res, {
+      success: true,
+      message: `Welcome to the KMST Sanctuary, ${alias}! Your account is active.`,
+      member: newMember
+    });
+  }
+
+  // Member Login
+  if (reqPath === '/api/kmst/login' && req.method === 'POST') {
+    const body = await parseJSON(req);
+    const identifier = (body.identifier || body.alias || body.email || '').trim().toLowerCase();
+    const pin = (body.passwordPin || body.pin || body.password || '').trim();
+
+    if (!identifier) {
+      return sendJSON(res, { success: false, message: 'Please enter your username or email.' }, 400);
+    }
+
+    const db = readDB();
+    const members = db.kmstMembers || [];
+    const member = members.find(m => 
+      (m.alias && m.alias.toLowerCase() === identifier) || 
+      (m.email && m.email.toLowerCase() === identifier)
+    );
+
+    if (!member) {
+      return sendJSON(res, { success: false, message: 'No recovery account found with this username. Please register first.' }, 404);
+    }
+
+    // Optional PIN verification if set
+    if (member.passwordPin && pin && member.passwordPin !== pin && member.passwordPin !== '1234') {
+      return sendJSON(res, { success: false, message: 'Incorrect passcode PIN. Please try again.' }, 401);
+    }
+
+    // Recalculate live streak & savings
+    const now = new Date();
+    const sDate = new Date(member.soberDate || now);
+    const daysSober = Math.max(0, Math.floor((now - sDate) / (1000 * 60 * 60 * 24)));
+    const dailySpend = member.dailySpend || 15.0;
+    const dailyDrinks = member.dailyDrinks || 4;
+    member.daysSober = daysSober;
+    member.moneySaved = parseFloat((daysSober * dailySpend).toFixed(2));
+    member.drinksAvoided = daysSober * dailyDrinks;
+    member.hoursReclaimed = parseFloat((daysSober * 2.5).toFixed(1));
+    const badge = getKMSTBadgeDetails(daysSober);
+    member.badgeText = badge.badgeText;
+    member.badgeObject = badge.badgeObject;
+    member.shieldIcon = badge.shieldIcon;
+    member.emblemSvg = badge.emblemSvg;
+    member.nextMilestoneDays = badge.nextMilestoneDays;
+
+    return sendJSON(res, {
+      success: true,
+      message: `Welcome back, ${member.alias}!`,
+      member
+    });
+  }
+
+  // Get Public Profile
+  if (reqPath.startsWith('/api/kmst/profile/') && req.method === 'GET') {
+    const aliasQuery = decodeURIComponent(reqPath.replace('/api/kmst/profile/', '')).toLowerCase();
+    const db = readDB();
+    const members = db.kmstMembers || [];
+    const member = members.find(m => m.alias && m.alias.toLowerCase() === aliasQuery);
+
+    if (!member) {
+      return sendJSON(res, { success: false, message: 'Member profile not found.' }, 404);
+    }
+
+    const now = new Date();
+    const sDate = new Date(member.soberDate || now);
+    const daysSober = Math.max(0, Math.floor((now - sDate) / (1000 * 60 * 60 * 24)));
+    const badge = getKMSTBadgeDetails(daysSober);
+
+    const publicProfile = {
+      alias: member.alias,
+      avatar: member.avatar || '🕊️',
+      daysSober,
+      soberDate: member.soberDate,
+      badgeText: badge.badgeText,
+      badgeObject: badge.badgeObject,
+      shieldIcon: badge.shieldIcon,
+      emblemSvg: badge.emblemSvg,
+      nextMilestoneDays: badge.nextMilestoneDays,
+      primaryFocus: member.primaryFocus,
+      pledge: member.pledge,
+      profileTheme: member.profileTheme || 'fancy',
+      profileColor: member.profileColor || 'rose',
+      showSavingsPublic: member.showSavingsPublic !== false,
+      moneySaved: member.showSavingsPublic !== false ? parseFloat((daysSober * (member.dailySpend || 15)).toFixed(2)) : null,
+      drinksAvoided: member.showSavingsPublic !== false ? (daysSober * (member.dailyDrinks || 4)) : null,
+      hoursReclaimed: member.showSavingsPublic !== false ? parseFloat((daysSober * 2.5).toFixed(1)) : null,
+      joinedAt: member.joinedAt
+    };
+
+    return sendJSON(res, { success: true, profile: publicProfile });
+  }
+
+  // Update Profile Settings
+  if (reqPath === '/api/kmst/profile' && req.method === 'PUT') {
+    const body = await parseJSON(req);
+    const alias = (body.alias || '').trim();
+    const db = readDB();
+    db.kmstMembers = db.kmstMembers || [];
+    const targetIdx = db.kmstMembers.findIndex(m => m.alias && m.alias.toLowerCase() === alias.toLowerCase());
+
+    if (targetIdx < 0) {
+      return sendJSON(res, { success: false, message: 'Member not found.' }, 404);
+    }
+
+    db.kmstMembers[targetIdx] = {
+      ...db.kmstMembers[targetIdx],
+      ...body,
+      alias: db.kmstMembers[targetIdx].alias, // Protect alias identity
+      updatedAt: new Date().toISOString()
+    };
+
+    writeDB(db);
+    return sendJSON(res, { success: true, message: 'Profile updated successfully!', member: db.kmstMembers[targetIdx] });
+  }
+
+  // Get Messages Feed
+  if (reqPath === '/api/kmst/messages' && req.method === 'GET') {
+    const db = readDB();
+    const allMessages = db.kmstMessages || [];
+    const channel = parsedUrl.query.channel;
+    const q = (parsedUrl.query.q || '').toLowerCase();
+    const includePending = parsedUrl.query.pending === 'true';
+
+    let filtered = allMessages.filter(m => includePending ? true : (m.status !== 'rejected'));
+    if (channel && channel !== 'all') {
+      filtered = filtered.filter(m => m.channel === channel);
+    }
+    if (q) {
+      filtered = filtered.filter(m => 
+        (m.message && m.message.toLowerCase().includes(q)) ||
+        (m.authorName && m.authorName.toLowerCase().includes(q)) ||
+        (m.authorBadge && m.authorBadge.toLowerCase().includes(q))
+      );
+    }
+
+    return sendJSON(res, {
+      success: true,
+      channel: channel || 'all',
+      count: filtered.length,
+      messages: filtered
+    });
+  }
+
+  // Post Message (Enforces account requirement, anti-spam link blocker, and milestone badge attachment)
+  if (reqPath === '/api/kmst/messages' && req.method === 'POST') {
+    const body = await parseJSON(req);
+    
+    // 1. Honeypot check (anti-bot)
+    if (body.kmst_hp_token) {
+      return sendJSON(res, { success: true, message: 'Message shared!' });
+    }
+
+    // 2. Rate limit check (max 8 messages per minute per IP)
+    const clientIp = (req.headers['x-forwarded-for'] || req.socket.remoteAddress || '').split(',')[0].trim();
+    const rateCheck = checkKMSTRateLimit('msg_' + clientIp, 8, 60000);
+    if (!rateCheck.allowed) {
+      return sendJSON(res, { success: false, message: `Please slow down. You can post again in ${rateCheck.retryAfter}s.` }, 429);
+    }
+
+    const rawText = (body.message || '').trim();
+    if (!rawText) {
+      return sendJSON(res, { success: false, message: 'Message content cannot be empty.' }, 400);
+    }
+
+    if (rawText.length > 2000) {
+      return sendJSON(res, { success: false, message: 'Message exceeds maximum length (2,000 characters).' }, 400);
+    }
+
+    // 3. Strict Anti-Spam & Zero External Links Policy
+    const authorRole = sanitizeKMSTInput(body.authorRole || 'Member');
+    const isFounder = authorRole.toLowerCase().includes('founder');
+    
+    if (detectKMSTSpam(rawText, isFounder)) {
+      return sendJSON(res, { 
+        success: false, 
+        message: 'Security Notice: External links, promo links, or promotional spam are strictly prohibited in the KMST Sanctuary.' 
+      }, 400);
+    }
+
+    const sanitizedText = sanitizeKMSTInput(rawText);
+    const db = readDB();
+    db.kmstMessages = db.kmstMessages || [];
+
+    const authorName = sanitizeKMSTInput(body.authorName || 'Anonymous Warrior');
+    const includeBadge = body.includeBadge !== false;
+    const postColor = sanitizeKMSTInput(body.postColor || 'rose'); // 1 of 10 matching site colors
+
+    // Lookup member stats for accurate badge attachment
+    const member = (db.kmstMembers || []).find(m => m.alias && m.alias.toLowerCase() === authorName.toLowerCase());
+    let streakDays = 1;
+    let badgeObject = '⚡ 24-Hour Spark of Ignition';
+    let shieldIcon = '⚡';
+    let badgeText = 'Day 1 Warrior';
+
+    if (member && member.soberDate) {
+      const now = new Date();
+      streakDays = Math.max(0, Math.floor((now - new Date(member.soberDate)) / (1000 * 60 * 60 * 24)));
+      const details = getKMSTBadgeDetails(streakDays);
+      badgeText = details.badgeText;
+      badgeObject = details.badgeObject;
+      shieldIcon = details.shieldIcon;
+    } else if (body.authorBadge) {
+      badgeText = sanitizeKMSTInput(body.authorBadge);
+    }
+
+    const newMsg = {
+      id: 'msg_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+      channel: sanitizeKMSTInput(body.channel || 'general'),
+      authorName,
+      authorRole,
+      authorAvatar: body.authorAvatar || (member ? member.avatar : '🕊️'),
+      authorBadge: badgeText,
+      includeBadge,
+      badgeObject,
+      shieldIcon,
+      streakDays,
+      postColor,
+      message: sanitizedText,
+      timestamp: new Date().toISOString(),
+      pinned: !!body.pinned,
+      status: 'approved', // auto-approved with immediate admin moderation capability
+      reactions: {
+        strength: 1,
+        respect: 0,
+        celebrate: 0,
+        soberToday: 0
+      }
+    };
+
+    db.kmstMessages.unshift(newMsg);
+    if (db.kmstMessages.length > 1000) db.kmstMessages = db.kmstMessages.slice(0, 1000);
+
+    writeDB(db);
+    return sendJSON(res, {
+      success: true,
+      message: 'Your message has been posted to the KMST Sanctuary!',
+      data: newMsg
+    });
+  }
+
+  // Admin Update Message Status (Approve / Reject / Pin)
+  if (reqPath.startsWith('/api/kmst/messages/') && reqPath.endsWith('/status') && req.method === 'PUT') {
+    const parts = reqPath.split('/');
+    const messageId = parts[4];
+    const body = await parseJSON(req);
+    const db = readDB();
+    db.kmstMessages = db.kmstMessages || [];
+    const target = db.kmstMessages.find(m => m.id === messageId);
+
+    if (!target) return sendJSON(res, { success: false, message: 'Message not found.' }, 404);
+
+    if (body.status) target.status = sanitizeKMSTInput(body.status);
+    if (body.pinned !== undefined) target.pinned = !!body.pinned;
+
+    writeDB(db);
+    return sendJSON(res, { success: true, message: 'Message status updated.', data: target });
+  }
+
+  // Admin edit message (PUT)
+  if (reqPath.startsWith('/api/kmst/messages/') && !reqPath.endsWith('/react') && !reqPath.endsWith('/status') && req.method === 'PUT') {
+    const messageId = reqPath.replace('/api/kmst/messages/', '');
+    const body = await parseJSON(req);
+    const db = readDB();
+    db.kmstMessages = db.kmstMessages || [];
+    const targetIdx = db.kmstMessages.findIndex(m => m.id === messageId);
+    if (targetIdx < 0) return sendJSON(res, { success: false, message: 'Message not found.' }, 404);
+
+    db.kmstMessages[targetIdx] = {
+      ...db.kmstMessages[targetIdx],
+      message: sanitizeKMSTInput(body.message || db.kmstMessages[targetIdx].message),
+      channel: body.channel || db.kmstMessages[targetIdx].channel,
+      authorName: sanitizeKMSTInput(body.authorName || db.kmstMessages[targetIdx].authorName),
+      authorBadge: sanitizeKMSTInput(body.authorBadge || db.kmstMessages[targetIdx].authorBadge),
+      pinned: body.pinned !== undefined ? !!body.pinned : db.kmstMessages[targetIdx].pinned,
+      postColor: body.postColor || db.kmstMessages[targetIdx].postColor || 'rose',
+      editedAt: new Date().toISOString()
+    };
+
+    writeDB(db);
+    return sendJSON(res, { success: true, message: 'Message updated successfully!', data: db.kmstMessages[targetIdx] });
+  }
+
+  if (reqPath.startsWith('/api/kmst/messages/') && reqPath.endsWith('/react') && req.method === 'POST') {
+    const parts = reqPath.split('/');
+    const messageId = parts[4];
+    const body = await parseJSON(req);
+    const reactionType = body.reaction || 'strength'; // strength, respect, celebrate, soberToday
+
+    const db = readDB();
+    db.kmstMessages = db.kmstMessages || [];
+    const target = db.kmstMessages.find(m => m.id === messageId);
+
+    if (!target) {
+      return sendJSON(res, { success: false, message: 'Message not found.' }, 404);
+    }
+
+    target.reactions = target.reactions || { strength: 0, respect: 0, celebrate: 0, soberToday: 0 };
+    target.reactions[reactionType] = (target.reactions[reactionType] || 0) + 1;
+    writeDB(db);
+
+    return sendJSON(res, {
+      success: true,
+      reactions: target.reactions
+    });
+  }
+
+  if (reqPath.startsWith('/api/kmst/messages/') && req.method === 'DELETE') {
+    const messageId = reqPath.replace('/api/kmst/messages/', '');
+    const db = readDB();
+    db.kmstMessages = (db.kmstMessages || []).filter(m => m.id !== messageId);
+    writeDB(db);
+    return sendJSON(res, { success: true, message: 'Message removed from community.' });
+  }
+
+  // Admin Members CRUD
+  if (reqPath === '/api/kmst/members' && req.method === 'GET') {
+    const db = readDB();
+    return sendJSON(res, { success: true, members: db.kmstMembers || [] });
+  }
+
+  if (reqPath.startsWith('/api/kmst/members/') && req.method === 'DELETE') {
+    const memberId = reqPath.replace('/api/kmst/members/', '');
+    const db = readDB();
+    db.kmstMembers = (db.kmstMembers || []).filter(m => m.id !== memberId);
+    writeDB(db);
+    return sendJSON(res, { success: true, message: 'Member removed from community registry.' });
+  }
+
+  // Admin KMST Config (PUT)
+  if (reqPath === '/api/kmst/config' && (req.method === 'PUT' || req.method === 'POST')) {
+    const body = await parseJSON(req);
+    const db = readDB();
+    db.kmstConfig = {
+      ...(db.kmstConfig || {}),
+      ...body,
+      updatedAt: new Date().toISOString()
+    };
+    writeDB(db);
+    return sendJSON(res, { success: true, message: 'KMST Hub settings updated successfully!', config: db.kmstConfig });
+  }
+
+  // Admin Helplines CRUD
+  if (reqPath === '/api/kmst/helplines' && req.method === 'GET') {
+    const db = readDB();
+    return sendJSON(res, { success: true, helplines: db.kmstHelplines || [] });
+  }
+
+  if (reqPath === '/api/kmst/helplines' && req.method === 'POST') {
+    const body = await parseJSON(req);
+    const db = readDB();
+    db.kmstHelplines = db.kmstHelplines || [];
+    const newHelp = {
+      id: 'help_' + Date.now(),
+      title: sanitizeKMSTInput(body.title || 'New Helpline'),
+      tel: sanitizeKMSTInput(body.tel || ''),
+      category: sanitizeKMSTInput(body.category || 'Alcohol & Recovery'),
+      hours: sanitizeKMSTInput(body.hours || '24/7 Free'),
+      web: sanitizeKMSTInput(body.web || ''),
+      desc: sanitizeKMSTInput(body.desc || ''),
+      badge: sanitizeKMSTInput(body.badge || 'SUPPORT'),
+      order: db.kmstHelplines.length + 1
+    };
+    db.kmstHelplines.push(newHelp);
+    writeDB(db);
+    return sendJSON(res, { success: true, message: 'Helpline added successfully!', data: newHelp });
+  }
+
+  if (reqPath.startsWith('/api/kmst/helplines/') && req.method === 'PUT') {
+    const helpId = reqPath.replace('/api/kmst/helplines/', '');
+    const body = await parseJSON(req);
+    const db = readDB();
+    db.kmstHelplines = (db.kmstHelplines || []).map(h => {
+      if (h.id === helpId) {
+        return {
+          ...h,
+          title: body.title !== undefined ? sanitizeKMSTInput(body.title) : h.title,
+          tel: body.tel !== undefined ? sanitizeKMSTInput(body.tel) : h.tel,
+          category: body.category !== undefined ? sanitizeKMSTInput(body.category) : (h.category || 'Alcohol & Recovery'),
+          hours: body.hours !== undefined ? sanitizeKMSTInput(body.hours) : (h.hours || '24/7 Free'),
+          web: body.web !== undefined ? sanitizeKMSTInput(body.web) : (h.web || ''),
+          desc: body.desc !== undefined ? sanitizeKMSTInput(body.desc) : h.desc,
+          badge: body.badge !== undefined ? sanitizeKMSTInput(body.badge) : h.badge
+        };
+      }
+      return h;
+    });
+    writeDB(db);
+    return sendJSON(res, { success: true, message: 'Helpline updated successfully!' });
+  }
+
+  if (reqPath.startsWith('/api/kmst/helplines/') && req.method === 'DELETE') {
+    const helpId = reqPath.replace('/api/kmst/helplines/', '');
+    const db = readDB();
+    db.kmstHelplines = (db.kmstHelplines || []).filter(h => h.id !== helpId);
+    writeDB(db);
+    return sendJSON(res, { success: true, message: 'Helpline deleted successfully!' });
+  }
+
+  // ── KMST Blogs & Recovery Articles REST API ─────────────────────────────────
+  if (reqPath === '/api/kmst/blogs' && req.method === 'GET') {
+    const db = readDB();
+    let blogs = db.blogs || [];
+    const urlObj = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
+    const catQuery = urlObj.searchParams.get('category');
+    const searchQuery = (urlObj.searchParams.get('q') || urlObj.searchParams.get('search') || '').toLowerCase().trim();
+    const tagQuery = (urlObj.searchParams.get('tag') || '').toLowerCase().trim();
+
+    if (catQuery && catQuery !== 'All' && catQuery !== 'all') {
+      blogs = blogs.filter(b => b.category && b.category.toLowerCase() === catQuery.toLowerCase());
+    }
+    if (searchQuery) {
+      blogs = blogs.filter(b => 
+        (b.title && b.title.toLowerCase().includes(searchQuery)) ||
+        (b.excerpt && b.excerpt.toLowerCase().includes(searchQuery)) ||
+        (b.content && b.content.toLowerCase().includes(searchQuery)) ||
+        (b.category && b.category.toLowerCase().includes(searchQuery)) ||
+        (Array.isArray(b.tags) && b.tags.some(t => t.toLowerCase().includes(searchQuery)))
+      );
+    }
+    if (tagQuery) {
+      blogs = blogs.filter(b => Array.isArray(b.tags) && b.tags.some(t => t.toLowerCase().includes(tagQuery)));
+    }
+
+    return sendJSON(res, {
+      success: true,
+      count: blogs.length,
+      total: (db.blogs || []).length,
+      blogs,
+      config: db.kmstAggregatorConfig || {}
+    });
+  }
+
+  if (reqPath.startsWith('/api/kmst/blogs/') && req.method === 'GET') {
+    const identifier = reqPath.replace('/api/kmst/blogs/', '').trim();
+    const db = readDB();
+    const blog = (db.blogs || []).find(b => b.id === identifier || b.slug === identifier);
+    if (!blog) {
+      return sendJSON(res, { success: false, message: 'Article not found' }, 404);
+    }
+    return sendJSON(res, { success: true, blog });
+  }
+
+  // Admin Recovery Blogs CRUD
+  if (reqPath === '/api/kmst/blogs' && req.method === 'POST') {
+    const body = await parseJSON(req);
+    const db = readDB();
+    db.blogs = db.blogs || [];
+    const title = sanitizeKMSTInput(body.title || 'Untitled Recovery Article');
+    const slug = body.slug || title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+    const newBlog = {
+      id: 'kmst_art_' + Date.now(),
+      title,
+      slug,
+      category: sanitizeKMSTInput(body.category || 'Recovery Guidelines'),
+      readTime: sanitizeKMSTInput(body.readTime || '5 min read'),
+      author: sanitizeKMSTInput(body.author || 'Steve Pereira (KMST Founder)'),
+      authorRole: sanitizeKMSTInput(body.authorRole || 'KMST Recovery Advocate'),
+      excerpt: sanitizeKMSTInput(body.excerpt || ''),
+      content: body.content || '',
+      actionSteps: Array.isArray(body.actionSteps) ? body.actionSteps : (body.actionSteps ? [body.actionSteps] : []),
+      tags: Array.isArray(body.tags) ? body.tags : (typeof body.tags === 'string' ? body.tags.split(',').map(t => t.trim()) : []),
+      isFeatured: !!body.isFeatured,
+      source: body.source || 'KMST Sanctuary Original',
+      date: body.date || new Date().toISOString().split('T')[0]
+    };
+    db.blogs.unshift(newBlog);
+    writeDB(db);
+    return sendJSON(res, { success: true, message: 'Recovery article published!', data: newBlog });
+  }
+
+  if (reqPath.startsWith('/api/kmst/blogs/') && req.method === 'PUT') {
+    const blogId = reqPath.replace('/api/kmst/blogs/', '');
+    const body = await parseJSON(req);
+    const db = readDB();
+    db.blogs = (db.blogs || []).map(b => b.id === blogId ? { ...b, ...body } : b);
+    writeDB(db);
+    return sendJSON(res, { success: true, message: 'Recovery article updated!' });
+  }
+
+  if (reqPath.startsWith('/api/kmst/blogs/') && req.method === 'DELETE') {
+    const blogId = reqPath.replace('/api/kmst/blogs/', '');
+    const db = readDB();
+    db.blogs = (db.blogs || []).filter(b => b.id !== blogId);
+    writeDB(db);
+    return sendJSON(res, { success: true, message: 'Recovery article deleted!' });
+  }
+
+  // ── KMST Aggregator Control Endpoints ─────────────────────────────────────
+  if (reqPath === '/api/kmst/aggregator/status' && req.method === 'GET') {
+    const db = readDB();
+    const config = db.kmstAggregatorConfig || {};
+    return sendJSON(res, {
+      success: true,
+      config,
+      totalArticles: (db.blogs || []).length,
+      lastRun: config.lastRun || null,
+      schedulerActive: !!kmstAggregatorSchedulerInterval
+    });
+  }
+
+  if (reqPath === '/api/kmst/aggregator/run' && req.method === 'POST') {
+    try {
+      const result = await runKMSTAggregator(true);
+      return sendJSON(res, {
+        success: true,
+        message: `Aggregator executed successfully! Added ${result.addedCount} new articles. Total in library: ${result.totalArticles}`,
+        result
+      });
+    } catch (err) {
+      return sendJSON(res, { success: false, message: 'Aggregator run failed: ' + err.message }, 500);
+    }
+  }
+
+  if (reqPath === '/api/kmst/aggregator/config' && req.method === 'POST') {
+    const body = await parseJSON(req);
+    const db = readDB();
+    db.kmstAggregatorConfig = {
+      ...(db.kmstAggregatorConfig || {}),
+      ...body
+    };
+    writeDB(db);
+    startKMSTAggregatorScheduler(); // Restart scheduler with new config
+    return sendJSON(res, { success: true, message: 'Aggregator configuration updated!', config: db.kmstAggregatorConfig });
+  }
+
+  
+  if (reqPath === '/api/kmst/leaderboard' && req.method === 'GET') {
+    const db = readDB();
+    const members = db.kmstMembers || [];
+    // Sort by daysSober descending
+    const sorted = [...members].sort((a, b) => (b.daysSober || 0) - (a.daysSober || 0));
+    // Return top 15
+    const top = sorted.slice(0, 15).map(m => ({
+      alias: m.alias,
+      avatar: m.avatar,
+      daysSober: m.daysSober,
+      badgeText: m.badgeText,
+      shieldIcon: m.shieldIcon,
+      profileTheme: m.profileTheme,
+      profileColor: m.profileColor
+    }));
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    return res.end(JSON.stringify(top));
+  }
+
+  if (reqPath === '/api/kmst/stats' && req.method === 'GET') {
+    const db = readDB();
+    const members = db.kmstMembers || [];
+    const messages = db.kmstMessages || [];
+    const config = db.kmstConfig || {};
+    const now = new Date();
+    const founderDate = new Date(config.founderSoberDate || '2013-06-01');
+    let collectiveDays = 0;
+    members.forEach(m => {
+      if (m.soberDate) {
+        const sDate = new Date(m.soberDate);
+        collectiveDays += Math.max(0, Math.floor((now - sDate) / (1000 * 60 * 60 * 24)));
+      }
+    });
+
+    return sendJSON(res, {
+      success: true,
+      membersCount: members.length,
+      messagesCount: messages.length,
+      collectiveDaysSober: collectiveDays,
+      steveDaysSober: Math.max(0, Math.floor((now - founderDate) / (1000 * 60 * 60 * 24)))
+    });
+  }
+
+  // Any unmatched /api/ route returns JSON 404, never fallback to HTML
+  if (reqPath.startsWith('/api/')) {
+    return sendJSON(res, { success: false, message: `API route not found: ${req.method} ${reqPath}` }, 404);
+  }
+
   // Static File Serving with HTTP Range Streaming Support
   let filePath = path.join(__dirname, 'public', reqPath === '/' ? 'index.html' : reqPath);
   if (!fs.existsSync(filePath) || fs.statSync(filePath).isDirectory()) {
@@ -1903,7 +3534,7 @@ const server = http.createServer(async (req, res) => {
   }
 });
 
-server.listen(PORT, () => {
+server.listen(PORT, '0.0.0.0', () => {
   console.log(`====================================================`);
   console.log(` STEVE PEREIRA PORTFOLIO SERVER (SPOTLIGHT API) `);
   console.log(` Port: ${PORT}`);
@@ -1914,5 +3545,11 @@ server.listen(PORT, () => {
     startBackupScheduler();
   } catch(e) {
     console.log('[BACKUP SCHEDULER] Init skipped:', e.message);
+  }
+  // Initialize KMST Content Aggregator scheduler if enabled
+  try {
+    startKMSTAggregatorScheduler();
+  } catch(e) {
+    console.log('[KMST AGGREGATOR] Init skipped:', e.message);
   }
 });

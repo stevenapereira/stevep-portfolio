@@ -222,22 +222,19 @@ body {
   font-family: var(--font-code);
 }
 
-/* Dynamic Photographic Background Layer with Silky GPU Parallax Motion */
+/* Dynamic Photographic Background Layer with Infinite Repeating Seamless Tiles */
 .bw-dynamic-bg {
   position: fixed;
-  top: -30vh;
-  left: 0;
-  right: 0;
+  inset: 0;
   width: 100vw;
-  height: 160vh;
-  background-size: 680px auto;
+  height: 100vh;
+  background-size: var(--bg-scale, 680px auto);
   background-position: center top;
   background-repeat: repeat;
   filter: contrast(var(--bg-contrast, 100%)) brightness(var(--bg-brightness, 0.95));
-  will-change: transform;
+  will-change: background-position;
   pointer-events: none;
-  transform: translate3d(0, 0, 0);
-  transition: background-image 0.5s ease-in-out, filter 0.2s ease, opacity 0.3s ease;
+  transition: background-image 0.4s ease-in-out, filter 0.2s ease, opacity 0.3s ease;
 }
 
 .bg-color-layer {
@@ -316,6 +313,28 @@ body {
 }
 .social-pin-btn.spotlight:hover img {
   filter: drop-shadow(0 0 16px rgba(245,158,11,1)) drop-shadow(0 6px 12px rgba(0,0,0,0.6));
+}
+
+/* === AUTHENTIC PHOENIX EMBLEM RADIANT GOLDEN GLOW ON HOVER ONLY === */
+.phoenix-gold-glow {
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+  transition: filter 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.group:hover .phoenix-gold-glow,
+.nav-btn:hover .phoenix-gold-glow,
+.phoenix-gold-glow:hover {
+  filter: drop-shadow(0 0 10px rgba(245, 158, 11, 1)) drop-shadow(0 0 20px rgba(251, 191, 36, 0.85)) drop-shadow(0 0 30px rgba(245, 158, 11, 0.55));
+}
+
+.nav-btn .phoenix-nav-icon {
+  width: 28px !important;
+  height: 28px !important;
+  min-width: 28px !important;
+  min-height: 28px !important;
+  object-fit: contain !important;
+  flex-shrink: 0 !important;
+  display: inline-block !important;
 }
 
 /* === NAV BUTTON DOUBLE-LINE SIZING & VIVID GLOW HOVER === */
@@ -1135,3 +1154,146 @@ p, h1, h2, h3, h4, span, td, th {
   box-shadow: 0 8px 30px -4px rgba(217, 70, 239, 0.35), inset 0 0 20px rgba(217, 70, 239, 0.12);
   transform: translateX(4px);
 }
+
+/* ==========================================================================
+   SNAKING LIFELINE & HEARTBEAT TIMELINE SYSTEM
+   ========================================================================== */
+
+/* Lifeline Container with Tighter Vertical Rhythm */
+.lifeline-timeline-container {
+  position: relative;
+  overflow: visible;
+}
+
+/* Animated Lifeline ECG Pulse Path */
+.lifeline-track-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+  overflow: visible;
+}
+
+.lifeline-glow-path {
+  fill: none;
+  stroke: url(#lifelineGradient);
+  stroke-width: 3.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 0 8px rgba(244, 63, 94, 0.7)) drop-shadow(0 0 3px rgba(251, 191, 36, 0.8));
+}
+
+.lifeline-pulse-wave {
+  fill: none;
+  stroke: #ffffff;
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-dasharray: 20 280;
+  stroke-dashoffset: 0;
+  filter: drop-shadow(0 0 10px #ffffff) drop-shadow(0 0 16px rgba(244, 63, 94, 1));
+  animation: lifelineWaveAnim 4.5s linear infinite;
+}
+
+@keyframes lifelineWaveAnim {
+  0% {
+    stroke-dashoffset: 1200;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* Lifeline Heartbeat Pulse Ring */
+.lifeline-node-container {
+  position: relative;
+  z-index: 10;
+}
+
+.lifeline-heartbeat-ring {
+  position: absolute;
+  inset: -6px;
+  border-radius: 9999px;
+  border: 2px solid rgba(244, 63, 94, 0.5);
+  animation: lifelineHeartbeat 2.2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  pointer-events: none;
+}
+
+.lifeline-heartbeat-ring-outer {
+  position: absolute;
+  inset: -12px;
+  border-radius: 9999px;
+  border: 1px solid rgba(251, 191, 36, 0.35);
+  animation: lifelineHeartbeat 2.2s cubic-bezier(0.4, 0, 0.6, 1) 0.5s infinite;
+  pointer-events: none;
+}
+
+@keyframes lifelineHeartbeat {
+  0% {
+    transform: scale(0.85);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.35);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+}
+
+/* Compact Tighter Timeline Card Styles */
+.lifeline-card {
+  transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  background: rgba(10, 15, 30, 0.88);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.lifeline-card:hover {
+  transform: translateY(-2.5px) scale(1.015);
+  background: rgba(15, 23, 42, 0.96);
+  box-shadow: 0 14px 30px -8px rgba(0, 0, 0, 0.85), 0 0 20px rgba(244, 63, 94, 0.25) !important;
+}
+
+/* Horizontal Connector Line from Snake Spine to Card */
+.lifeline-connector {
+  position: absolute;
+  top: 50%;
+  height: 2px;
+  background: linear-gradient(90deg, rgba(244, 63, 94, 0.6), rgba(251, 191, 36, 0.8));
+  filter: drop-shadow(0 0 4px rgba(244, 63, 94, 0.8));
+  z-index: 5;
+  transition: all 0.3s ease;
+}
+
+/* ==========================================================================
+   GLOBAL STICKY SUB-MENUS & SEARCH FILTER BARS
+   ========================================================================== */
+.sticky-page-filter-bar {
+  position: sticky;
+  top: 106px;
+  z-index: 35;
+  background: rgba(10, 15, 30, 0.96) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 14px 35px -6px rgba(0, 0, 0, 0.9), 0 0 20px rgba(0, 0, 0, 0.5);
+  transition: top 0.2s ease, box-shadow 0.25s ease;
+}
+
+@media (min-width: 640px) {
+  .sticky-page-filter-bar {
+    top: 114px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .sticky-page-filter-bar {
+    top: 120px;
+  }
+}
+
+
